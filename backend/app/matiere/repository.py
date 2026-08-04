@@ -40,3 +40,10 @@ class SubjectRepository:
     async def list_all_matiere(self) -> list[SubjectOut]:
         stmt = await self.db.execute(select(Subject))
         return stmt.scalars().all()
+
+    async def get_by_classe(self, classe_id: UUID | str):
+        normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
+        stmt = await self.db.execute(
+            select(Subject).where(Subject.classe_id == normalized)
+        )
+        return stmt.scalars().all()

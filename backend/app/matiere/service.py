@@ -11,7 +11,7 @@ class SubjectService:
     def __init__(self, repo: SubjectRepository):
         self.repo = repo
 
-    async def _get_subject_by_id(self, id: UUID | str) -> SubjectOut:
+    async def get_subject_by_id(self, id: UUID | str) -> SubjectOut:
         matiere = await self.repo.get_by_id(id)
         if matiere is None:
             raise HTTPException(
@@ -19,7 +19,9 @@ class SubjectService:
             )
         return matiere
 
-    async def create_new_subject(self, request: SubjectCreate) -> SubjectOut:
+    async def create_new_subject(
+        self, classe_id: str, request: SubjectCreate
+    ) -> SubjectOut:
         if await self.repo.get_by_name(request.name) is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -29,7 +31,7 @@ class SubjectService:
             "name": request.name,
             "description": request.description,
             "coefficient": request.coefficient,
-            "classe_id": request.classe_id,
+            "classe_id": UUID(classe_id),
             "semester": request.semester,
         }
         try:
@@ -46,7 +48,7 @@ class SubjectService:
     async def update_subject(
         self, id: UUID | str, request: SubjectCreate
     ) -> SubjectOut:
-        matiere = await self._get_subject_by_id(id)
+        matiere = await self.get_subject_by_id(id)
 
         data = {
             "name": request.name,
@@ -58,6 +60,9 @@ class SubjectService:
         return await self.repo.update(matiere, data)
 
     async def delete_subject(self, id: UUID | str) -> bool:
-        matiere = await self._get_subject_by_id(id)
+        matiere = await self.get_subject_by_id(id)
         await self.repo.delete(matiere)
         return True
+
+    async def get_by_class(self, classe_id: str):
+        return await self.repo.get_by_classe(classe_id)

@@ -8,7 +8,6 @@ class SubjectCreate(BaseModel):
     description: str
     coefficient: int
     semester: str
-    classe_id: UUID | str
 
 
 class SubjectOut(SubjectCreate):

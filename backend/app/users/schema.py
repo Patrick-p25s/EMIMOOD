@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     phone_number: str
     email: EmailStr
     password: str
+    code_invitation: str
 
 
 class UpdateProfile(BaseModel):
@@ -29,4 +30,12 @@ class UserOut(UserCreate):
     create_at: datetime
     update_at: datetime
 
+    model_config = {"from_attributes": True}
+
+
+class UserRead(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: str
+    email: EmailStr
     model_config = {"from_attributes": True}

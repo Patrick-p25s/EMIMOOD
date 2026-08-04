@@ -38,7 +38,7 @@ class UserRepository:
         await self.db.commit()
 
     async def list_all(self) -> list[UserOut]:
-        stmt = await self.db.execute(select(Users))
+        stmt = await self.db.execute(select(Users).where(Users.role != "admin"))
         return stmt.scalars().all()
 
     async def count(self) -> int:
