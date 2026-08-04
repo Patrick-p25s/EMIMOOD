@@ -2,8 +2,9 @@ import enum as PyEnum
 
 from app.core.base_model import UuidStamp
 from app.core.database import Base
-from sqlalchemy import Enum, String
+from sqlalchemy import Enum, String, ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
+from app.classes.model import Classe
 
 
 class UserRole(str, PyEnum.Enum):
@@ -22,4 +23,7 @@ class Users(Base, UuidStamp):
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole), default=UserRole.student, nullable=False
+    )
+    classe_id: Mapped["Classe"] = mapped_column(
+        Uuid, ForeignKey("classe.id", ondelete="CASCADE"), nullable=True, index=True
     )

@@ -3,7 +3,7 @@ import enum as PyEnum
 from app.core.base_model import UuidStamp
 from app.core.database import Base
 from app.years.model import YearUniv
-from sqlalchemy import Enum, ForeignKey, Uuid
+from sqlalchemy import Enum, ForeignKey, Uuid, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -30,6 +30,9 @@ class Classe(Base, UuidStamp):
     )
     niveau: Mapped[Niveau] = mapped_column(
         Enum(Niveau), default=Niveau.L1.value, nullable=False
+    )
+    code_invitation: Mapped[str] = mapped_column(
+        String(10), unique=True, index=True, nullable=False
     )
     year_id: Mapped["YearUniv"] = mapped_column(
         Uuid, ForeignKey("year_univ.id", ondelete="CASCADE"), nullable=False, index=True

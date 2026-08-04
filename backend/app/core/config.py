@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@emimood.com"
     ADMIN_PASSWORD: str = "password"
     AUTOCREATE_TABLE: bool = True
+    MAX_UPLOAD_SIZE_MB: int = 20
+    UPLOAD_DIR: str = "uploads"
 
 
 setting = Settings()
