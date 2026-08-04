@@ -54,7 +54,6 @@ class SubjectService:
             "name": request.name,
             "description": request.description,
             "coefficient": request.coefficient,
-            "classe_id": request.classe_id,
             "semester": request.semester,
         }
         return await self.repo.update(matiere, data)

@@ -67,5 +67,5 @@ async def delete_subject(
 @router.get("/{classe_id}/classe", response_model=list[SubjectOut])
 async def get_Subject_by_classe(
     classe_id: str, service: SubjectService = Depends(get_Subject_service)
-) -> SubjectOut:
-    return await service.get_subject_by_id(classe_id)
+) -> list[SubjectOut]:
+    return await service.get_by_class(classe_id)

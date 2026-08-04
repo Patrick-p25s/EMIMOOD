@@ -9,6 +9,7 @@ from app.auth.model import RefreshSession
 from app.years.model import YearUniv
 from app.classes.model import Classe
 from app.matiere.model import Subject
+from app.documents.model import Document
 
 from sqlalchemy import pool
 
