@@ -37,6 +37,10 @@ class UserRepository:
         await self.db.delete(user)
         await self.db.commit()
 
+    async def list_all(self) -> list[UserOut]:
+        stmt = await self.db.execute(select(Users))
+        return stmt.scalars().all()
+
     async def count(self) -> int:
         result = await self.db.execute(select(func.count()).select_from(Users))
         return result.scalar_one()

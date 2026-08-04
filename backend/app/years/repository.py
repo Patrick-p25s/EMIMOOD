@@ -36,3 +36,7 @@ class YearRepository:
     async def count(self) -> int:
         result = await self.db.execute(select(func.count()).select_from(YearUniv))
         return result.scalar_one()
+
+    async def list_all_year(self):
+        stmt = await self.db.execute(select(YearUniv))
+        return stmt.scalars().all()

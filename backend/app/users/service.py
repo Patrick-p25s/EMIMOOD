@@ -49,6 +49,9 @@ class UserService:
         data = {"password_hash": hash_password(request.new_password)}
         return await self.user_repo.update(user, data)
 
+    async def get_all_users(self):
+        return await self.user_repo.list_all()
+
     async def delete_user(self, id: UUID | str, requester_id: UUID):
         user = await self._get_user_by_id(id)
         if user.id != requester_id:

@@ -46,10 +46,18 @@ async def update_my_profile(
     return await service.update_password(user.id, request)
 
 
-@router.delete("/delete/{id}")
+@router.delete("/{id}")
 async def delete_user(
     id: str,
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ):
     return await service.delete_user(id=id, requester_id=user.id)
+
+
+@router.get("/all")
+async def delete_user(
+    user: Users = Depends(require_admin),
+    service: UserService = Depends(_get_user_service),
+):
+    return await service.get_all_users()
