@@ -1,8 +1,9 @@
-from app.core.database import Base
-from app.core.base_model import UuidStamp
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Uuid, String, Enum
 import enum as PyEnum
+
+from app.core.base_model import UuidStamp
+from app.core.database import Base
+from sqlalchemy import Enum, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class UserRole(str, PyEnum.Enum):

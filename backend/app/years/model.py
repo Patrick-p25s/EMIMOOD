@@ -1,8 +1,9 @@
-from app.core.database import Base
-from app.core.base_model import UuidStamp
-from sqlalchemy import DateTime, Boolean, String
-from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+
+from app.core.base_model import UuidStamp
+from app.core.database import Base
+from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class YearUniv(Base, UuidStamp):

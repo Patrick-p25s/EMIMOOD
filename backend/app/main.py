@@ -1,16 +1,16 @@
 import logging
-import contextlib
-import asyncio
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.core.config import setting
-from app.core.database import engine, Base, SessionLocal
+
+from fastapi import FastAPI
+
+from app.auth.router import router as auth_router
+from app.classes.router import router as classe_router
 from app.core.bootstrap_db import ensure_admin_user1
+from app.core.config import setting
+from app.core.database import Base, SessionLocal, engine
 from app.core.logging import configure_logging
 from app.users.router import router as user_router
-from app.auth.router import router as auth_router
 from app.years.router import router as year_router
-from app.classes.router import router as classe_router
 
 configure_logging()
 logger = logging.getLogger(__name__)

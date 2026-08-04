@@ -1,8 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
-from app.core.database import Base
-from app.core.base_model import UuidStamp
 from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class YearCreate(BaseModel):

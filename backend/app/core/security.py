@@ -1,10 +1,10 @@
-from passlib.context import CryptContext
-from datetime import datetime, timedelta, timezone, UTC
-from app.core.config import setting
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 import jwt
+from app.core.config import setting
 from jwt.exceptions import InvalidTokenError
-from uuid import uuid4
+from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 

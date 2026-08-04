@@ -8,7 +8,7 @@ class YearService:
     def __init__(self, repo: YearRepository):
         self.repo = repo
 
-    async def get_year_by_id(self, id: UUID | str):
+    async def get_year_by_id(self, id: UUID | str) -> YearOut:
         year = await self.repo.get_by_id(year_id=id)
         if year is None:
             raise HTTPException(
@@ -16,7 +16,7 @@ class YearService:
             )
         return year
 
-    async def get_all_year(self):
+    async def get_all_year(self) -> list[YearOut]:
         return await self.repo.list_all_year()
 
     async def create_year(self, request: YearCreate) -> YearOut:

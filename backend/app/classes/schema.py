@@ -1,7 +1,8 @@
+from datetime import datetime
+from uuid import UUID
+
 from app.classes.model import Mention, Niveau
 from pydantic import BaseModel
-from uuid import UUID
-from datetime import datetime
 
 
 class ClasseCreate(BaseModel):

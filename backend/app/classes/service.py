@@ -9,7 +9,7 @@ class ClasseService:
         self.year_repo = year_repo
         self.class_repo = class_repo
 
-    async def create_classe(self, request: ClasseCreate):
+    async def create_classe(self, request: ClasseCreate) -> ClasseOut:
         year = await self.year_repo.get_activate_year()
         if year is None:
             raise HTTPException(
