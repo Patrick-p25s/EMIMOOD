@@ -10,7 +10,7 @@ class UserService:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
 
-    async def _get_user_by_id(self, id: UUID | str, request: UpdatePassword):
+    async def _get_user_by_id(self, id: UUID | str):
         user = await self.user_repo.get_by_id(user_id=id)
         if user is None:
             raise HTTPException(

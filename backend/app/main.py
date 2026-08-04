@@ -10,6 +10,7 @@ from app.core.logging import configure_logging
 from app.users.router import router as user_router
 from app.auth.router import router as auth_router
 from app.years.router import router as year_router
+from app.classes.router import router as classe_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -51,3 +52,4 @@ def index():
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(year_router)
+app.include_router(classe_router)

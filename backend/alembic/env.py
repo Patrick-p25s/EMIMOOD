@@ -7,6 +7,7 @@ from app.core.database import Base
 from app.users.model import Users
 from app.auth.model import RefreshSession
 from app.years.model import YearUniv
+from app.classes.model import Classe
 
 from sqlalchemy import pool
 

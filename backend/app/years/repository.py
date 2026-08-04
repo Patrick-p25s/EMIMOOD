@@ -15,6 +15,10 @@ class YearRepository:
         stmt = await self.db.execute(select(YearUniv).where(YearUniv.id == normalized))
         return stmt.scalar_one_or_none()
 
+    async def get_activate_year(self):
+        stmt = await self.db.execute(select(YearUniv).where(YearUniv.is_active == True))
+        return stmt.scalar_one_or_none()
+
     async def create(self, data: dict) -> YearOut:
         year = YearUniv(**data)
         self.db.add(year)

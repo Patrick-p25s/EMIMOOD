@@ -1,10 +1,10 @@
+from app.core.database import get_db
+from app.core.dependencies import require_admin
+from app.years.repository import YearRepository
+from app.years.schema import YearCreate
+from app.years.service import YearService
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.database import get_db
-from app.years.repository import YearRepository
-from app.years.service import YearService
-from app.years.schema import YearOut, YearCreate
-from app.core.dependencies import require_admin
 
 
 def get_year_service(db: AsyncSession = Depends(get_db)) -> YearService:
@@ -36,10 +36,9 @@ async def get_year(id: str, service: YearService = Depends(get_year_service)):
 
 
 @router.patch("/{id}")
-async def activate_or_desactivate(
-    id: str, service: YearService = Depends(get_year_service)
-):
-    return await service.activate_or_desactivate_year(id)
+async def active_one_year(id: str, service: YearService = Depends(get_year_service)):
+    print("Bonjour Patrick")
+    return await service.activate_year(id)
 
 
 @router.delete("/{id}")

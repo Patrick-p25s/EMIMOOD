@@ -33,7 +33,17 @@ class YearService:
         await self.repo.delete(year=year)
         return True
 
-    async def activate_or_desactivate_year(self, id: UUID | str):
-        year = self.get_year_by_id(id)
-        data = {"is_active": not year.is_active}
-        return await self.repo.update(year, data)
+    async def activate_year(self, id: UUID | str) -> bool:
+        years = await self.get_all_year()
+
+        target_found = False
+        for year in years:
+            if str(year.id) != str(id):
+                print("active", year.id)
+                await self.repo.update(year, {"is_active": False})
+
+            else:
+                print("Desactive", year.id)
+                await self.repo.update(year, {"is_active": True})
+                target_found = True
+        return target_found

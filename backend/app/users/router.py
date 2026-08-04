@@ -25,6 +25,7 @@ async def register(
 
 @router.get("/me")
 def get_my_profile(user: UserOut = Depends(get_current_user)):
+    print("Test de flush")
     return user
 
 
