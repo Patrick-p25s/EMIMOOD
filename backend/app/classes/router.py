@@ -11,7 +11,7 @@ def get_classe_service(db: AsyncSession = Depends(get_db)) -> ClasseService:
     return ClasseService(YearRepository(db), ClasseRepository(db))
 
 
-router = APIRouter(prefix="/classe", tags=["Classe router"])
+router = APIRouter(prefix="/classes", tags=["Classe router"])
 
 
 @router.post("/create", response_model=ClasseOut)

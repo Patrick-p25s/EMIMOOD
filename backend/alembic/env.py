@@ -8,6 +8,7 @@ from app.users.model import Users
 from app.auth.model import RefreshSession
 from app.years.model import YearUniv
 from app.classes.model import Classe
+from app.matiere.model import Subject
 
 from sqlalchemy import pool
 
