@@ -11,6 +11,7 @@ from app.auth.schema import (
     LogoutResponse,
     RefreshRequest,
 )
+from app.core.limiter import limiter
 from app.auth.service import AuthService
 from app.users.repository import UserRepository
 
@@ -27,6 +28,7 @@ def _get_service(db: AsyncSession = Depends(get_db)) -> AuthService:
     summary="Login",
     description="Authenticate with email/password and return access + refresh tokens.",
 )
+@limiter.limit("5/minute")
 async def login(
     request: Request,
     form_data: LoginRequest,
@@ -66,7 +68,9 @@ async def swagger_login(
     summary="Refresh tokens",
     description="Rotate refresh session and return new access + refresh tokens.",
 )
-async def refresh(payload: RefreshRequest, service: AuthService = Depends(_get_service)):
+async def refresh(
+    payload: RefreshRequest, service: AuthService = Depends(_get_service)
+):
     return await service.refresh(payload)
 
 

@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "my_secret"
     EXPIRES_MINUTES_TOKEN: int = 10
     EXPIRES_DAYS_TOKEN: int = 2
+    ADMIN_NAME: str = "admin"
+    ADMIN_EMAIL: str = "admin@emimood.com"
+    ADMIN_PASSWORD: str = "password"
+    AUTOCREATE_TABLE: bool = True
 
 
 setting = Settings()
