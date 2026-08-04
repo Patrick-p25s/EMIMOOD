@@ -1,10 +1,10 @@
-from app.core.database import Base
-from app.core.base_model import UuidStamp
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Uuid, String, Enum, ForeignKey
-from uuid import UUID
 import enum as PyEnum
+
+from app.core.base_model import UuidStamp
+from app.core.database import Base
 from app.years.model import YearUniv
+from sqlalchemy import Enum, ForeignKey, Uuid
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Mention(str, PyEnum.Enum):

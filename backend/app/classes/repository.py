@@ -1,8 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.classes.schema import ClasseCreate, ClasseOut
-from app.classes.model import Classe
 from uuid import UUID
+
+from app.classes.model import Classe
+from app.classes.schema import ClasseOut
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ClasseRepository:
@@ -36,6 +37,6 @@ class ClasseRepository:
         await self.db.delete(year)
         await self.db.commit()
 
-    async def list_all_year(self):
+    async def list_all_year(self) -> list[ClasseOut]:
         stmt = await self.db.execute(select(Classe))
         return stmt.scalars().all()

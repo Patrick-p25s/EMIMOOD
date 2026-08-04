@@ -1,11 +1,10 @@
 import logging
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.config import setting
 from app.core.security import hash_password
-from app.users.model import Users, UserRole
+from app.users.model import UserRole, Users
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 _FALLBACK_ADMIN_EMAIL = "patrick@emimood.app"
