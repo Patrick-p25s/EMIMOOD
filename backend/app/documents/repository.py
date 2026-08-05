@@ -3,6 +3,7 @@ from uuid import UUID
 from app.documents.model import Document, DocumentStatus, DocumentType
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.matiere.model import Subject
 
 
 class DocumentRepository:
@@ -29,6 +30,24 @@ class DocumentRepository:
         await self.db.commit()
         await self.db.refresh(document)
         return document
+
+    async def list_by_owner(self, owner_id: UUID | str):
+        result = await self.db.execute(
+            select(Document).where(Document.owner_id == owner_id)
+        )
+        return result.scalars().all()
+
+    async def get_pending_by_classe(self, classe_id: UUID) -> list[Document]:
+        """Documents en attente, restreints à une classe précise (usage modérateur)."""
+        result = await self.db.execute(
+            select(Document)
+            .join(Subject, Subject.id == Document.matiere_id)
+            .where(
+                Document.statut == DocumentStatus.en_attente,
+                Subject.classe_id == classe_id,
+            )
+        )
+        return result.scalars().all()
 
     async def delete(self, matiere: Document) -> None:
         await self.db.delete(matiere)

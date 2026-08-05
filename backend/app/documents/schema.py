@@ -27,3 +27,10 @@ class DocumentOut(BaseModel):
     update_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DocumentUpdate(BaseModel):
+    titre: str | None = None
+    description: str | None = None
+    date_limite: datetime | None = None
+    type_document: DocumentType | None = None

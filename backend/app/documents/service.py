@@ -2,17 +2,15 @@ from uuid import UUID
 
 from app.documents.model import Document, DocumentStatus, DocumentType
 from app.documents.repository import DocumentRepository
-from app.documents.schema import DocumentCreate
+from app.documents.schema import DocumentCreate, DocumentUpdate
 from app.documents.storage import save_upload_file
 from app.matiere.repository import SubjectRepository
 from app.sauvegarde.repository import SauvegardeRepository
-from app.users.model import Users, UserRole
+from app.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
 
 
 class DocumentService:
-    """Service gérant la logique métier des documents (création, consultation, modération et sauvegardes)."""
-
     def __init__(
         self,
         document_repo: DocumentRepository,
@@ -23,9 +21,6 @@ class DocumentService:
         self.subject_repo = subject_repo
         self.save_repo = save_repo
 
-    # ------------------------------------------------------------------
-    # Méthodes Privées / Utilitaires
-    # ------------------------------------------------------------------
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
             return True
@@ -41,6 +36,20 @@ class DocumentService:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Document introuvable")
         return document
 
+    async def _moderateur_gere_ce_document(
+        self, document: Document, current_user: Users
+    ) -> bool:
+        matiere = await self.subject_repo.get_by_id(document.matiere_id)
+        return matiere.classe_id == current_user.classe_id
+
+    def _est_moderateur_de_ce_document(
+        self, document: Document, current_user: Users, matiere
+    ) -> bool:
+        return (
+            current_user.role == UserRole.moderateur
+            and matiere.classe_id == current_user.classe_id
+        )
+
     async def get_document_by_id(
         self, document_id: UUID, current_user: Users
     ) -> Document:
@@ -49,10 +58,6 @@ class DocumentService:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
         return document
 
-    # ------------------------------------------------------------------
-    # Création et Téléchargement
-    # ------------------------------------------------------------------
-
     async def create_document(
         self,
         matiere_id: UUID,
@@ -60,12 +65,6 @@ class DocumentService:
         request: DocumentCreate,
         file: UploadFile,
     ) -> Document:
-        """Crée un document, sauvegarde son fichier physique et définit son statut initial.
-
-        Raises:
-            HTTPException: 404 si la matière n'existe pas.
-            HTTPException: 400 si la date limite est appliquée à un mauvais type.
-        """
         matiere = await self.subject_repo.get_by_id(matiere_id)
         if matiere is None:
             raise HTTPException(
@@ -84,18 +83,17 @@ class DocumentService:
 
         fichier_path, taille_octets = await save_upload_file(file)
 
-        if (
-            current_user.role in (UserRole.moderateur, UserRole.administrateur)
-            and request.proposer_publiquement
-        ):
-            statut = DocumentStatus.public.value
+        if current_user.role in (UserRole.moderateur, UserRole.administrateur):
+            statut = DocumentStatus.public
         elif request.proposer_publiquement:
-            statut = DocumentStatus.en_attente.value
+            statut = DocumentStatus.en_attente
         else:
-            statut = DocumentStatus.prive.value
+            statut = DocumentStatus.prive
 
         data = {
             "titre": request.titre,
+            "description": request.description,
+            "date_limite": request.date_limite,
             "type_document": request.type_document,
             "statut": statut,
             "fichier_path": fichier_path,
@@ -103,109 +101,108 @@ class DocumentService:
             "taille_octets": taille_octets,
             "owner_id": current_user.id,
             "matiere_id": matiere_id,
+            "validated_by_id": current_user.id
+            if statut == DocumentStatus.public
+            else None,
         }
         return await self.document_repo.create(data)
 
-    async def telecharger_document(self, document_id: UUID, user: Users) -> Document:
-        """Récupère les informations d'un document pour son téléchargement si l'accès est autorisé.
-
-        Raises:
-            HTTPException: 403 si l'utilisateur n'a pas accès au document.
-        """
-        document = await self.get_document_or_404(document_id)
-        if not self._peut_acceder(document, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Accès refusé",
-            )
+    async def telecharger_document(
+        self, document_id: UUID, current_user: Users
+    ) -> Document:
+        document = await self._get_document_or_404(document_id)
+        if not self._peut_acceder(document, current_user):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
         return document
 
-    # ------------------------------------------------------------------
-    # Lectures et Recherches
-    # ------------------------------------------------------------------
-
     async def list_by_matiere_public(self, matiere_id: UUID) -> list[Document]:
-        """Liste tous les documents publics associés à une matière."""
         return await self.document_repo.list_public_by_matiere(matiere_id)
 
-    async def get_all_public_docs(self) -> list[Document]:
-        """Récupère la totalité des documents publics."""
-        return await self.document_repo.get_all_public()
-
     async def get_document_by_type(self, doc_type: DocumentType) -> list[Document]:
-        """Filtre les documents selon leur type (ex: Cours, TD)."""
         return await self.document_repo.get_by_type(doc_type)
 
-    async def get_all_pending_docs(self) -> list[Document]:
-        """Récupère la liste des documents en attente de modération."""
-        return await self.document_repo.get_pending()
+    async def get_mes_documents(self, current_user: Users) -> list[Document]:
+        """Liste tous les documents de l'utilisateur connecté, peu importe leur statut."""
+        return await self.document_repo.list_by_owner(current_user.id)
+
+    async def get_all_pending_docs(self, current_user: Users) -> list[Document]:
+        if current_user.role == UserRole.administrateur:
+            return await self.document_repo.get_pending()
+        if current_user.role == UserRole.moderateur:
+            return await self.document_repo.get_pending_by_classe(
+                current_user.classe_id
+            )
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, "Action réservée aux modérateurs"
+        )
 
     # ------------------------------------------------------------------
     # Actions Utilisateur (Favoris / Dashboard)
     # ------------------------------------------------------------------
 
-    async def enregistrer_document(self, document_id: UUID, user_id: UUID) -> None:
-        """Ajoute un document aux sauvegardes/favoris d'un utilisateur.
+    async def enregistrer_document(
+        self, document_id: UUID, current_user: Users
+    ) -> None:
+        document = await self._get_document_or_404(document_id)
+        if not self._peut_acceder(document, current_user):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
 
-        Raises:
-            HTTPException: 403 si l'utilisateur n'a pas accès au document.
-            HTTPException: 400 si le document est déjà sauvegardé.
-        """
-        document = await self.get_document_or_404(document_id)
-
-        # Pour la vérification d'accès, on simule l'objet owner
-        if not (
-            document.statut == DocumentStatus.public or document.owner_id == user_id
-        ):
+        if await self.save_repo.exists(current_user.id, document_id):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Accès refusé",
+                status.HTTP_400_BAD_REQUEST,
+                "Document déjà présent dans votre dashboard",
             )
 
-        deja_enregistre = await self.save_repo.exists(user_id, document_id)
-        if deja_enregistre:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Document déjà présent dans votre dashboard",
-            )
-
-        await self.save_repo.create({"user_id": user_id, "document_id": document_id})
+        await self.save_repo.create(
+            {"user_id": current_user.id, "document_id": document_id}
+        )
 
     # ------------------------------------------------------------------
     # Modération (Admin / Modérateur)
     # ------------------------------------------------------------------
 
-    async def valide_document(self, document_id: UUID, validator_id: UUID) -> Document:
-        """Valide un document en attente pour le rendre public."""
-        document = await self.get_document_or_404(document_id)
-
-        if document.statut != DocumentStatus.en_attente.value:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Document n'est pas en attente",
-            )
-        return await self.document_repo.update(
-            document,
-            {
-                "statut": DocumentStatus.public.value,
-                "validated_by_id": validator_id,
-            },
+    async def _verifier_droit_moderation(
+        self, document: Document, current_user: Users
+    ) -> None:
+        if current_user.role == UserRole.administrateur:
+            return
+        if (
+            current_user.role == UserRole.moderateur
+            and await self._moderateur_gere_ce_document(document, current_user)
+        ):
+            return
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, "Action réservée au modérateur de cette classe"
         )
 
-    async def rejeter_document(self, document_id: UUID, rejector_id: UUID) -> Document:
-        """Rejette un document soumis à la publication."""
-        document = await self.get_document_or_404(document_id)
-        if document.statut != DocumentStatus.en_attente.value:
+    async def valide_document(self, document_id: UUID, current_user: Users) -> Document:
+        document = await self._get_document_or_404(document_id)
+        await self._verifier_droit_moderation(document, current_user)
+
+        if document.statut != DocumentStatus.en_attente:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Document n'est pas en attente",
+                status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
             )
+
         return await self.document_repo.update(
             document,
-            {
-                "statut": DocumentStatus.rejete.value,
-                "validated_by_id": rejector_id,
-            },
+            {"statut": DocumentStatus.public, "validated_by_id": current_user.id},
+        )
+
+    async def rejeter_document(
+        self, document_id: UUID, current_user: Users
+    ) -> Document:
+        document = await self._get_document_or_404(document_id)
+        await self._verifier_droit_moderation(document, current_user)
+
+        if document.statut != DocumentStatus.en_attente:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
+            )
+
+        return await self.document_repo.update(
+            document,
+            {"statut": DocumentStatus.rejete, "validated_by_id": current_user.id},
         )
 
     async def delete_document(self, document_id: UUID, current_user: Users) -> None:
@@ -228,8 +225,27 @@ class DocumentService:
 
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Suppression non autorisée")
 
-    async def _moderateur_gere_ce_document(
-        self, document: Document, current_user: Users
-    ) -> bool:
-        matiere = await self.subject_repo.get_by_id(document.matiere_id)
-        return matiere.classe_id == current_user.classe_id
+    async def update_document(
+        self, document_id: UUID, current_user: Users, request: DocumentUpdate
+    ) -> Document:
+        document = await self._get_document_or_404(document_id)
+
+        est_proprietaire = document.owner_id == current_user.id
+        est_admin = current_user.role == UserRole.administrateur
+        est_moderateur_autorise = (
+            current_user.role == UserRole.moderateur
+            and await self._moderateur_gere_ce_document(document, current_user)
+        )
+
+        if not (est_proprietaire or est_admin or est_moderateur_autorise):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Modification non autorisée")
+
+        data = request.model_dump(exclude_unset=True)
+
+        # Un propriétaire qui modifie un document déjà tranché doit repasser par la modération
+        if est_proprietaire and not (est_admin or est_moderateur_autorise):
+            if document.statut in (DocumentStatus.public, DocumentStatus.rejete):
+                data["statut"] = DocumentStatus.en_attente
+                data["validated_by_id"] = None
+
+        return await self.document_repo.update(document, data)

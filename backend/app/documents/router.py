@@ -4,7 +4,12 @@ from datetime import datetime
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_moderator
 from app.documents.repository import DocumentRepository
-from app.documents.schema import DocumentCreate, DocumentOut, DocumentType
+from app.documents.schema import (
+    DocumentCreate,
+    DocumentOut,
+    DocumentType,
+    DocumentUpdate,
+)
 from app.documents.service import DocumentService
 from app.sauvegarde.repository import SauvegardeRepository
 from app.matiere.repository import SubjectRepository
@@ -87,6 +92,7 @@ async def list_all_public_docs(
 )
 async def list_documents_by_matiere(
     matiere_id: UUID,
+    user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.list_by_matiere_public(matiere_id)
@@ -166,3 +172,13 @@ async def delete_document(
     service: DocumentService = Depends(get_document_service),
 ):
     return await service.delete_document(document_id, user)
+
+
+@router.patch("/{id}", response_model=DocumentOut)
+async def update_document(
+    id: UUID,
+    request: DocumentUpdate,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> DocumentOut:
+    return await service.update_document(id, current_user, request)
