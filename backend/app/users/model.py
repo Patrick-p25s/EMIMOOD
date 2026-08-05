@@ -4,6 +4,7 @@ from app.core.base_model import UuidStamp
 from app.core.database import Base
 from sqlalchemy import Enum, String, ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.classes.model import Classe
 from typing import Optional
 

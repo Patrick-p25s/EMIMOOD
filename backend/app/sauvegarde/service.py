@@ -10,6 +10,9 @@ class SauvegardeService:
     async def get_all_my_document(self, owner_id: UUID):
         return await self.repo.list_documents_for_user(owner_id)
 
+    async def get_my_docs_by_id(self, owner_id: UUID, document_id: UUID | str):
+        return await self.repo.get_by_id(owner_id, document_id)
+
     async def delete_document(self, owner_id: UUID, document_id: str | UUID):
         sauvegarde = await self.repo.get_by_id(owner_id, document_id)
         if sauvegarde is None:

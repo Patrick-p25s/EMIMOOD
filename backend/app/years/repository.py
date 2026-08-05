@@ -4,6 +4,7 @@ from app.years.model import YearUniv
 from app.years.schema import YearOut
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.classes.model import Classe
 
 
 class YearRepository:
@@ -43,4 +44,8 @@ class YearRepository:
 
     async def list_all_year(self):
         stmt = await self.db.execute(select(YearUniv))
+        return stmt.scalars().all()
+
+    async def get_all_classe(self, year_id: UUID):
+        stmt = await self.db.execute(select(Classe).where(Classe.year_id == year_id))
         return stmt.scalars().all()

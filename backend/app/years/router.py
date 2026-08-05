@@ -9,6 +9,7 @@ from app.core.dependencies import require_admin
 from app.years.repository import YearRepository
 from app.years.schema import YearCreate, YearOut
 from app.years.service import YearService
+from app.users.model import Users
 
 
 def get_year_service(db: AsyncSession = Depends(get_db)) -> YearService:
@@ -31,6 +32,7 @@ router = APIRouter(
 )
 async def create_year(
     request: YearCreate,
+    user: Users = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> YearOut:
     return await service.create_year(request=request)
@@ -43,6 +45,7 @@ async def create_year(
     description="Récupère la liste de toutes les années académiques enregistrées (Accès réservé aux administrateurs).",
 )
 async def get_all_year(
+    user: Users = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> List[YearOut]:
     return await service.get_all_year()
@@ -69,6 +72,7 @@ async def get_year(
 )
 async def active_one_year(
     id: UUID,
+    user: Users = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> YearOut:
     return await service.activate_year(id)
@@ -82,7 +86,16 @@ async def active_one_year(
 )
 async def delete_year(
     id: UUID,
+    user: Users = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> None:
     await service.delete_year(id)
     return None
+
+
+@router.get("/{year_id}/classes")
+async def get_all_classes(
+    year_id: UUID,
+    service: YearService = Depends(get_year_service),
+):
+    return await service.get_all_classe(year_id)

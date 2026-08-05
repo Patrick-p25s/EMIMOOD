@@ -47,3 +47,6 @@ class YearService:
                 await self.repo.update(year, {"is_active": True})
                 target_found = True
         return target_found
+
+    async def get_all_classe(self, year_id: UUID):
+        return await self.repo.get_all_classe(year_id)

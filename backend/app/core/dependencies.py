@@ -57,7 +57,7 @@ def require_admin(user=Depends(get_current_user)):
 
 def require_moderator(user=Depends(get_current_user)):
     user_role = user.role.value if isinstance(user.role, UserRole) else str(user.role)
-    if user_role != UserRole.moderator.value:
+    if user_role != UserRole.moderator.value or user_role != UserRole.admin.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Moderator access required"
         )

@@ -4,7 +4,7 @@ from app.classes.repository import ClasseRepository
 from app.classes.schema import ClasseCreate, ClasseOut
 from app.classes.service import ClasseService
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_admin
+from app.core.dependencies import get_current_user, require_admin, require_moderator
 from app.users.model import Users
 from app.years.repository import YearRepository
 from fastapi import APIRouter, Depends, status
@@ -41,7 +41,7 @@ async def create_classe(
 )
 async def get_all_classe(
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(get_current_user),
+    user: Users = Depends(require_admin),
 ) -> list[ClasseOut]:
     return await service.get_all_classes()
 
@@ -54,7 +54,7 @@ async def get_all_classe(
 )
 async def regenerate_code(
     id: UUID,
-    current_user: Users = Depends(require_admin),
+    current_user: Users = Depends(require_moderator),
     service: ClasseService = Depends(get_classe_service),
 ) -> ClasseOut:
     return await service.regenerate_invitation_code(id)
@@ -84,7 +84,7 @@ async def update_classe_by_id(
     id: UUID,
     request: ClasseCreate,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
 ) -> ClasseOut:
     return await service.update_classe(id, request)
 
@@ -108,5 +108,5 @@ async def list_all_student(
     classe_id: UUID,
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
-) -> None:
+):
     await service.get_all_student(classe_id)

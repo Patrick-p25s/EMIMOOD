@@ -50,7 +50,7 @@ async def create_document(
         type_document=type_document,
         proposer_publiquement=proposer_publiquement,
     )
-    return await service.create_document(matiere_id, current_user.id, request, file)
+    return await service.create_document(matiere_id, current_user, request, file)
 
 
 @router.get(
@@ -80,7 +80,7 @@ async def list_all_public_docs(
 
 
 @router.get(
-    "/matiere/{matiere_id}",
+    "/public/{matiere_id}",
     response_model=list[DocumentOut],
     summary="Lister les documents par matière",
     description="Récupère les documents publics associés à une matière spécifique.",
@@ -157,3 +157,12 @@ async def get_documents_by_type(
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.get_document_by_type(type)
+
+
+@router.delete("/{document_id}/delete")
+async def delete_document(
+    document_id: UUID,
+    user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.delete_document(document_id, user)

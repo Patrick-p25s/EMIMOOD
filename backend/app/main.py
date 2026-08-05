@@ -1,6 +1,5 @@
 import logging
 from contextlib import asynccontextmanager
-from textwrap import dedent
 
 from fastapi import FastAPI
 
@@ -67,22 +66,9 @@ tags_metadata = [
     },
 ]
 
-description_text = dedent("""\
-    Bienvenue sur la documentation officielle de l'API **EmiMood**.
-
-    Cette API gère l'ensemble de l'écosystème EmiMood :
-    * **Authentification sécurisée** par jetons JWT (Access & Refresh tokens).
-    * **Gestion académique** (Années académiques, Classes, Matières).
-    * **Partage documentaire** (Publication, modération par les modérateurs/admins, téléchargement).
-    * **Tableau de bord personnalisé** pour les sauvegardes des étudiants.
-
-    ---
-    *Remarque : Les routes nécessitant une authentification requièrent d'ajouter le jeton dans le bouton **Authorize** ci-dessous.*
-""")
 
 app = FastAPI(
     title="EmiMood API Documentation",
-    description=description_text,
     version="1.0.0",
     openapi_tags=tags_metadata,
     lifespan=lifespan,
@@ -90,10 +76,10 @@ app = FastAPI(
 )
 
 # Inclusion des routeurs
-app.include_router(auth_router)
-app.include_router(user_router)
 app.include_router(year_router)
 app.include_router(classe_router)
+app.include_router(auth_router)
+app.include_router(user_router)
 app.include_router(subject_router)
 app.include_router(docs_router)
 app.include_router(save_router)
