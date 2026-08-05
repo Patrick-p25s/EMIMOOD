@@ -3,6 +3,7 @@ from uuid import UUID
 from app.classes.model import Classe
 from app.classes.schema import ClasseOut
 from sqlalchemy import select
+from app.users.model import Users, UserRole
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -46,3 +47,11 @@ class ClasseRepository:
     async def list_all_classe(self) -> list[ClasseOut]:
         stmt = await self.db.execute(select(Classe))
         return stmt.scalars().all()
+
+    async def get_all_student(self, classe_id: UUID):
+        result = await self.db.execute(
+            select(Users)
+            .where(Users.classe_id == classe_id)
+            .where(Users.role == UserRole.student.value)
+        )
+        return result.scalars().all()

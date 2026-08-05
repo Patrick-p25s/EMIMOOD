@@ -4,6 +4,7 @@ from app.users.model import Users
 from app.users.schema import UserOut
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.classes.model import Classe
 
 
 class UserRepository:
@@ -44,3 +45,12 @@ class UserRepository:
     async def count(self) -> int:
         result = await self.db.execute(select(func.count()).select_from(Users))
         return result.scalar_one()
+
+    async def get_user_classe(self, user_id: UUID):
+        stmt = (
+            select(Classe)
+            .join(Users, Users.classe_id == Classe.id)
+            .where(Users.id == user_id)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()

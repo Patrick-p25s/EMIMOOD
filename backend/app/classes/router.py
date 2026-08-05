@@ -101,3 +101,12 @@ async def delete_one_classe(
     user: Users = Depends(require_admin),
 ) -> None:
     await service.delete_classe(id)
+
+
+@router.get("/students/{classe_id}")
+async def list_all_student(
+    classe_id: UUID,
+    service: ClasseService = Depends(get_classe_service),
+    user: Users = Depends(get_current_user),
+) -> None:
+    await service.get_all_student(classe_id)

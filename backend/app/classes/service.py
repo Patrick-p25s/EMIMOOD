@@ -72,3 +72,6 @@ class ClasseService:
 
         new_code = await self._generate_invitation_code()
         return await self.class_repo.update(classe, {"code_invitation": new_code})
+
+    async def get_all_student(self, classe_id: UUID):
+        return await self.class_repo.get_all_student(classe_id)

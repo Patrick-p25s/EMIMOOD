@@ -3,8 +3,9 @@ import enum as PyEnum
 from app.core.base_model import UuidStamp
 from app.core.database import Base
 from sqlalchemy import Enum, String, ForeignKey, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.classes.model import Classe
+from typing import Optional
 
 
 class UserRole(str, PyEnum.Enum):
@@ -26,4 +27,8 @@ class Users(Base, UuidStamp):
     )
     classe_id: Mapped["Classe"] = mapped_column(
         Uuid, ForeignKey("classe.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+
+    classe: Mapped[Optional["Classe"]] = relationship(
+        "Classe", back_populates="students"
     )
