@@ -10,7 +10,7 @@ from app.years.model import YearUniv
 from app.classes.model import Classe
 from app.matiere.model import Subject
 from app.documents.model import Document
-
+from app.sauvegarde.model import DocumentSauvegarde
 from sqlalchemy import pool
 
 # Importation pour le moteur asynchrone

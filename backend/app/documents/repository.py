@@ -17,8 +17,9 @@ class DocumentRepository:
         return document
 
     async def get_by_id(self, document_id: UUID) -> Document | None:
+        normalized = document_id if isinstance(document_id, UUID) else UUID(document_id)
         result = await self.db.execute(
-            select(Document).where(Document.id == document_id)
+            select(Document).where(Document.id == normalized)
         )
         return result.scalar_one_or_none()
 

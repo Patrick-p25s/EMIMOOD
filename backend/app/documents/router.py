@@ -9,6 +9,7 @@ from app.matiere.repository import SubjectRepository
 from app.users.model import Users
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import FileResponse
 
 
 def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
@@ -42,3 +43,17 @@ async def list_documents_by_matiere(
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.list_by_matiere(matiere_id)
+
+
+@router.get("/{id}/telecharger")
+async def telecharger(
+    id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    document = await service.telecharger_document(id, current_user)
+    return FileResponse(
+        path=document.fichier_path,
+        filename=document.titre,
+        media_type=document.mime_type,
+    )
