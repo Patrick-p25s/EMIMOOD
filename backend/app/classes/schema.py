@@ -14,5 +14,6 @@ class ClasseOut(ClasseCreate):
     model_config = {"from_attributes": True}
     id: UUID
     year_id: UUID
+    code_invitation: str
     create_at: datetime
     update_at: datetime

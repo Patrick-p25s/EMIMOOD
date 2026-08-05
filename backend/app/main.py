@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from textwrap import dedent
 
 from fastapi import FastAPI
 
@@ -9,11 +10,11 @@ from app.core.bootstrap_db import ensure_admin_user1
 from app.core.config import setting
 from app.core.database import Base, SessionLocal, engine
 from app.core.logging import configure_logging
+from app.documents.router import router as docs_router
+from app.matiere.router import router as subject_router
+from app.sauvegarde.router import router as save_router
 from app.users.router import router as user_router
 from app.years.router import router as year_router
-from app.matiere.router import router as subject_router
-from app.documents.router import router as docs_router
-from app.sauvegarde.router import router as save_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -29,29 +30,66 @@ async def lifespan(_: FastAPI):
         try:
             await ensure_admin_user1(session)
         except Exception:
-            # Journalise : sans cela, un echec ici laisse demarrer l'app sans
-            # administrateur, et toutes les routes admin repondent 403 sans
-            # que rien n'indique pourquoi.
-            logger.exception("Echec de creation de l'administrateur au demarrage")
+            logger.exception("Échec de la création de l'administrateur au démarrage")
             await session.rollback()
-
-    # worker_task = asyncio.create_task(_run_code_expiry_worker())
 
     yield
 
-    # worker_task.cancel()
-    # with contextlib.suppress(asyncio.CancelledError):
-    #     await worker_task
 
+tags_metadata = [
+    {
+        "name": "Authentification & Jetons",
+        "description": "Gestion des accès, création et rafraîchissement des tokens JWT.",
+    },
+    {
+        "name": "Gestion des Utilisateurs",
+        "description": "Inscription, gestion des profils et administration des comptes.",
+    },
+    {
+        "name": "Gestion des Années Académiques",
+        "description": "Administration des années universitaires et activation des sessions.",
+    },
+    {
+        "name": "Gestion des Classes",
+        "description": "Gestion des parcours, classes et codes d'invitation.",
+    },
+    {
+        "name": "Gestion des Matières",
+        "description": "Organisation des unités d'enseignement rattachées aux classes.",
+    },
+    {
+        "name": "Gestion des Documents",
+        "description": "Publication, modération (validation/rejet) et téléchargement des cours/examens.",
+    },
+    {
+        "name": "Sauvegardes & Tableau de bord",
+        "description": "Espace personnel des étudiants pour la mise en favoris des documents.",
+    },
+]
 
-app = FastAPI(lifespan=lifespan)
+description_text = dedent("""\
+    Bienvenue sur la documentation officielle de l'API **EmiMood**.
 
+    Cette API gère l'ensemble de l'écosystème EmiMood :
+    * **Authentification sécurisée** par jetons JWT (Access & Refresh tokens).
+    * **Gestion académique** (Années académiques, Classes, Matières).
+    * **Partage documentaire** (Publication, modération par les modérateurs/admins, téléchargement).
+    * **Tableau de bord personnalisé** pour les sauvegardes des étudiants.
 
-@app.get("/")
-def index():
-    return {"message": f"{setting.ADMIN_EMAIL} {setting.ADMIN_PASSWORD}"}
+    ---
+    *Remarque : Les routes nécessitant une authentification requièrent d'ajouter le jeton dans le bouton **Authorize** ci-dessous.*
+""")
 
+app = FastAPI(
+    title="EmiMood API Documentation",
+    description=description_text,
+    version="1.0.0",
+    openapi_tags=tags_metadata,
+    lifespan=lifespan,
+    swagger_ui_parameters={"persistAuthorization": True},
+)
 
+# Inclusion des routeurs
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(year_router)

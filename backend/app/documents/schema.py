@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class DocumentCreate(BaseModel):
     titre: str
     type_document: DocumentType
+    date_limite: datetime
     proposer_publiquement: bool = False
 
 

@@ -31,7 +31,7 @@ class SubjectService:
             "name": request.name,
             "description": request.description,
             "coefficient": request.coefficient,
-            "classe_id": UUID(classe_id),
+            "classe_id": classe_id,
             "semester": request.semester,
         }
         try:

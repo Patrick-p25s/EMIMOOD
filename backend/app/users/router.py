@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from app.classes.repository import ClasseRepository
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_admin
 from app.users.model import Users
@@ -10,75 +13,111 @@ from app.users.schema import (
     UserRead,
 )
 from app.users.service import UserService
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.classes.repository import ClasseRepository
 
 
-def _get_user_service(db: AsyncSession = Depends(get_db)):
+def _get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(
         user_repo=UserRepository(db=db), classe_repo=ClasseRepository(db)
     )
 
 
-router = APIRouter(prefix="/user", tags=["Route de l'utilisateur"])
+router = APIRouter(prefix="/users", tags=["Gestion des Utilisateurs"])
 
 
-@router.post("/register", response_model=UserRead)
-async def register(
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Inscrire un nouvel utilisateur",
+    description="Permet l'inscrire d'un compte utilisateur standard (étudiant/candidat).",
+)
+async def register_user(
     request: UserCreate, service: UserService = Depends(_get_user_service)
 ) -> UserRead:
     user = await service.register(request=request)
     return UserRead.model_validate(user)
 
 
-@router.get("/me", response_model=UserRead)
-def get_my_profile(user: UserOut = Depends(get_current_user)) -> UserRead:
+@router.get(
+    "/me",
+    response_model=UserRead,
+    summary="Récupérer mon profil",
+    description="Renvoie les informations de l'utilisateur actuellement connecté.",
+)
+async def get_my_profile(user: Users = Depends(get_current_user)) -> UserRead:
     return UserRead.model_validate(user)
 
 
-@router.put("/update", response_model=UserRead)
+@router.put(
+    "/me",
+    response_model=UserRead,
+    summary="Mettre à jour mon profil",
+    description="Met à jour les informations personnelles du compte connecté.",
+)
 async def update_my_profile(
     request: UpdateProfile,
-    user: UserOut = Depends(get_current_user),
+    user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    user = await service.update_profile(user.id, request)
-    return UserRead.model_validate(user)
+    updated_user = await service.update_profile(user.id, request)
+    return UserRead.model_validate(updated_user)
 
 
-@router.patch("/password", response_model=UserRead)
-async def update_password(
+@router.patch(
+    "/me/password",
+    response_model=UserRead,
+    summary="Changer mon mot de passe",
+    description="Permet à l'utilisateur connecté de modifier son mot de passe.",
+)
+async def update_my_password(
     request: UpdatePassword,
-    user: UserOut = Depends(get_current_user),
+    user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    user = await service.update_password(user.id, request)
-    return UserRead.model_validate(user)
+    updated_user = await service.update_password(user.id, request)
+    return UserRead.model_validate(updated_user)
 
 
-@router.delete("/{id}")
-async def delete_one_user(
-    id: str,
-    user: Users = Depends(require_admin),
-    service: UserService = Depends(_get_user_service),
-) -> bool:
-    return await service.delete_user(id=id, requester_id=user.id)
-
-
-@router.get("/all", response_model=list[UserOut])
-async def get_all_user(
+@router.get(
+    "",
+    response_model=list[UserOut],
+    summary="Lister tous les utilisateurs",
+    description="Récupère la liste globale de tous les utilisateurs inscrits (Réservé aux administrateurs).",
+)
+async def get_all_users(
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ) -> list[UserOut]:
     return await service.get_all_users()
 
 
-@router.post("/create-moderator")
-async def register(
+@router.post(
+    "/moderators",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Créer un compte modérateur",
+    description="Permet à un administrateur de créer un compte avec les privilèges de modérateur.",
+)
+async def create_moderator(
     request: UserCreate,
-    service: UserService = Depends(_get_user_service),
     user: Users = Depends(require_admin),
-) -> UserOut:
-    user = await service.register(request=request)
-    return UserRead.model_validate(user)
+    service: UserService = Depends(_get_user_service),
+) -> UserRead:
+    moderator = await service.create_moderator(request=request)
+    return UserRead.model_validate(moderator)
+
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Supprimer un utilisateur",
+    description="Supprime définitivement un compte utilisateur via son UUID (Réservé aux administrateurs).",
+)
+async def delete_one_user(
+    user_id: UUID,
+    user: Users = Depends(require_admin),
+    service: UserService = Depends(_get_user_service),
+) -> None:
+    await service.delete_user(id=user_id, requester_id=user.id)
