@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_admin, require_moderator
 from app.documents.repository import DocumentRepository
 from app.documents.schema import DocumentCreate, DocumentOut, DocumentType
 from app.documents.service import DocumentService
@@ -42,7 +42,33 @@ async def list_documents_by_matiere(
     matiere_id: UUID,
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
-    return await service.list_by_matiere(matiere_id)
+    return await service.list_by_matiere_public(matiere_id)
+
+
+@router.get("/public")
+async def list_all_public_docs(
+    service: DocumentService = Depends(get_document_service),
+    users: Users = Depends(get_current_user),
+):
+    return await service.get_all_public_docs()
+
+
+@router.get("/{document_id}/valide")
+async def valide_a_document(
+    document_id: str,
+    service: DocumentService = Depends(get_document_service),
+    user: Users = Depends(require_moderator),
+):
+    return await service.valide_document(document_id=document_id, validator_id=user.id)
+
+
+@router.get("/{document_id}/rejete")
+async def valide_a_document(
+    document_id: str,
+    service: DocumentService = Depends(get_document_service),
+    user: Users = Depends(require_moderator),
+):
+    return await service.rejeter_document(document_id=document_id, rejector_id=user.id)
 
 
 @router.get("/{id}/telecharger")
@@ -57,3 +83,20 @@ async def telecharger(
         filename=document.titre,
         media_type=document.mime_type,
     )
+
+
+@router.get("/{type}")
+async def telecharger(
+    type: DocumentType,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_document_by_type(type)
+
+
+@router.get("/pending")
+async def telecharger(
+    current_user: Users = Depends(require_moderator),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_all_pending_docs()

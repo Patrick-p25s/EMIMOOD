@@ -69,8 +69,8 @@ class DocumentService:
         }
         return await self.document_repo.create(data)
 
-    async def list_by_matiere(self, matiere_id: UUID) -> list[Document]:
-        return await self.document_repo.list_by_matiere(matiere_id)
+    async def list_by_matiere_public(self, matiere_id: UUID) -> list[Document]:
+        return await self.document_repo.list_public_by_matiere(matiere_id)
 
     async def enregistrer_document(self, document_id: UUID, user_id: UUID) -> None:
         document = await self.get_document_or_404(document_id)
@@ -92,3 +92,36 @@ class DocumentService:
                 status_code=status.HTTP_403_FORBIDDEN, detail="Accès refusé"
             )
         return document
+
+    async def rejeter_document(self, document_id: str, rejector_id):
+        document = await self.document_repo.get_by_id(document_id)
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="document not found"
+            )
+
+        return await self.document_repo.update(
+            document,
+            {"statut": DocumentStatus.rejete.value, "validated_by_id": rejector_id},
+        )
+
+    async def valide_document(self, document_id: str, validator_id: UUID):
+        document = await self.document_repo.get_by_id(document_id)
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="document not found"
+            )
+
+        return await self.document_repo.update(
+            document,
+            {"statut": DocumentStatus.public.value, "validated_by_id": validator_id},
+        )
+
+    async def get_all_public_docs(self):
+        return await self.document_repo.get_all_public()
+
+    async def get_document_by_type(self, type: DocumentType):
+        return await self.document_repo.get_by_type(type)
+
+    async def get_all_pending_docs(self):
+        return await self.document_repo.get_pending()

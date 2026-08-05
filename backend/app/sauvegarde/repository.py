@@ -18,14 +18,17 @@ class SauvegardeRepository:
         await self.db.refresh(sauvegarde)
         return sauvegarde
 
-    async def exists(self, user_id: UUID, document_id: UUID) -> bool:
+    async def get_by_id(self, owner_id: UUID, document_id: UUID):
         result = await self.db.execute(
             select(DocumentSauvegarde.id).where(
-                DocumentSauvegarde.user_id == user_id,
+                DocumentSauvegarde.user_id == owner_id,
                 DocumentSauvegarde.document_id == document_id,
             )
         )
-        return result.scalar_one_or_none() is not None
+        return result.scalar_one_or_none()
+
+    async def exists(self, user_id: UUID, document_id: UUID) -> bool:
+        return await self.get_by_id(user_id, document_id) is not None
 
     async def get_by_user_and_document(
         self, user_id: UUID, document_id: UUID
