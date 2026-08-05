@@ -26,7 +26,7 @@ class DocumentService:
             return True
         if document.owner_id == current_user.id:
             return True
-        if current_user.role == UserRole.administrateur:
+        if current_user.role == UserRole.admin:
             return True
         return False
 
@@ -46,7 +46,7 @@ class DocumentService:
         self, document: Document, current_user: Users, matiere
     ) -> bool:
         return (
-            current_user.role == UserRole.moderateur
+            current_user.role == UserRole.moderator
             and matiere.classe_id == current_user.classe_id
         )
 
@@ -83,7 +83,7 @@ class DocumentService:
 
         fichier_path, taille_octets = await save_upload_file(file)
 
-        if current_user.role in (UserRole.moderateur, UserRole.administrateur):
+        if current_user.role in (UserRole.moderator, UserRole.admin):
             statut = DocumentStatus.public
         elif request.proposer_publiquement:
             statut = DocumentStatus.en_attente
@@ -126,9 +126,9 @@ class DocumentService:
         return await self.document_repo.list_by_owner(current_user.id)
 
     async def get_all_pending_docs(self, current_user: Users) -> list[Document]:
-        if current_user.role == UserRole.administrateur:
+        if current_user.role == UserRole.admin:
             return await self.document_repo.get_pending()
-        if current_user.role == UserRole.moderateur:
+        if current_user.role == UserRole.moderator:
             return await self.document_repo.get_pending_by_classe(
                 current_user.classe_id
             )
@@ -164,10 +164,10 @@ class DocumentService:
     async def _verifier_droit_moderation(
         self, document: Document, current_user: Users
     ) -> None:
-        if current_user.role == UserRole.administrateur:
+        if current_user.role == UserRole.admin:
             return
         if (
-            current_user.role == UserRole.moderateur
+            current_user.role == UserRole.moderator
             and await self._moderateur_gere_ce_document(document, current_user)
         ):
             return
@@ -209,9 +209,9 @@ class DocumentService:
         document = await self._get_document_or_404(document_id)
 
         est_proprietaire = document.owner_id == current_user.id
-        est_admin = current_user.role == UserRole.administrateur
+        est_admin = current_user.role == UserRole.admin
         est_moderateur_autorise = (
-            current_user.role == UserRole.moderateur
+            current_user.role == UserRole.moderator
             and await self._moderateur_gere_ce_document(document, current_user)
         )
 
@@ -231,9 +231,9 @@ class DocumentService:
         document = await self._get_document_or_404(document_id)
 
         est_proprietaire = document.owner_id == current_user.id
-        est_admin = current_user.role == UserRole.administrateur
+        est_admin = current_user.role == UserRole.admin
         est_moderateur_autorise = (
-            current_user.role == UserRole.moderateur
+            current_user.role == UserRole.moderator
             and await self._moderateur_gere_ce_document(document, current_user)
         )
 

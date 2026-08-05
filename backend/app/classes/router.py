@@ -53,7 +53,7 @@ async def get_all_classe(
     description="Génère un nouveau code d'invitation unique pour la classe spécifiée (Réservé aux administrateurs).",
 )
 async def regenerate_code(
-    id: UUID,
+    id: str,
     current_user: Users = Depends(require_moderator),
     service: ClasseService = Depends(get_classe_service),
 ) -> ClasseOut:
@@ -67,7 +67,7 @@ async def regenerate_code(
     description="Renvoie les détails complets d'une classe via son identifiant UUID.",
 )
 async def get_classe_by_id(
-    id: UUID,
+    id: str,
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
 ) -> ClasseOut:
@@ -81,7 +81,7 @@ async def get_classe_by_id(
     description="Modifie les informations d'une classe existante (Réservé aux administrateurs).",
 )
 async def update_classe_by_id(
-    id: UUID,
+    id: str,
     request: ClasseCreate,
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(require_moderator),
@@ -96,7 +96,7 @@ async def update_classe_by_id(
     description="Supprime définitivement une classe du système (Réservé aux administrateurs).",
 )
 async def delete_one_classe(
-    id: UUID,
+    id: str,
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(require_admin),
 ) -> None:
@@ -105,7 +105,7 @@ async def delete_one_classe(
 
 @router.get("/students/{classe_id}")
 async def list_all_student(
-    classe_id: UUID,
+    classe_id: str,
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
 ):

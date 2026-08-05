@@ -48,10 +48,11 @@ class ClasseRepository:
         stmt = await self.db.execute(select(Classe))
         return stmt.scalars().all()
 
-    async def get_all_student(self, classe_id: UUID):
+    async def get_all_student(self, classe_id: UUID | str):
+        normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
         result = await self.db.execute(
             select(Users)
-            .where(Users.classe_id == classe_id)
+            .where(Users.classe_id == normalized)
             .where(Users.role == UserRole.student.value)
         )
         return result.scalars().all()

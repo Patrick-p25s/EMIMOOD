@@ -31,10 +31,10 @@ class Document(Base, UuidStamp):
     date_limite: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    type_document: Mapped["DocumentType"] = mapped_column(
+    type_document: Mapped[DocumentType] = mapped_column(
         Enum(DocumentType), nullable=False
     )
-    statut: Mapped["DocumentStatus"] = mapped_column(
+    statut: Mapped[DocumentStatus] = mapped_column(
         Enum(DocumentStatus), nullable=False, default=DocumentStatus.prive
     )
 
@@ -45,9 +45,11 @@ class Document(Base, UuidStamp):
     owner_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id"), nullable=False
     )
+
     matiere_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("subject.id"), nullable=False
     )
+
     validated_by_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("users.id"), nullable=True
     )
