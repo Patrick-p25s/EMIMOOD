@@ -14,6 +14,7 @@ from app.matiere.router import router as subject_router
 from app.sauvegarde.router import router as save_router
 from app.users.router import router as user_router
 from app.years.router import router as year_router
+from app.annonce.router import router as annonce_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -83,3 +84,4 @@ app.include_router(user_router)
 app.include_router(subject_router)
 app.include_router(docs_router)
 app.include_router(save_router)
+app.include_router(annonce_router)
