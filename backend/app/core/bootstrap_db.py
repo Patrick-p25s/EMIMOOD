@@ -43,6 +43,7 @@ async def ensure_admin_user1(session: AsyncSession) -> None:
         email=email,
         password_hash=hash_password(password),
         role=UserRole.admin,
+        phone_number="Patrick",
     )
 
     session.add(admin)

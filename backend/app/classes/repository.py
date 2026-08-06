@@ -4,6 +4,8 @@ from app.classes.model import Classe
 from app.classes.schema import ClasseOut
 from sqlalchemy import select
 from app.users.model import Users, UserRole
+from app.matiere.model import Subject
+from app.documents.model import Document
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -53,6 +55,15 @@ class ClasseRepository:
         result = await self.db.execute(
             select(Users)
             .where(Users.classe_id == normalized)
-            .where(Users.role == UserRole.student.value)
+            .where(Users.role == UserRole.student)
         )
         return result.scalars().all()
+
+    async def has_documents(self, classe_id: UUID | str) -> bool:
+        result = await self.db.execute(
+            select(Document.id)
+            .join(Subject, Subject.id == Document.matiere_id)
+            .where(Subject.classe_id == classe_id)
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None

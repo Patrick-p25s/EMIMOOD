@@ -12,6 +12,7 @@ from app.matiere.model import Subject
 from app.documents.model import Document
 from app.sauvegarde.model import DocumentSauvegarde
 from sqlalchemy import pool
+from app.annonce.model import Annonce, AnnonceLecture
 
 # Importation pour le moteur asynchrone
 from sqlalchemy.ext.asyncio import async_engine_from_config

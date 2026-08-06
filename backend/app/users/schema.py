@@ -36,6 +36,6 @@ class UserOut(UserCreate):
 class UserRead(BaseModel):
     first_name: str
     last_name: str
-    phone_number: str
+    phone_number: str | str = None
     email: EmailStr
     model_config = {"from_attributes": True}

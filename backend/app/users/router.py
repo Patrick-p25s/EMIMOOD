@@ -82,7 +82,6 @@ async def update_my_password(
 
 @router.get(
     "",
-    # response_model=list[UserOut],
     summary="Lister tous les utilisateurs",
     description="Récupère la liste globale de tous les utilisateurs inscrits (Réservé aux administrateurs).",
 )
@@ -120,7 +119,7 @@ async def delete_one_user(
     user: Users = Depends(require_moderator),
     service: UserService = Depends(_get_user_service),
 ) -> None:
-    await service.delete_user(id=user_id, requester_id=user.id)
+    return await service.delete_user(id=user_id, requester_id=user.id)
 
 
 @router.get("/classe")
@@ -128,4 +127,4 @@ async def get_user_classe(
     user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_user_classe(user.id)
+    return await service.get_classe_user(user.id)

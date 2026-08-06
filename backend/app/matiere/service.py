@@ -58,8 +58,8 @@ class SubjectService:
         }
         return await self.repo.update(matiere, data)
 
-    async def delete_subject(self, id: UUID | str) -> bool:
-        matiere = await self.get_subject_by_id(id)
+    async def delete_subject(self, subject_id: UUID | str) -> bool:
+        matiere = await self.get_subject_by_id(subject_id)
         await self.repo.delete(matiere)
         return True
 
