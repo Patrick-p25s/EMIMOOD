@@ -3,6 +3,7 @@ from app.modules.classes.repository import ClasseRepository
 from app.modules.classes.model import Classe
 from app.modules.classes.schema import ClasseOut, ClasseCreate
 from fastapi import HTTPException, status
+from app.core.pagination import PaginationParams, make_page, Page
 from uuid import UUID
 import secrets
 
@@ -58,8 +59,8 @@ class ClasseService:
         update_data = {"mention": request.mention, "niveau": request.niveau}
         return await self.classe_repo.update(classe, update_data)
 
-    async def get_all_classes(self):
-        return await self.classe_repo.list_all_classe()
+    async def get_all_classes(self, params: PaginationParams):
+        return await self.classe_repo.list_all_classe(params.offset, params.limit)
 
     async def _generate_invitation_code(self):
         for _ in range(10):
@@ -79,5 +80,7 @@ class ClasseService:
         new_code = await self._generate_invitation_code()
         return await self.classe_repo.update(classe, {"code_invitation": new_code})
 
-    async def get_all_student(self, classe_id: UUID):
-        return await self.classe_repo.get_all_student(classe_id)
+    async def get_all_student(self, classe_id: UUID, params: PaginationParams):
+        return await self.classe_repo.get_all_student(
+            classe_id, params.offset, params.limit
+        )
