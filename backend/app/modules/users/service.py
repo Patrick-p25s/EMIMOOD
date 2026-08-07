@@ -4,7 +4,9 @@ from app.modules.users.schema import UserOut, UserCreate, UpdateProfile, UpdateP
 from app.modules.users.model import Users, UserRole
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password
+from app.core.pagination import PaginationParams
 from fastapi import HTTPException, status
+from app.core.security import verify_password
 from uuid import UUID
 import asyncio
 
@@ -83,11 +85,15 @@ class UserService:
 
     async def update_password(self, id: UUID | str, request: UpdatePassword) -> UserOut:
         user = await self._get_user_by_id(id)
+        if not verify_password(request.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Mot de passe incorrecte"
+            )
         data = {"password_hash": hash_password(request.new_password)}
         return await self.user_repo.update(user, data)
 
-    async def get_all_users(self) -> list[UserOut]:
-        return await self.user_repo.list_all()
+    async def get_all_users(self, params: PaginationParams) -> list[UserOut]:
+        return await self.user_repo.list_all(limit=params.limit, offset=params.limit)
 
     async def delete_user(self, id: UUID | str, requester_id: UUID) -> bool:
         user = await self._get_user_by_id(id)

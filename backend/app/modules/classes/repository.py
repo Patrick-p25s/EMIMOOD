@@ -46,11 +46,11 @@ class ClasseRepository:
         await self.db.delete(classe)
         await self.db.commit()
 
-    async def list_all_classe(self) -> list[ClasseOut]:
-        stmt = await self.db.execute(select(Classe))
+    async def list_all_classe(self, offset: int, limit: int) -> list[ClasseOut]:
+        stmt = await self.db.execute(select(Classe).offset(offset).limit(limit))
         return stmt.scalars().all()
 
-    async def get_all_student(self, classe_id: UUID | str):
+    async def get_all_student(self, classe_id: UUID | str, offset: int, limit: int):
         normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
         result = await self.db.execute(
             select(Users)

@@ -9,6 +9,7 @@ from app.modules.users.model import Users
 from app.modules.years.repository import YearRepository
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.pagination import PaginationParams
 
 
 def get_classe_service(db: AsyncSession = Depends(get_db)) -> ClasseService:
@@ -40,10 +41,11 @@ async def create_classe(
     description="Récupère la liste complète de toutes les classes enregistrées.",
 )
 async def get_all_classe(
+    params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(require_admin),
 ) -> list[ClasseOut]:
-    return await service.get_all_classes()
+    return await service.get_all_classes(params)
 
 
 @router.patch(
@@ -106,7 +108,8 @@ async def delete_one_classe(
 @router.get("/students/{classe_id}")
 async def list_all_student(
     classe_id: str,
+    params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
 ):
-    return await service.get_all_student(classe_id)
+    return await service.get_all_student(classe_id, params)

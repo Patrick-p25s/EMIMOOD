@@ -21,6 +21,7 @@ class UpdateProfile(BaseModel):
 
 
 class UpdatePassword(BaseModel):
+    password: str
     new_password: str
 
 

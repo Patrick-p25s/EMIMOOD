@@ -15,6 +15,7 @@ from app.modules.users.schema import (
 from app.modules.users.service import UserService
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.pagination import PaginationParams
 
 
 def _get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
@@ -86,10 +87,11 @@ async def update_my_password(
     description="Récupère la liste globale de tous les utilisateurs inscrits (Réservé aux administrateurs).",
 )
 async def get_all_users(
+    params: PaginationParams = Depends(),
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_all_users()
+    return await service.get_all_users(params)
 
 
 @router.post(
