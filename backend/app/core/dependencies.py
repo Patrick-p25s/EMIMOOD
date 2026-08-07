@@ -1,7 +1,7 @@
 from app.core.database import get_db
 from app.core.security import decode_token
-from app.users.repository import UserRepository
-from app.users.model import UserRole
+from app.modules.users.repository import UserRepository
+from app.modules.users.model import UserRole
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -2,7 +2,7 @@ import logging
 
 from app.core.config import setting
 from app.core.security import hash_password
-from app.users.model import UserRole, Users
+from app.modules.users.model import UserRole, Users
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

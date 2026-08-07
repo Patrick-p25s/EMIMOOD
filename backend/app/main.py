@@ -3,18 +3,18 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.auth.router import router as auth_router
-from app.classes.router import router as classe_router
+from app.modules.auth.router import router as auth_router
+from app.modules.classes.router import router as classe_router
 from app.core.bootstrap_db import ensure_admin_user1
 from app.core.config import setting
 from app.core.database import Base, SessionLocal, engine
 from app.core.logging import configure_logging
-from app.documents.router import router as docs_router
-from app.matiere.router import router as subject_router
-from app.sauvegarde.router import router as save_router
-from app.users.router import router as user_router
-from app.years.router import router as year_router
-from app.annonce.router import router as annonce_router
+from app.modules.documents.router import router as docs_router
+from app.modules.matiere.router import router as subject_router
+from app.modules.sauvegarde.router import router as save_router
+from app.modules.users.router import router as user_router
+from app.modules.years.router import router as year_router
+from app.modules.annonce.router import router as annonce_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
