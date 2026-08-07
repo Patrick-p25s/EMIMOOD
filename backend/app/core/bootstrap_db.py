@@ -2,7 +2,7 @@ import logging
 
 from app.core.config import setting
 from app.core.security import hash_password
-from app.users.model import UserRole, Users
+from app.modules.users.model import UserRole, Users
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,6 +43,7 @@ async def ensure_admin_user1(session: AsyncSession) -> None:
         email=email,
         password_hash=hash_password(password),
         role=UserRole.admin,
+        phone_number="Patrick",
     )
 
     session.add(admin)

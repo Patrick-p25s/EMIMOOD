@@ -1,7 +1,7 @@
 from app.core.database import get_db
 from app.core.security import decode_token
-from app.users.repository import UserRepository
-from app.users.model import UserRole
+from app.modules.users.repository import UserRepository
+from app.modules.users.model import UserRole
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,8 +57,11 @@ def require_admin(user=Depends(get_current_user)):
 
 def require_moderator(user=Depends(get_current_user)):
     user_role = user.role.value if isinstance(user.role, UserRole) else str(user.role)
-    if user_role != UserRole.moderator.value:
+
+    if user_role not in [UserRole.moderator.value, UserRole.admin.value]:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Moderator access required"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Moderator or Admin access required",
         )
+
     return user
