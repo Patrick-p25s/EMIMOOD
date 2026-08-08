@@ -1,14 +1,14 @@
-from app.modules.users.repository import UserRepository
-from app.modules.classes.repository import ClasseRepository
-from app.modules.users.schema import UserOut, UserCreate, UpdateProfile, UpdatePassword
-from app.modules.users.model import Users, UserRole
-from sqlalchemy.exc import IntegrityError
-from app.core.security import hash_password
-from app.core.pagination import PaginationParams
-from fastapi import HTTPException, status
-from app.core.security import verify_password
 from uuid import UUID
-import asyncio
+
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
+
+from app.core.pagination import Page, PaginationParams, make_page
+from app.core.security import hash_password, verify_password
+from app.modules.classes.repository import ClasseRepository
+from app.modules.users.model import UserRole
+from app.modules.users.repository import UserRepository
+from app.modules.users.schema import UpdatePassword, UpdateProfile, UserCreate, UserOut
 
 
 class UserService:
@@ -27,10 +27,24 @@ class UserService:
     async def register(self, request: UserCreate) -> UserOut:
         existing_user = await self.user_repo.get_by_email(request.email)
         if existing_user is not None:
-            raise HTTPException(400, "Email already registered")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered",
+            )
         classe = await self.classe_repo.get_by_code_invitation(request.code_invitation)
         if classe is None:
-            raise HTTPException(400, "Code d'invitation invalide")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Code d'invitation invalide",
+            )
+
+        if (
+            await self.user_repo.get_by_matricule(matricule=request.matricule)
+            is not None
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Matricule déjà inscrit"
+            )
         data = {
             "first_name": request.first_name,
             "last_name": request.last_name,
@@ -92,8 +106,11 @@ class UserService:
         data = {"password_hash": hash_password(request.new_password)}
         return await self.user_repo.update(user, data)
 
-    async def get_all_users(self, params: PaginationParams) -> list[UserOut]:
-        return await self.user_repo.list_all(limit=params.limit, offset=params.limit)
+    async def get_all_users(self, params: PaginationParams) -> Page[UserOut]:
+        users, total = await self.user_repo.list_all(
+            limit=params.limit, offset=params.limit
+        )
+        return make_page([UserOut.model_validate(u) for u in users], total, params)
 
     async def delete_user(self, id: UUID | str, requester_id: UUID) -> bool:
         user = await self._get_user_by_id(id)

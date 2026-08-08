@@ -1,7 +1,10 @@
-from app.modules.years.repository import YearRepository
-from app.modules.years.schema import YearOut, YearCreate
-from fastapi import HTTPException, status, Depends
 from uuid import UUID
+
+from fastapi import HTTPException, status
+
+from app.core.pagination import Page, PaginationParams, make_page
+from app.modules.years.repository import YearRepository
+from app.modules.years.schema import YearCreate, YearOut
 
 
 class YearService:
@@ -16,8 +19,9 @@ class YearService:
             )
         return year
 
-    async def get_all_year(self) -> list[YearOut]:
-        return await self.repo.list_all_year()
+    async def get_all_year(self, params: PaginationParams) -> Page[YearOut]:
+        year, total = await self.repo.list_all_year(params.offset, params.limit)
+        return make_page(year, total, params)
 
     async def create_year(self, request: YearCreate) -> YearOut:
         data = {

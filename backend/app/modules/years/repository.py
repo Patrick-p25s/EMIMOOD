@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from app.modules.years.model import YearUniv
-from app.modules.years.schema import YearOut
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.modules.classes.model import Classe
+from app.modules.years.model import YearUniv
+from app.modules.years.schema import YearOut
 
 
 class YearRepository:
@@ -42,9 +43,10 @@ class YearRepository:
         result = await self.db.execute(select(func.count()).select_from(YearUniv))
         return result.scalar_one()
 
-    async def list_all_year(self):
-        stmt = await self.db.execute(select(YearUniv))
-        return stmt.scalars().all()
+    async def list_all_year(self, offset: int, limit: int):
+        total = self.count()
+        stmt = await self.db.execute(select(YearUniv).offset(offset).limit(limit))
+        return stmt.scalars().all(), total
 
     async def get_all_classe(self, year_id: UUID):
         stmt = await self.db.execute(select(Classe).where(Classe.year_id == year_id))

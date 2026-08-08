@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
@@ -6,10 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import require_admin
+from app.core.pagination import Page, PaginationParams
+from app.modules.users.model import Users
 from app.modules.years.repository import YearRepository
 from app.modules.years.schema import YearCreate, YearOut
 from app.modules.years.service import YearService
-from app.modules.users.model import Users
 
 
 def get_year_service(db: AsyncSession = Depends(get_db)) -> YearService:
@@ -40,15 +40,16 @@ async def create_year(
 
 @router.get(
     "/all",
-    response_model=List[YearOut],
+    response_model=Page[YearOut],
     summary="Lister toutes les années académiques",
     description="Récupère la liste de toutes les années académiques enregistrées (Accès réservé aux administrateurs).",
 )
 async def get_all_year(
+    params: PaginationParams = Depends(),
     user: Users = Depends(require_admin),
     service: YearService = Depends(get_year_service),
-) -> List[YearOut]:
-    return await service.get_all_year()
+) -> Page[YearOut]:
+    return await service.get_all_year(params)
 
 
 @router.get(
@@ -90,7 +91,6 @@ async def delete_year(
     service: YearService = Depends(get_year_service),
 ) -> None:
     await service.delete_year(id)
-    return None
 
 
 @router.get("/{year_id}/classes")

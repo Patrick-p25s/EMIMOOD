@@ -1,21 +1,21 @@
 from uuid import UUID
 
-from app.modules.classes.repository import ClasseRepository
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_admin, require_moderator
+from app.core.pagination import PaginationParams
+from app.modules.classes.repository import ClasseRepository
 from app.modules.users.model import Users
 from app.modules.users.repository import UserRepository
 from app.modules.users.schema import (
     UpdatePassword,
     UpdateProfile,
     UserCreate,
-    UserOut,
     UserRead,
 )
 from app.modules.users.service import UserService
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.pagination import PaginationParams
 
 
 def _get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:

@@ -8,6 +8,7 @@ from app.modules.matiere.service import SubjectService
 from app.modules.users.model import Users
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.pagination import PaginationParams, Page
 
 
 def get_subject_service(db: AsyncSession = Depends(get_db)) -> SubjectService:
@@ -35,29 +36,31 @@ async def create_subject(
 
 @router.get(
     "",
-    response_model=list[SubjectOut],
+    response_model=Page[SubjectOut],
     summary="Lister toutes les matières",
     description="Récupère la liste complète des matières enregistrées dans le système.",
 )
 async def get_all_subjects(
+    params: PaginationParams = Depends(),
     service: SubjectService = Depends(get_subject_service),
     user: Users = Depends(get_current_user),
-) -> list[SubjectOut]:
-    return await service.get_all_subject()
+) -> Page[SubjectOut]:
+    return await service.get_all_subject(params)
 
 
 @router.get(
     "/classe/{classe_id}",
-    response_model=list[SubjectOut],
+    response_model=Page[SubjectOut],
     summary="Lister les matières par classe",
     description="Récupère l'ensemble des matières associées à une classe spécifique.",
 )
 async def get_subjects_by_classe(
     classe_id: UUID,
+    params: PaginationParams = Depends(),
     service: SubjectService = Depends(get_subject_service),
     user: Users = Depends(get_current_user),
-) -> list[SubjectOut]:
-    return await service.get_by_class(classe_id)
+) -> Page[SubjectOut]:
+    return await service.get_by_class(classe_id, params)
 
 
 @router.get(

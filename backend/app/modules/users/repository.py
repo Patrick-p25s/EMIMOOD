@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from app.modules.users.model import Users
-from app.modules.users.schema import UserOut
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.modules.classes.model import Classe
+from app.modules.users.model import Users
+from app.modules.users.schema import UserOut
 
 
 class UserRepository:
@@ -27,6 +28,12 @@ class UserRepository:
         await self.db.refresh(user)
         return user
 
+    async def get_by_matricule(self, matricule: str):
+        result = await self.db.execute(
+            select(Users).where(Users.matricule == matricule)
+        )
+        return result.scalar_one_or_none()
+
     async def update(self, user: Users, data: dict) -> UserOut:
         for key, value in data.items():
             setattr(user, key, value)
@@ -39,10 +46,11 @@ class UserRepository:
         await self.db.commit()
 
     async def list_all(self, offset: int, limit: int) -> list[UserOut]:
+        total = self.count()
         stmt = await self.db.execute(
             select(Users).where(Users.role != "admin").offset(offset).limit(limit)
         )
-        return stmt.scalars().all()
+        return stmt.scalars().all(), total
 
     async def count(self) -> int:
         result = await self.db.execute(select(func.count()).select_from(Users))
