@@ -2,11 +2,12 @@ import enum as PyEnum
 import uuid
 from typing import Optional
 
-from app.modules.classes.model import Classe
-from app.core.base_model import UuidStamp
-from app.core.database import Base
 from sqlalchemy import Enum, ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.base_model import UuidStamp
+from app.core.database import Base
+from app.modules.classes.model import Classe
 
 
 class UserRole(str, PyEnum.Enum):
@@ -23,6 +24,9 @@ class Users(Base, UuidStamp):
     avatar_url: Mapped[str | None] = mapped_column(String(200), nullable=True)
     phone_number: Mapped[str | None] = mapped_column(String(15), nullable=True)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    matricule: Mapped[str | None] = mapped_column(
+        String(20), unique=True, nullable=True
+    )
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole), default=UserRole.student, nullable=False

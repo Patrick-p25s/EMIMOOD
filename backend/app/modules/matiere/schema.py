@@ -10,7 +10,11 @@ class SubjectCreate(BaseModel):
     semester: str
 
 
-class SubjectOut(SubjectCreate):
+class SubjectOut(BaseModel):
     id: UUID
+    name: str
+    desciption: str
+    semester: str
     create_at: datetime
     update_at: datetime
+    model_config = {"from_attributes": True}

@@ -1,6 +1,7 @@
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.matiere.schema import SubjectOut, SubjectCreate
 from app.modules.matiere.model import Subject
+from app.core.pagination import Page, PaginationParams, make_page
 from app.core.security import hash_password
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -42,8 +43,13 @@ class SubjectService:
                 detail="Classse spécifiée n'existe pas ",
             )
 
-    async def get_all_subject(self) -> list[SubjectOut]:
-        return await self.repo.list_all_matiere()
+    async def get_all_subject(self, params: PaginationParams) -> Page[SubjectOut]:
+        matieres, total = await self.repo.list_all_matiere(
+            offset=params.offset, limit=params.limit
+        )
+        return make_page(
+            [SubjectOut.model_validate(m) for m in matieres], total, params
+        )
 
     async def update_subject(
         self, id: UUID | str, request: SubjectCreate
@@ -63,5 +69,12 @@ class SubjectService:
         await self.repo.delete(matiere)
         return True
 
-    async def get_by_class(self, classe_id: str):
-        return await self.repo.get_by_classe(classe_id)
+    async def get_by_class(
+        self, classe_id: str, params: PaginationParams
+    ) -> Page[SubjectOut]:
+        matieres, total = await self.repo.get_by_classe(
+            classe_id, offset=params.offset, limit=params.limit
+        )
+        return make_page(
+            [SubjectOut.model_validate(m) for m in matieres], total, params
+        )
