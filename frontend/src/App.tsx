@@ -1,39 +1,34 @@
-import {
-  BrowserRouter,
-  NavLink,
-  Route,
-  Routes,
-  useParams,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import LoginForm from "./feature/auth/LoginForm";
+import ProtectedRoute from "./route/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              <p>Page d'acceuil avec la navigation</p>
-              <NavLink to="/blog">Blog</NavLink>
-              <NavLink to="/blog/2">Blog numeroté</NavLink>
-            </div>
-          }
-        />
-        {/* <Route path="*" element={<h1>Page not found </h1>} /> */}
-        <Route path="/blog" element={<h1>Page de bog</h1>} />
-        <Route path="/blog/:userId" element={<Profile />} />
-        <Route path="/contact" element={<h1>Page de contact</h1>} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div>
+                <h1>Page d'acceuil</h1>
+              </div>
+            }
+          />
+          <Route path="/login" element={<LoginForm />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <div>
+                  <h1>Dashboard de l'application</h1>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
-  );
-}
-
-function Profile() {
-  const { userId } = useParams();
-  return (
-    <div>
-      <h1>Id :{Number(userId)}</h1>
-    </div>
   );
 }
