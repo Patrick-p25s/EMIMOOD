@@ -15,6 +15,7 @@ from app.modules.sauvegarde.router import router as save_router
 from app.modules.users.router import router as user_router
 from app.modules.years.router import router as year_router
 from app.modules.annonce.router import router as annonce_router
+from fastapi.middleware.cors import CORSMiddleware
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -76,6 +77,13 @@ app = FastAPI(
     swagger_ui_parameters={"persistAuthorization": True},
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_headers=["*"],
+    allow_methods=["*"],
+    allow_origins=["http://localhost:5173"],
+)
 # Inclusion des routeurs
 app.include_router(year_router)
 app.include_router(classe_router)
