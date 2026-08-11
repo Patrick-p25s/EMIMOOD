@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Button } from "../../components/ui/button";
 export default function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -35,8 +37,8 @@ export default function LoginForm() {
     <div className="login-container">
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="email">Email</label>
-          <input
+          <Label htmlFor="email">Email</Label>
+          <Input
             id="email"
             type="email"
             value={email}
@@ -48,8 +50,8 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <label htmlFor="password">Mot de passe</label>
-          <input
+          <Label htmlFor="password">Mot de passe</Label>
+          <Input
             id="password"
             type="password"
             value={password}
@@ -62,9 +64,9 @@ export default function LoginForm() {
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Connexion..." : "Se connecter"}
-        </button>
+        </Button>
       </form>
     </div>
   );
