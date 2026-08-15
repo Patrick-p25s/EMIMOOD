@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoginForm from "./feature/auth/LoginForm";
 import ProtectedRoute from "./route/ProtectedRoute";
+import MainLayout from "./components/shared/MainLayout";
 
 export default function App() {
   return (
@@ -17,6 +18,16 @@ export default function App() {
             }
           />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/connected" element={<MainLayout />}>
+            <Route
+              path=""
+              element={
+                <div>
+                  <p>Page pour l'utilisateur connecté</p>
+                </div>
+              }
+            />
+          </Route>
           <Route
             path="/dashboard"
             element={
