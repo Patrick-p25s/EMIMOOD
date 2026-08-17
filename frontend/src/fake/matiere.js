@@ -1,0 +1,51 @@
+export const subjectData = [
+  {
+    id: "30000000-0000-4000-8000-000000000001",
+    name: "Algorithmique",
+    description: "Introduction aux algorithmes et structures de données.",
+    coefficient: 4,
+    semester: "S1",
+    classe_id: "20000000-0000-4000-8000-000000000001",
+  },
+  {
+    id: "30000000-0000-4000-8000-000000000002",
+    name: "Programmation Python",
+    description: "Bases de la programmation avec Python.",
+    coefficient: 4,
+    semester: "S1",
+    classe_id: "20000000-0000-4000-8000-000000000001",
+  },
+  {
+    id: "30000000-0000-4000-8000-000000000003",
+    name: "Base de données",
+    description: "Modélisation, SQL et administration des bases de données.",
+    coefficient: 3,
+    semester: "S1",
+    classe_id: "20000000-0000-4000-8000-000000000001",
+  },
+  {
+    id: "30000000-0000-4000-8000-000000000004",
+    name: "Développement Web",
+    description: "HTML, CSS et JavaScript.",
+    coefficient: 4,
+    semester: "S2",
+    classe_id: "20000000-0000-4000-8000-000000000001",
+  },
+
+  {
+    id: "30000000-0000-4000-8000-000000000005",
+    name: "Programmation Orientée Objet",
+    description: "Concepts fondamentaux de la programmation orientée objet.",
+    coefficient: 4,
+    semester: "S1",
+    classe_id: "20000000-0000-4000-8000-000000000002",
+  },
+  {
+    id: "30000000-0000-4000-8000-000000000006",
+    name: "Architecture Logicielle",
+    description: "Architecture et conception des applications.",
+    coefficient: 3,
+    semester: "S2",
+    classe_id: "20000000-0000-4000-8000-000000000002",
+  },
+];
