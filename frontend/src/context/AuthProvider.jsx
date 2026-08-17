@@ -31,11 +31,11 @@ export default function AuthProvider({ children }) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const foundUser = users.find(
-      (u) => u.email === email && u.password === password,
+      (u) => u.email === email && u.password_hash === password,
     );
 
     if (!foundUser) {
-      throw new Error("Erreur lors de connection");
+      throw new Error("Email et mot de passe incorrecte");
     }
 
     localStorage.setItem("user_id", foundUser.id);
@@ -69,7 +69,7 @@ export default function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
-    setLoading(false);
+    localStorage.removeItem("user_id");
   };
 
   const value = {
