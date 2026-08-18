@@ -28,11 +28,13 @@ export default function AuthProvider({ children }) {
   }, [users]);
 
   const login = async (email, password) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const foundUser = users.find(
       (u) => u.email === email && u.password_hash === password,
     );
+
+    console.log(users);
 
     if (!foundUser) {
       throw new Error("Email et mot de passe incorrecte");

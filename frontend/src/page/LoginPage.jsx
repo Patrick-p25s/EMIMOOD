@@ -10,10 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hook/useAuth";
+import InputLabeled from "@/components/shared/InputLabeled";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
@@ -27,6 +27,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErreur("");
     setIsSubmiting(true);
+    console.log(email, password);
     try {
       await login(email, password);
       navigate("/dashboard");
@@ -53,39 +54,28 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Email</Label>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  id="email-spacing"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password-spacing">Password</Label>
-                  <a
-                    href="/register"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input
-                  id="password-spacing"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
+              <InputLabeled
+                label="Email "
+                description="Entrer une email validé"
+                type="email"
+                value={email}
+                required
+                setValue={setEmail}
+              />
+              <InputLabeled
+                required
+                type="password"
+                label="Mot de passe"
+                value={password}
+                setValue={setPassword}
+              />
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmiting}>
-              {isSubmiting ? "Loading ..." : "Login"}
-            </Button>
+            <ButtonStyled
+              loading={isSubmiting}
+              loadingText="Connection  en cours "
+            >
+              Se connecter
+            </ButtonStyled>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">

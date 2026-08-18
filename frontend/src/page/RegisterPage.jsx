@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hook/useAuth";
+import InputLabeled from "@/components/shared/InputLabeled";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
 
 export default function RegisterPage() {
   const [formData, setFormData] = React.useState({
@@ -65,64 +67,50 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               {/* champ pour nom et prenom  */}
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Nom et prénom</Label>
-                <Input
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  id="email-spacing"
-                  type="text"
-                  placeholder="Ex : John Doe"
-                  required
-                />
-              </div>
+              <InputLabeled
+                value={formData.first_name}
+                name="first_name"
+                label="Nom et prénom"
+                setValue={setFormData}
+                required
+                description="Entre nom et prénom ici"
+              />
 
               {/* champ pour email  */}
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Email</Label>
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  id="email-spacing"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
+              <InputLabeled
+                type="email"
+                name="email"
+                label="Email"
+                value={formData.email}
+                required
+                setValue={setFormData}
+              />
 
               {/* champ pour le mot de passe */}
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Mot de passe</Label>
-                <Input
-                  name="password_hash"
-                  value={formData.password_hash}
-                  onChange={handleChange}
-                  id="email-spacing"
-                  type="password"
-                  placeholder="password123"
-                  required
-                />
-              </div>
+              <InputLabeled
+                type="password"
+                label="Mot de passe "
+                value={formData.password_hash}
+                name="password_hash"
+                setValue={setFormData}
+                required
+              />
 
               {/* champ pour classe_id */}
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Classe id </Label>
-                <Input
-                  name="classe_id"
-                  value={formData.classe_id}
-                  onChange={handleChange}
-                  id="email-spacing"
-                  type="text"
-                  placeholder="&111111"
-                  required
-                />
-              </div>
+              <InputLabeled
+                label="Identifiant d'une classe "
+                value={formData.classe_id}
+                setValue={setFormData}
+                name="classe_id"
+                description="Entrer l'id de votre classe"
+              />
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmiting}>
-              {isSubmiting ? "Loading ..." : "Login"}
-            </Button>
+            <ButtonStyled
+              loading={isSubmiting}
+              loadingText="Connection en cours "
+            >
+              Connecter
+            </ButtonStyled>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
