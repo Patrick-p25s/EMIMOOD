@@ -4,5 +4,5 @@ import React from "react";
 
 export default function Dashboard() {
   const { user, role } = useAuth();
-  return <div>{role === "admin" && <YearBlog />}</div>;
+  return <div>Dashboard de l'utilistaeur</div>;
 }

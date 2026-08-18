@@ -42,7 +42,7 @@ export default function RegisterPage() {
     setIsSubmiting(true);
     try {
       await register(formData);
-      navigate("/dashboard");
+      navigate("/admin");
     } catch (e) {
       setErreur(e.message.toString());
     } finally {
@@ -107,9 +107,9 @@ export default function RegisterPage() {
             </div>
             <ButtonStyled
               loading={isSubmiting}
-              loadingText="Connection en cours "
+              loadingText="Inscritption en cours "
             >
-              Connecter
+              S'inscrire
             </ButtonStyled>
           </form>
         </CardContent>

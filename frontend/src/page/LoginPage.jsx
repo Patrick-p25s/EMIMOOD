@@ -29,8 +29,10 @@ export default function LoginPage() {
     setIsSubmiting(true);
     console.log(email, password);
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const user = await login(email, password);
+      user.role === "admin"
+        ? navigate("/admin", { replace: true })
+        : navigate("/dashboard", { replace: true });
     } catch (e) {
       setErreur(e.message.toString());
     } finally {
