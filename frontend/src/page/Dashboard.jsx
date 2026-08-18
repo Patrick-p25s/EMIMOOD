@@ -1,5 +1,7 @@
+import useAuth from "@/hook/useAuth";
 import React from "react";
 
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+  const { user, role } = useAuth();
+  return <div>Bienvenue monsieur le {role}</div>;
 }

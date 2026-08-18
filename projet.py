@@ -226,7 +226,7 @@ Label(
     fenetre,
     text="Approchez-vous de 21 sans le dépasser",
     font=FONT_SOUS,
-    bg=BG_TABLE,s
+    bg=BG_TABLE,
     fg=TXT_CLAIR,
 ).pack()
 

@@ -58,6 +58,7 @@ export default function AuthProvider({ children }) {
       email: userData.first_name,
       password_hash: userData.first_name,
       classe_id: userData.first_name,
+      role: "student",
     };
     setUsers([...users, newUser]);
 
