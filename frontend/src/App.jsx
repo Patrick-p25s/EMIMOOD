@@ -10,6 +10,7 @@ import RegisterPage from "./page/RegisterPage";
 import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
 import Administration from "./page/Administration";
+import ManageClasse from "./page/ManageClasse";
 
 export default function App() {
   return (
@@ -32,8 +33,9 @@ export default function App() {
             </Route>
 
             {/* Route pour administrateur seulement  */}
-            <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<Administration />} />
+            <Route path="/admin" element={<AdminRoute />}>
+              <Route path="" element={<Administration />} />
+              <Route path="classe/:classeId" element={<ManageClasse />} />
             </Route>
           </Route>
         </Routes>
