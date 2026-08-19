@@ -38,6 +38,8 @@ export function AnneeProvider({ children }) {
 
   const deleteYear = async (yearId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setYears((prev) => prev.filter((year) => year.id !== yearId));
   };
 
   const updateYear = async (yearId, yearData) => {

@@ -11,7 +11,7 @@ import RegisterPage from "./page/RegisterPage";
 import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
 import DashboardAdmin from "./page/admin/Dashboard";
-import ManageClasse from "./page/ManageClasse";
+import ManageClasse from "./page/admin/ManageClasse";
 import AdminLayout from "./layout/AdminLayout";
 import Annonces from "./page/admin/Annonces";
 import Annee from "./page/admin/Annee";
@@ -48,6 +48,7 @@ export default function App() {
                 <Route path="annonces" element={<Annonces />} />
                 <Route path="annees" element={<Annee />} />
                 <Route path="classes" element={<Classe />} />
+                <Route path="classes/:classeId" element={<ManageClasse />} />
                 <Route path="delegues" element={<Delegue />} />
                 <Route path="etudiants" element={<Etudiant />} />
                 <Route path="documents" element={<Classe />} />

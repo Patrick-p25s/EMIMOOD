@@ -28,7 +28,6 @@ export default function LoginPage() {
     e.preventDefault();
     setErreur("");
     setIsSubmiting(true);
-    console.log(email, password);
     try {
       const user = await login(email, password);
       user.role === "admin"

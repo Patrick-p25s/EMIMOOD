@@ -3,6 +3,7 @@ import { useYear } from "@/context/AnneeContext";
 import { useState } from "react";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import FormModal from "@/components/shared/FormModal";
 export default function Annee() {
   return (
     <div>
@@ -12,11 +13,15 @@ export default function Annee() {
 }
 
 function YearBlog() {
+  const [open, setOpen] = useState(false);
   const { createYear, years, deleteYear, updateYear, activeYear } = useYear();
   return (
     <div>
       <h1>Anné universitaire blog </h1>
-      <YearForm onCreate={createYear} />
+
+      <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
+      <YearForm onCreate={createYear} open={open} onOpen={setOpen} />
+
       {years.map((year) => (
         <YearItem
           year={year}
@@ -29,7 +34,7 @@ function YearBlog() {
   );
 }
 
-function YearForm({ onCreate }) {
+function YearForm({ onCreate, open, onOpen }) {
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [erreur, setErreur] = useState(null);
   const [yearData, setYearData] = useState({
@@ -38,8 +43,7 @@ function YearForm({ onCreate }) {
     end_at: "",
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setErreur(null);
     setIsSubmiting(true);
     try {
@@ -52,7 +56,15 @@ function YearForm({ onCreate }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <FormModal
+      onSubmit={handleSubmit}
+      open={open}
+      onOpenChange={onOpen}
+      submitLabel="Créer"
+      title="Remplir tous les champs pour créer"
+      labe
+      loading={isSubmiting}
+    >
       <InputLabeled
         value={yearData.label}
         label="Label de l'anné"
@@ -74,10 +86,7 @@ function YearForm({ onCreate }) {
         setValue={setYearData}
       />
       {erreur && <p className="text-red-500">{erreur}</p>}
-      <ButtonStyled loading={isSubmiting} loadingText="Creation en cours ">
-        Envoyer
-      </ButtonStyled>
-    </form>
+    </FormModal>
   );
 }
 

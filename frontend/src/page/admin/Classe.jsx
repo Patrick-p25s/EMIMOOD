@@ -4,11 +4,12 @@ import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import { useYear } from "@/context/AnneeContext";
 import FormCard from "@/components/shared/FormCard";
+import FormModal from "@/components/shared/FormModal";
 import { useNavigate } from "react-router-dom";
 
 export default function Classe() {
   const { classes, createClasse, deleteClasse, updateClasse } = useClasse();
-  const { getYearActive } = useYear();
+  const { getActiveYear } = useYear();
   const [classeData, setClasseData] = useState({
     mention: "",
     niveau: "",
@@ -18,6 +19,7 @@ export default function Classe() {
 
   const [loading, setLoading] = useState(false);
   const [erreur, setErreur] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const handleDelete = async (e, id) => {
     // Empêche le déclenchement du navigate() de la carte parent
@@ -32,14 +34,12 @@ export default function Classe() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setErreur(null);
     setLoading(true);
 
     try {
-      console.log(getYearActive.id);
-      await createClasse(classeData, getYearActive?.id || "");
+      await createClasse(classeData, getActiveYear?.id || "");
     } catch (error) {
       setErreur(error.message.toString());
     } finally {
@@ -49,11 +49,13 @@ export default function Classe() {
 
   return (
     <div>
-      <FormCard
+      <FormModal
         onSubmit={handleSubmit}
         title="Formulaire pour ajouter la classe "
         loading={loading}
-        error={erreur}
+        open={open}
+        onOpenChange={setOpen}
+        errors={erreur}
       >
         <InputLabeled
           label="Mention"
@@ -70,22 +72,17 @@ export default function Classe() {
           name="niveau"
           onChange={() => setErreur(null)}
         />
+      </FormModal>
 
-        <ButtonStyled
-          type="submit"
-          disable={loading}
-          loading={loading}
-          loadingText="Ajout en cours ..."
-        >
-          Ajouter
-        </ButtonStyled>
-      </FormCard>
+      <ButtonStyled type="button" onClick={() => setOpen(true)}>
+        Ajouter
+      </ButtonStyled>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {classes.map((classe) => {
           return (
             <div
               key={classe.id}
-              onClick={() => navigate(`classe/${classe.id}`)}
+              onClick={() => navigate(`${classe.id}`)}
               className="group relative flex flex-col justify-between p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
             >
               <div className="space-y-2">
