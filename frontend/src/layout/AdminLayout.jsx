@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useAnnee } from "../context/AnneeContext";
+import { useYear } from "../context/AnneeContext";
 import { Badge } from "@/components/ui/badge";
 import {
   LayoutDashboard,
@@ -30,8 +30,7 @@ const menuContenu = [
 ];
 
 export default function AdminLayout() {
-  const { anneeActive } = useAnnee();
-
+  const { getActiveYear } = useYear();
   return (
     <div className="flex min-h-screen">
       {/* SIDEBAR */}
@@ -53,7 +52,7 @@ export default function AdminLayout() {
             className="gap-1.5 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-100"
           >
             <Calendar className="size-3.5" />
-            Année active : {anneeActive.libelle}
+            Année active : {getActiveYear.label}
           </Badge>
         </header>
 

@@ -3,38 +3,67 @@ import { anneeUniv } from "@/fake/year";
 // 1. On crée le "contenant" du contexte
 const AnneeContext = createContext(null);
 
-//    et fournir l'année active + les fonctions pour la changer
 export function AnneeProvider({ children }) {
-  // On cherche l'année marquée "active" dans les mocks, au démarrage
-  const anneeParDefaut = anneeUniv.find((a) => a.active) || anneeUniv[0];
+  const [years, setYears] = useState(anneeUniv);
 
-  const [annees, setAnnees] = useState(anneeUniv);
-  const [anneeActive, setAnneeActive] = useState(anneeParDefaut);
+  const activeYear = async (yearId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // Changer l'année active (ex: l'admin sélectionne une autre année)
-  function changerAnneeActive(anneeId) {
-    const nouvelle = annees.find((a) => a.id === anneeId);
-    if (nouvelle) {
-      setAnneeActive(nouvelle);
+    setYears((prev) =>
+      prev.map((year) =>
+        year.id === yearId
+          ? { ...year, is_active: true }
+          : { ...year, is_active: false },
+      ),
+    );
+  };
+
+  const createYear = async (yearData) => {
+    const exist = years.some((year) => year.label === yearData.label);
+    if (exist) {
+      throw new Error("Year already exists");
     }
-  }
 
-  // Créer une nouvelle année universitaire
-  function creerAnnee(libelle) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const nouvelleAnnee = {
       id: Date.now(), // simple id temporaire pour le mock
-      libelle,
-      active: false,
+      label: yearData.label,
+      start_at: yearData.start_at,
+      end_at: yearData.end_at,
+      is_active: false,
     };
-    setAnnees((prev) => [...prev, nouvelleAnnee]);
-  }
+    setYears((prev) => [...prev, nouvelleAnnee]);
+  };
 
-  // Tout ce qu'on met ici devient accessible partout via useAnnee()
+  const deleteYear = async (yearId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
+
+  const updateYear = async (yearId, yearData) => {
+    setYears((prev) =>
+      prev.map((year) =>
+        year.id === yearId
+          ? {
+              ...year,
+              label: yearData.label,
+              start_at: yearData.start_at,
+              end_at: yearData.end_at,
+            }
+          : year,
+      ),
+    );
+  };
+
+  const getActiveYear = years.find((year) => year.is_active) || years[0];
+
   const value = {
-    annees,
-    anneeActive,
-    changerAnneeActive,
-    creerAnnee,
+    years,
+    getActiveYear,
+    activeYear,
+    createYear,
+    deleteYear,
+    updateYear,
   };
 
   return (
@@ -42,13 +71,11 @@ export function AnneeProvider({ children }) {
   );
 }
 
-// 3. Un petit hook pratique pour éviter d'écrire useContext(AnneeContext)
-//    partout dans le code
-export function useAnnee() {
+export function useYear() {
   const context = useContext(AnneeContext);
   if (!context) {
     throw new Error(
-      "useAnnee doit être utilisé à l'intérieur d'un AnneeProvider",
+      "useYear doit être utilisé à l'intérieur d'un AnneeProvider",
     );
   }
   return context;

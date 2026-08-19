@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import useAuth from "@/hook/useAuth";
+import useAuth from "@/hooks/useAuth";
 import { NavLink, Outlet } from "react-router-dom";
 
 export default function MainLayout() {

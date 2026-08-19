@@ -9,7 +9,7 @@ export default function useClasse() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (year_id.trim() === "") {
-      throw new Error("Impossible de créer une classe sans annéey");
+      throw new Error("Impossible de créer une classe sans année actife");
     }
     // 3. Construction du nouvel objet
     const newClasse = {

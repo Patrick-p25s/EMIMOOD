@@ -13,6 +13,11 @@ import AdminRoute from "./route/AdminRoute";
 import DashboardAdmin from "./page/admin/Dashboard";
 import ManageClasse from "./page/ManageClasse";
 import AdminLayout from "./layout/AdminLayout";
+import Annonces from "./page/admin/Annonces";
+import Annee from "./page/admin/Annee";
+import Classe from "./page/admin/Classe";
+import Delegue from "./page/admin/Delegue";
+import Etudiant from "./page/admin/Etudiant";
 
 export default function App() {
   return (
@@ -40,12 +45,12 @@ export default function App() {
               {/* Route pour administrateur seulement  */}
               <Route path="/admin" element={<AdminRoute />}>
                 <Route path="" element={<DashboardAdmin />} />
-                <Route path="annonces" element={<ManageClasse />} />
-                <Route path="annees" element={<ManageClasse />} />
-                <Route path="classes" element={<ManageClasse />} />
-                <Route path="delegues" element={<ManageClasse />} />
-                <Route path="etudiants" element={<ManageClasse />} />
-                <Route path="documents" element={<ManageClasse />} />
+                <Route path="annonces" element={<Annonces />} />
+                <Route path="annees" element={<Annee />} />
+                <Route path="classes" element={<Classe />} />
+                <Route path="delegues" element={<Delegue />} />
+                <Route path="etudiants" element={<Etudiant />} />
+                <Route path="documents" element={<Classe />} />
               </Route>
             </Route>
           </Routes>

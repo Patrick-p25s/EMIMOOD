@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import useAuth from "@/hook/useAuth";
+import useAuth from "@/hooks/useAuth";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormCard from "@/components/shared/FormCard";

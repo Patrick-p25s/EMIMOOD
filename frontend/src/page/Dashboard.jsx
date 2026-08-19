@@ -1,5 +1,4 @@
-import YearBlog from "@/feature/year/YearBlog";
-import useAuth from "@/hook/useAuth";
+import useAuth from "@/hooks/useAuth";
 import React from "react";
 
 export default function Dashboard() {

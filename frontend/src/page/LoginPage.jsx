@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import useAuth from "@/hook/useAuth";
+import useAuth from "@/hooks/useAuth";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormCard from "@/components/shared/FormCard";
