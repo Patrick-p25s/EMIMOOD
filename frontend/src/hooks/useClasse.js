@@ -1,53 +1,96 @@
 import { classeData } from "@/fake/classe";
-import React, { useState } from "react";
+import { useState } from "react";
+import useAnnonce from "./useAnnonce";
+import useStudent from "./useStudent";
 
 export default function useClasse() {
   const [classes, setClasses] = useState(classeData);
+  const { annonces: allAnnonces } = useAnnonce();
+  const { students } = useStudent();
 
-  const createClasse = async (classeData, year_id) => {
-    // 2. Simulation d'un appel réseau (Syntaxe corrigée)
+  const createClasse = async (classeDataInput, year_id) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (year_id.trim() === "") {
-      throw new Error("Impossible de créer une classe sans année actife");
+    if (!year_id || year_id.trim() === "") {
+      throw new Error("Impossible de créer une classe sans année active");
     }
-    // 3. Construction du nouvel objet
+
     const newClasse = {
-      id: crypto.randomUUID(), // ID unique et robuste
-      mention: classeData.mention,
-      niveau: classeData.label,
-      code_invitation: Date.now(),
+      id: crypto.randomUUID(),
+      mention: classeDataInput.mention,
+      niveau: classeDataInput.label,
+      code_invitation: Math.random().toString(36).substring(2, 8).toUpperCase(),
       year_id: year_id,
-      create_at: new Date().toISOString(),
-      update_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    // 4. Mise à jour avec la fonction de rappel (évite les stale closures)
     setClasses((prevClasses) => [...prevClasses, newClasse]);
-
     return newClasse;
   };
 
   const updateClasse = async (id, mention, niveau, code_invitation) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    setClasses((classe) =>
-      classe.id === id
-        ? {
-            ...classe,
-            mention: mention,
-            niveau: niveau,
-            code_invitation: code_invitation,
-          }
-        : classe,
+    let updatedItem = null;
+
+    setClasses((prevClasses) =>
+      prevClasses.map((item) => {
+        if (item.id === id) {
+          updatedItem = {
+            ...item,
+            mention,
+            niveau,
+            code_invitation,
+            updated_at: new Date().toISOString(),
+          };
+          return updatedItem;
+        }
+        return item;
+      }),
     );
-    return classes;
+
+    return updatedItem;
   };
 
   const deleteClasse = async (id) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setClasses((prevClasse) => prevClasse.filter((y) => y.id !== id));
+    setClasses((prevClasses) => prevClasses.filter((c) => c.id !== id));
   };
 
-  return { classes, createClasse, updateClasse, deleteClasse };
+  const getAnnonces = async (classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return allAnnonces.filter((ann) => ann.classe_id === classeId);
+  };
+
+  const getActiveAnnonce = async (classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return allAnnonces.filter(
+      (ann) => ann.statut === "active" && ann.classe_id === classeId,
+    );
+  };
+
+  const studentByClasse = async (classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return students.filter((stud) => stud.classe_id === classeId);
+  };
+
+  const getStudentClasse = async (studentId) => {
+    const student = students.find((s) => s.id === studentId);
+    if (!student) {
+      throw new Error("Aucun étudiant trouvé");
+    }
+    return classes.find((cl) => cl.id === student.classe_id);
+  };
+
+  return {
+    classes,
+    createClasse,
+    updateClasse,
+    deleteClasse,
+    studentByClasse,
+    getActiveAnnonce,
+    getAnnonces,
+    getStudentClasse,
+  };
 }

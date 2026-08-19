@@ -1,0 +1,60 @@
+import { userData } from "@/fake/user";
+import { useState } from "react";
+
+export default function useStudent() {
+  const [students, setStudents] = useState(userData);
+
+  const updateProfile = async (id, studentData) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    let updatedStudent = null;
+
+    setStudents((prev) =>
+      prev.map((student) => {
+        if (student.id === id) {
+          updatedStudent = {
+            ...student,
+            first_name: studentData.first_name ?? student.first_name,
+            last_name: studentData.last_name ?? student.last_name,
+            phone_number: studentData.phone_number ?? student.phone_number,
+            updated_at: new Date().toISOString(),
+          };
+          return updatedStudent;
+        }
+        return student;
+      }),
+    );
+
+    return updatedStudent;
+  };
+
+  const deleteStudent = async (studentId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setStudents((prev) => prev.filter((student) => student.id !== studentId));
+  };
+
+  const getByClasse = async (classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!classeId) {
+      throw new Error("Aucune classe trouvée");
+    }
+    return students.filter((student) => student.classe_id === classeId);
+  };
+
+  const getMyProfile = async (studentId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const student = students.find((s) => s.id === studentId);
+    if (!student) {
+      throw new Error("Aucun étudiant trouvé avec cet ID");
+    }
+    return student;
+  };
+
+  return {
+    students,
+    updateProfile,
+    getByClasse,
+    deleteStudent,
+    getMyProfile,
+  };
+}

@@ -67,7 +67,7 @@ export default function FormModal({
               loadingText="Envoie en cours"
               type="submit"
             >
-              Envoyer
+              {submitLabel}
             </ButtonStyled>
           </DialogFooter>
         </form>
