@@ -56,7 +56,13 @@ export default function ModeratorLayout() {
     useMatiere();
   const { students, updateProfile, deleteStudent, createStudent } =
     useStudent();
-  const { documents, valideDocument, rejeteDocument } = useDocument();
+  const {
+    documents,
+    valideDocument,
+    rejeteDocument,
+    createDocument,
+    deleteDocument,
+  } = useDocument();
 
   const userClasse = useMemo(
     () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
@@ -133,6 +139,8 @@ export default function ModeratorLayout() {
     publicDocs,
     allStudents,
     allAnnonces,
+    createDocument,
+    deleteDocument,
     archiveAnnonce,
     createStudent,
     deleteAnnonce,

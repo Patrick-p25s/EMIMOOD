@@ -25,6 +25,7 @@ import ModeratorStudent from "./page/moderator/StudentModerator";
 import StudentModerator from "./page/moderator/StudentModerator";
 import AnnounceModerator from "./page/moderator/AnnounceModerator";
 import SubjectModerator from "./page/moderator/SubjectModerator";
+import DocumentModerator from "./page/moderator/DocumentModerator";
 export default function App() {
   return (
     <AuthProvider>
@@ -69,6 +70,7 @@ export default function App() {
                 <Route path="students" element={<StudentModerator />} />
                 <Route path="annonces" element={<AnnounceModerator />} />
                 <Route path="matieres" element={<SubjectModerator />} />
+                <Route path="documents" element={<DocumentModerator />} />
               </Route>
             </Route>
           </Routes>

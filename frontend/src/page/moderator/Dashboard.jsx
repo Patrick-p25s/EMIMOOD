@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 import AnnouncementDialog from "./AnnouncementDialog";
-import DocumentUploadDialog from "./DialogUploadDialog";
+import DocumentUploadDialog from "./DocumentUploadDialog";
 
 import StatCard from "@/components/shared/StatCard";
 import { useOutletContext } from "react-router-dom";
@@ -133,8 +133,6 @@ export default function DashboardModerator() {
 
   const moderatorClasseId = user?.classe_id || user?.classeId;
 
-  const { valideDocument, rejeteDocument } = useDocument();
-
   // Extraction sécurisée depuis useOutletContext avec valeurs par défaut
   const {
     userClasse,
@@ -145,6 +143,8 @@ export default function DashboardModerator() {
     rejectedDocs = [],
     recentPendingDocs = [],
     matiereNameById = new Map(),
+    valideDocument,
+    rejeteDocument,
     classesLoading = false, // 👈 Récupéré ou initialisé à false
   } = useOutletContext();
 

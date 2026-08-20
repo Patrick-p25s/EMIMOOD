@@ -3,18 +3,26 @@ import { useState } from "react";
 
 export default function useDocument() {
   const [documents, setDocuments] = useState(documentData);
-  const createDocument = async (newDocument, matierId, ownerId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const createDocument = async (newDocument, matiereId, ownerId) => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
     const document = {
       id: crypto.randomUUID(),
       titre: newDocument.titre,
-      type_document: newDocument.type_document,
-      date_limite: newDocument.date_limite,
-      proposer_publique: newDocument.proposer_publique,
-      matier_id: matierId,
+      description: newDocument.description || "",
+      type_document: newDocument.type_document || "cours",
+      date_limite: newDocument.date_limite || null,
+      proposer_publique: Boolean(newDocument.proposer_publique),
+      statut: newDocument.proposer_publique ? "validated" : "pending",
+      fichier_path: newDocument.fichier_path || "/documents/sample.pdf",
+      mime_type: newDocument.file?.type || "application/pdf",
+      taille_octets: newDocument.taille_octets || 0,
+      matiere_id: matiereId,
       owner_id: ownerId,
+      created_at: new Date().toISOString(),
     };
-    setDocuments([...documents, document]);
+
+    setDocuments((prev) => [...prev, document]);
     return document;
   };
 
@@ -51,7 +59,7 @@ export default function useDocument() {
       }
 
       // 3. Objet document mis à jour
-      const updatedDocument = { ...document, statut: "publique" };
+      const updatedDocument = { ...document, statut: "public" };
 
       // 4. Mise à jour propre de l'état React avec un .map()
       setDocuments((prevDocuments) =>
@@ -88,12 +96,20 @@ export default function useDocument() {
     }
   };
 
+  const deleteDocument = async (documentId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return setDocuments((prev) =>
+      prev.filter((document) => document.id !== documentId),
+    );
+  };
+
   const getMyDocument = async (userId) => {
     const docs = documents.filter((doc) => doc.owner_id === userId);
     return docs;
   };
   return {
     documents,
+    deleteDocument,
     createDocument,
     getDocumentById,
     getDocumentByType,
