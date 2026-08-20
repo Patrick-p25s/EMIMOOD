@@ -158,13 +158,13 @@ export default function DashboardModerator() {
     [classMatieres],
   );
 
-  console.log(classMatiereIds);
-
   const classDocuments = useMemo(() => {
     if (!documents || classMatiereIds.length === 0) return [];
-    return documents.filter((doc) =>
-      classMatiereIds.includes(String(doc.matiere_id)),
-    );
+
+    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
+    const matiereSet = new Set(classMatiereIds.map(String));
+
+    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
   }, [documents, classMatiereIds]);
 
   const pendingDocs = useMemo(
@@ -172,7 +172,7 @@ export default function DashboardModerator() {
     [classDocuments],
   );
   const publicDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "publique"),
+    () => classDocuments.filter((d) => d.statut === "public"),
     [classDocuments],
   );
   const rejectedDocs = useMemo(
@@ -238,35 +238,30 @@ export default function DashboardModerator() {
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
-            <DialogTrigger asChild>
-              <ButtonStyled
-                className={buttonVariants({ variant: "secondary" }, "gap-2")}
-                icon={<Megaphone className="h-4 w-4" />}
-              >
-                Annonce
-              </ButtonStyled>
-            </DialogTrigger>
-            <AnnouncementDialog
-              classeId={moderatorClasseId}
-              onClose={() => setAnnounceOpen(false)}
-            />
-          </Dialog>
-
-          <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-            <DialogTrigger asChild>
-              <ButtonStyled
-                className="gap-2"
-                icon={<Upload className="h-4 w-4" />}
-              >
-                Document
-              </ButtonStyled>
-            </DialogTrigger>
-            <DocumentUploadDialog
-              matieres={classMatieres}
-              onClose={() => setUploadOpen(false)}
-            />
-          </Dialog>
+          <ButtonStyled
+            onClick={() => setAnnounceOpen(true)}
+            className={buttonVariants({ variant: "secondary" }, "gap-2")}
+            icon={<Megaphone className="h-4 w-4" />}
+          >
+            Annonce
+          </ButtonStyled>
+          <AnnouncementDialog
+            onOpen={announceOpen}
+            onOpenChange={setAnnounceOpen}
+            classeId={moderatorClasseId}
+          />
+          <ButtonStyled
+            className="gap-2"
+            icon={<Upload className="h-4 w-4" />}
+            onClick={() => setUploadOpen(true)}
+          >
+            Document
+          </ButtonStyled>
+          <DocumentUploadDialog
+            open={uploadOpen}
+            onOpenChange={setUploadOpen}
+            matieres={classMatieres}
+          />
         </div>
       </div>
 

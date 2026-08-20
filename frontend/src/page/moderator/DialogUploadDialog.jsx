@@ -19,8 +19,9 @@ import {
 import InputLabeled from "@/components/shared/InputLabeled";
 import { UploadCloud } from "lucide-react";
 import useDocument from "@/hooks/useDocument";
+import FormModal from "@/components/shared/FormModal";
 
-export default function DocumentUploadDialog({ matieres, onClose }) {
+export default function DocumentUploadDialog({ matieres, open, onOpenChange }) {
   const [form, setForm] = useState({ titre: "", matiere_id: "" });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -57,84 +58,51 @@ export default function DocumentUploadDialog({ matieres, onClose }) {
   };
 
   return (
-    <DialogContent className="sm:max-w-lg">
-      <form onSubmit={handleSubmit}>
-        <DialogHeader>
-          <DialogTitle>Ajouter un document</DialogTitle>
-          <DialogDescription>
-            Publié directement dans les documents publics de la classe.
-          </DialogDescription>
-        </DialogHeader>
+    <FormModal onOpenChange={onOpenChange} open={open}>
+      <InputLabeled
+        label="Titre"
+        name="titre"
+        value={form.titre}
+        setValue={setForm}
+        placeholder="Ex: Cours - Chapitre 3"
+        required
+      />
 
-        <fieldset disabled={loading} className="space-y-4 py-4">
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-              {error}
-            </p>
-          )}
+      <div className="space-y-1.5">
+        <Label htmlFor="matiere">Matière</Label>
+        <Select
+          value={form.matiere_id}
+          onValueChange={(val) => setForm((p) => ({ ...p, matiere_id: val }))}
+        >
+          <SelectTrigger id="matiere">
+            <SelectValue placeholder="Sélectionner une matière" />
+          </SelectTrigger>
+          <SelectContent>
+            {matieres.map((m) => (
+              <SelectItem key={m.id} value={String(m.id)}>
+                {m.nom}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <InputLabeled
-            label="Titre"
-            name="titre"
-            value={form.titre}
-            setValue={setForm}
-            placeholder="Ex: Cours - Chapitre 3"
-            required
+      <div className="space-y-1.5">
+        <Label htmlFor="fichier">Fichier</Label>
+        <label
+          htmlFor="fichier"
+          className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer hover:bg-muted/50 transition-colors text-sm text-muted-foreground"
+        >
+          <UploadCloud className="h-6 w-6" />
+          {file ? file.name : "Cliquez pour choisir un fichier"}
+          <input
+            id="fichier"
+            type="file"
+            className="hidden"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="matiere">Matière</Label>
-            <Select
-              value={form.matiere_id}
-              onValueChange={(val) =>
-                setForm((p) => ({ ...p, matiere_id: val }))
-              }
-            >
-              <SelectTrigger id="matiere">
-                <SelectValue placeholder="Sélectionner une matière" />
-              </SelectTrigger>
-              <SelectContent>
-                {matieres.map((m) => (
-                  <SelectItem key={m.id} value={String(m.id)}>
-                    {m.nom}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="fichier">Fichier</Label>
-            <label
-              htmlFor="fichier"
-              className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer hover:bg-muted/50 transition-colors text-sm text-muted-foreground"
-            >
-              <UploadCloud className="h-6 w-6" />
-              {file ? file.name : "Cliquez pour choisir un fichier"}
-              <input
-                id="fichier"
-                type="file"
-                className="hidden"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
-            </label>
-          </div>
-        </fieldset>
-
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Annuler
-          </Button>
-          <Button type="submit" loading={loading} loadingText="Envoi...">
-            Publier le document
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
+        </label>
+      </div>
+    </FormModal>
   );
 }

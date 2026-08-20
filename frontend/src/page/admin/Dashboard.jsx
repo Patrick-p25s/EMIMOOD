@@ -16,6 +16,7 @@ export default function DashboardAdmin() {
   const { classes } = useClasse();
   const { matieres } = useMatiere();
   const delegues = students.filter((s) => s.role === "moderator");
+
   return (
     <div className="flex justify-between">
       <StatCard
