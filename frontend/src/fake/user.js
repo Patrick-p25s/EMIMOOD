@@ -32,7 +32,7 @@ export const userData = [
     email: "jean.rakoto@example.com",
     matricule: "DAII2026003",
     password_hash: "password",
-    role: "student",
+    role: "moderator",
     classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {

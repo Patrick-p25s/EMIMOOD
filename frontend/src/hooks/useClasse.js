@@ -2,11 +2,13 @@ import { classeData } from "@/fake/classe";
 import { useState } from "react";
 import useAnnonce from "./useAnnonce";
 import useStudent from "./useStudent";
+import useMatiere from "./useMatiere";
 
 export default function useClasse() {
   const [classes, setClasses] = useState(classeData);
   const { annonces: allAnnonces } = useAnnonce();
   const { students } = useStudent();
+  const { matieres } = useMatiere();
 
   const createClasse = async (classeDataInput, year_id) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -83,6 +85,10 @@ export default function useClasse() {
     return classes.find((cl) => cl.id === student.classe_id);
   };
 
+  const getMatiere = (classeId) => {
+    const matiere = matieres.filter((matier) => matier.classe_id === classeId);
+    return matiere;
+  };
   return {
     classes,
     createClasse,
@@ -92,5 +98,6 @@ export default function useClasse() {
     getActiveAnnonce,
     getAnnonces,
     getStudentClasse,
+    getMatiere,
   };
 }

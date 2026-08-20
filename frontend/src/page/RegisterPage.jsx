@@ -23,7 +23,7 @@ export default function RegisterPage() {
     first_name: "",
     email: "",
     password_hash: "",
-    classe_id: "",
+    code_invitation: "",
   });
   const [erreur, setErreur] = React.useState(null);
   const [isSubmiting, setIsSubmiting] = React.useState(false);
@@ -60,47 +60,57 @@ export default function RegisterPage() {
     >
       <div className="flex flex-col gap-6">
         {/* champ pour nom et prenom  */}
-        <InputLabeled
-          value={formData.first_name}
-          name="first_name"
-          label="Nom et prénom"
-          setValue={setFormData}
-          required
-          description="Entre nom et prénom ici"
-        />
-
-        {/* champ pour email  */}
-        <InputLabeled
-          type="email"
-          name="email"
-          label="Email"
-          value={formData.email}
-          required
-          setValue={setFormData}
-        />
-
-        {/* champ pour le mot de passe */}
-        <InputLabeled
-          type="password"
-          label="Mot de passe "
-          value={formData.password_hash}
-          name="password_hash"
-          setValue={setFormData}
-          required
-        />
-
-        {/* champ pour classe_id */}
-        <InputLabeled
-          label="Identifiant d'une classe "
-          value={formData.classe_id}
-          setValue={setFormData}
-          name="classe_id"
-          description="Entrer l'id de votre classe"
-        />
+        <ChampUsersCreate value={formData} setValue={setFormData} isCode />
       </div>
       <ButtonStyled loading={isSubmiting} loadingText="Inscritption en cours ">
         S'inscrire
       </ButtonStyled>
     </FormCard>
+  );
+}
+
+export function ChampUsersCreate({ value, setValue, isCode = false }) {
+  return (
+    <div>
+      <InputLabeled
+        value={value.first_name}
+        name="first_name"
+        label="Nom et prénom"
+        setValue={setValue}
+        required
+        description="Entre nom et prénom ici"
+      />
+
+      {/* champ pour email  */}
+      <InputLabeled
+        type="email"
+        name="email"
+        label="Email"
+        value={value.email}
+        required
+        setValue={setValue}
+      />
+
+      {/* champ pour le mot de passe */}
+      <InputLabeled
+        type="password"
+        label="Mot de passe "
+        value={value.password_hash}
+        name="password_hash"
+        setValue={setValue}
+        required
+      />
+
+      {/* champ pour classe_id */}
+      {isCode && (
+        <InputLabeled
+          label="Identifiant d'une classe "
+          value={value.code_invitation}
+          setValue={setValue}
+          name="code_invitation"
+          description="Entrer l'id de votre classe"
+        />
+      )}
+    </div>
   );
 }

@@ -17,7 +17,7 @@ export const annonceData = [
     important: true,
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440004",
-    classe_id: "650e8400-e29b-41d4-a716-446655440001",
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "850e8400-e29b-41d4-a716-446655440003",
@@ -26,7 +26,7 @@ export const annonceData = [
     important: true,
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440004",
-    classe_id: "650e8400-e29b-41d4-a716-446655440001",
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "850e8400-e29b-41d4-a716-446655440004",

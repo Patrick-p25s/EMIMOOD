@@ -4,6 +4,18 @@ import { useState } from "react";
 export default function useStudent() {
   const [students, setStudents] = useState(userData);
 
+  const createModerator = async (studentData, classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const newStudent = {
+      id: crypto.randomUUID(),
+      first_name: studentData.first_name,
+      email: studentData.email,
+      password: studentData.password,
+      classe_id: classeId,
+      role: "moderator",
+    };
+  };
+
   const updateProfile = async (id, studentData) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -56,5 +68,6 @@ export default function useStudent() {
     getByClasse,
     deleteStudent,
     getMyProfile,
+    createModerator,
   };
 }

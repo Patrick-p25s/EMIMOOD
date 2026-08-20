@@ -4,7 +4,7 @@ import FormCard from "@/components/shared/FormCard";
 import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
 import useAnnonce from "@/hooks/useAnnonce";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export default function Annonces() {
   const {
@@ -15,9 +15,18 @@ export default function Annonces() {
     updateAnnonce,
   } = useAnnonce();
 
+  const [filter, setFilter] = useState("all");
+
   const [open, setOpen] = useState(false);
   const [updated, setUpdated] = useState(null);
 
+  const filteredAnnonces = useMemo(() => {
+    let resultat = annonces;
+    if (filter !== "all") {
+      resultat = resultat.filter((ann) => ann.statut === filter);
+    }
+    return resultat;
+  }, [filter]);
   const cancelUpdate = () => {
     setUpdated(null);
     setOpen(false);
@@ -33,6 +42,13 @@ export default function Annonces() {
         <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
       </div>
       <div>
+        <ButtonStyled onClick={() => setFilter("all")}>Tout</ButtonStyled>
+        <ButtonStyled onClick={() => setFilter("active")}>Actif</ButtonStyled>
+        <ButtonStyled onClick={() => setFilter("archive")}>
+          Archive
+        </ButtonStyled>
+      </div>
+      <div>
         <AnnonceForm
           onOpen={setOpen}
           open={open}
@@ -42,7 +58,7 @@ export default function Annonces() {
           onCancel={cancelUpdate}
         />
       </div>
-      {annonces.map((annonce) => (
+      {filteredAnnonces.map((annonce) => (
         <AnnonceItem
           annonce={annonce}
           key={annonce.id}
