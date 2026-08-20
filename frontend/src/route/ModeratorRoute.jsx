@@ -8,7 +8,6 @@ export default function ModeratorRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  console.log(role);
   return role === "moderator" ? (
     <Outlet />
   ) : (

@@ -15,6 +15,7 @@ export default function useDocument() {
       owner_id: ownerId,
     };
     setDocuments([...documents, document]);
+    return document;
   };
 
   const getDocumentByType = async (typeDocument) => {

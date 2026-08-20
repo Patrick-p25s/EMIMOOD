@@ -63,8 +63,8 @@ export default function Annonces() {
           annonce={annonce}
           key={annonce.id}
           onDelete={() => deleteAnnonce(annonce.id)}
-          onArchive={archiveAnnonce}
-          onEdit={handleEdit}
+          onArchive={() => archiveAnnonce(annonce.id)}
+          onEdit={() => handleEdit(annonce)}
         />
       ))}
     </div>

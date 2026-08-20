@@ -21,6 +21,9 @@ import FormCard from "@/components/shared/FormCard";
 export default function RegisterPage() {
   const [formData, setFormData] = React.useState({
     first_name: "",
+    last_name: "",
+    matricule: "",
+    phone_number: "",
     email: "",
     password_hash: "",
     code_invitation: "",
@@ -73,16 +76,47 @@ export default function RegisterPage() {
   );
 }
 
-export function ChampUsersCreate({ value, setValue, isCode = false }) {
+export function ChampUsersCreate({
+  value,
+  setValue,
+  isCode = false,
+  isEdit = false,
+  className,
+}) {
   return (
-    <div>
+    <div className={className}>
+      {/* champ pour nom  */}
       <InputLabeled
         value={value.first_name}
         name="first_name"
-        label="Nom et prénom"
+        label="Entrez votre nom"
         setValue={setValue}
         required
-        description="Entre nom et prénom ici"
+        placeholder="Ex: John"
+      />
+      <InputLabeled
+        value={value.last_name}
+        name="last_name"
+        label="Entrez votre prénom"
+        setValue={setValue}
+        required
+        placeholder="Ex : Doe"
+      />
+
+      <InputLabeled
+        value={value.matricule}
+        name="matricule"
+        label="Entre votre matricule"
+        setValue={setValue}
+        required
+        placeholder="354I25"
+      />
+      <InputLabeled
+        value={value.phone_number}
+        name="phone_number"
+        label="Numéro de téléphone"
+        setValue={setValue}
+        placeholder="Ex : 038 85 454 19"
       />
 
       {/* champ pour email  */}
@@ -96,14 +130,16 @@ export function ChampUsersCreate({ value, setValue, isCode = false }) {
       />
 
       {/* champ pour le mot de passe */}
-      <InputLabeled
-        type="password"
-        label="Mot de passe "
-        value={value.password_hash}
-        name="password_hash"
-        setValue={setValue}
-        required
-      />
+      {!isEdit && (
+        <InputLabeled
+          type="password"
+          label="Mot de passe "
+          value={value.password_hash}
+          name="password_hash"
+          setValue={setValue}
+          required
+        />
+      )}
 
       {/* champ pour classe_id */}
       {isCode && (

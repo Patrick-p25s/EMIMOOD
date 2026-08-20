@@ -23,7 +23,7 @@ export const annonceData = [
     id: "850e8400-e29b-41d4-a716-446655440003",
     titre: "Rappel : examen de programmation",
     contenu: "L'examen de programmation aura lieu vendredi prochain à 8h00.",
-    important: true,
+    important: false,
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440004",
     classe_id: "20000000-0000-4000-8000-000000000001",

@@ -32,7 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ManageClasse() {
   const { classeId } = useParams();
   const [open, setOpen] = useState(false);
-  const { createModerator } = useStudent();
+  const { createStudent } = useStudent();
   const [formData, setFormData] = useState({
     first_name: "",
     email: "",
@@ -98,7 +98,7 @@ export default function ManageClasse() {
     setErreur(null);
     setIsSubmiting(true);
     try {
-      await createModerator(formData, classeId);
+      await createStudent(formData, classeId);
     } catch (error) {
       setErreur(`Erreur : ${error.message.toString()}`);
     } finally {

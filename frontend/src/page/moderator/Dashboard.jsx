@@ -76,7 +76,13 @@ function ClasseInfoCard({ classe, matiereCount, studentCount, loading }) {
 }
 
 // ── Sous-composant : ligne document en attente ───────────────
-function PendingDocRow({ doc, matiereName, processing, onValide, onRejete }) {
+export function PendingDocRow({
+  doc,
+  matiereName,
+  processing,
+  onValide,
+  onRejete,
+}) {
   return (
     <div className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
       <div className="flex items-center gap-3 min-w-0">
@@ -101,15 +107,16 @@ function PendingDocRow({ doc, matiereName, processing, onValide, onRejete }) {
         >
           <Check className="w-4 h-4" /> Valider
         </ButtonStyled>
-        <Button
+        <ButtonStyled
+          icon={<X className="w-4 h-4" />}
           size="sm"
           variant="destructive"
           className="gap-1"
           disabled={processing}
           onClick={() => onRejete(doc.id)}
         >
-          <X className="w-4 h-4" /> Rejeter
-        </Button>
+          Rejeter
+        </ButtonStyled>
       </div>
     </div>
   );

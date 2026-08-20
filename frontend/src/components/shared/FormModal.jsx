@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ButtonStyled } from "./ButtonStyled";
-
+import { AlertCircle } from "lucide-react";
 export default function FormModal({
   open,
   onOpenChange,
@@ -17,6 +17,7 @@ export default function FormModal({
   onSubmit,
   submitLabel = "Enregistrer",
   loading = false,
+  onCancel,
   error = null,
 }) {
   const errors = Array.isArray(error) ? error : error ? [error] : [];
@@ -58,7 +59,10 @@ export default function FormModal({
             <ButtonStyled
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onOpenChange(false);
+                onCancel?.();
+              }}
             >
               Annuler
             </ButtonStyled>

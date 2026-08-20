@@ -4,7 +4,7 @@ import { useState } from "react";
 export default function useStudent() {
   const [students, setStudents] = useState(userData);
 
-  const createModerator = async (studentData, classeId) => {
+  const createStudent = async (studentData, classeId, role = "moderator") => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const newStudent = {
       id: crypto.randomUUID(),
@@ -12,8 +12,10 @@ export default function useStudent() {
       email: studentData.email,
       password: studentData.password,
       classe_id: classeId,
-      role: "moderator",
+      role: role,
     };
+    setStudents((student) => [...student, newStudent]);
+    return newStudent;
   };
 
   const updateProfile = async (id, studentData) => {
@@ -68,6 +70,6 @@ export default function useStudent() {
     getByClasse,
     deleteStudent,
     getMyProfile,
-    createModerator,
+    createStudent,
   };
 }

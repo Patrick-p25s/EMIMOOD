@@ -11,6 +11,7 @@ import {
   X,
   Megaphone,
   BookOpen,
+  Book,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 import useMatiere from "@/hooks/useMatiere";
 import useClasse from "@/hooks/useClasse";
 import useDocument from "@/hooks/useDocument";
+import useStudent from "@/hooks/useStudent";
+import useAnnonce from "@/hooks/useAnnonce";
 const NAV_ITEMS = [
   {
     to: "/moderator",
@@ -29,6 +32,7 @@ const NAV_ITEMS = [
   { to: "/moderator/matieres", label: "Matieres", icon: BookOpen },
   { to: "/moderator/students", label: "Utilisateurs", icon: Users },
   { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
+  { to: "/moderator/documents", label: "Documents", icon: Book },
 ];
 
 const RECENT_LIMIT = 5;
@@ -37,16 +41,41 @@ export default function ModeratorLayout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const {
+    annonces,
+    getActiveAnnonce,
+    archiveAnnonce,
+    deleteAnnonce,
+    updateAnnonce,
+    createAnnonce,
+  } = useAnnonce();
   const moderatorClasseId = user?.classe_id || user?.classeId;
 
-  const { classes, loading: classesLoading } = useClasse();
-  const { matieres } = useMatiere();
+  const { classes } = useClasse();
+  const { matieres, createSubject, updateSubject, deleteSubject } =
+    useMatiere();
+  const { students, updateProfile, deleteStudent, createStudent } =
+    useStudent();
   const { documents, valideDocument, rejeteDocument } = useDocument();
 
   const userClasse = useMemo(
     () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
     [classes, moderatorClasseId],
   );
+
+  const allAnnonces = useMemo(() => {
+    if (!annonces || !moderatorClasseId) return [];
+    return annonces.filter(
+      (annonce) => String(annonce.classe_id) === String(moderatorClasseId),
+    );
+  });
+
+  const allStudents = useMemo(() => {
+    if (!students || !moderatorClasseId) return [];
+    return students.filter(
+      (student) => String(student.classe_id) === String(moderatorClasseId),
+    );
+  }, [students, moderatorClasseId]);
 
   const classMatieres = useMemo(() => {
     if (!matieres || !moderatorClasseId) return [];
@@ -93,7 +122,6 @@ export default function ModeratorLayout() {
     return map;
   }, [classMatieres]);
 
-  console.log(classDocuments);
   const contextValue = {
     userClasse,
     classMatieres,
@@ -103,6 +131,21 @@ export default function ModeratorLayout() {
     recentPendingDocs,
     rejectedDocs,
     publicDocs,
+    allStudents,
+    allAnnonces,
+    archiveAnnonce,
+    createStudent,
+    deleteAnnonce,
+    updateAnnonce,
+    createAnnonce,
+    getActiveAnnonce,
+    createSubject,
+    deleteSubject,
+    updateSubject,
+    updateProfile,
+    deleteStudent,
+    valideDocument,
+    rejeteDocument,
   };
   return (
     <div className="min-h-screen flex bg-orange-50/30">
