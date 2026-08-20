@@ -10,10 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import useAuth from "@/hook/useAuth";
+import useAuth from "@/hooks/useAuth";
+import InputLabeled from "@/components/shared/InputLabeled";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import FormCard from "@/components/shared/FormCard";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
@@ -28,8 +29,15 @@ export default function LoginPage() {
     setErreur("");
     setIsSubmiting(true);
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const user = await login(email, password);
+      console.log(user.role);
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (user.role === "moderator") {
+        navigate("/moderator", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (e) {
       setErreur(e.message.toString());
     } finally {
@@ -37,61 +45,35 @@ export default function LoginPage() {
     }
   };
   return (
-    <div className="flex justify-center items-center w-full h-screen">
-      <Card className="w-1/2">
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-          <CardAction>
-            <Button variant="link" onClick={() => navigate("/register")}>
-              Sign Up
-            </Button>
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email-spacing">Email</Label>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  id="email-spacing"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password-spacing">Password</Label>
-                  <a
-                    href="/register"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input
-                  id="password-spacing"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button type="submit" className="w-full" disabled={isSubmiting}>
-              {isSubmiting ? "Loading ..." : "Login"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex-col gap-2">
-          {erreur && <h1 className="text-accent-foreground">{erreur}</h1>}
-        </CardFooter>
-      </Card>
-    </div>
+    <FormCard
+      title="Formulaire de connection"
+      description="Entrez votre email et mot de passe pour connecter"
+      error={erreur ? erreur : null}
+      onSubmit={handleSubmit}
+      loading={isSubmiting}
+    >
+      <div className="flex flex-col gap-6">
+        <InputLabeled
+          onChange={() => setErreur(null)}
+          label="Email "
+          description="Entrer une email validé"
+          type="email"
+          value={email}
+          required
+          setValue={setEmail}
+        />
+        <InputLabeled
+          onChange={() => setErreur(null)}
+          required
+          type="password"
+          label="Mot de passe"
+          value={password}
+          setValue={setPassword}
+        />
+      </div>
+      <ButtonStyled loading={isSubmiting} loadingText="Connection  en cours ">
+        Se connecter
+      </ButtonStyled>
+    </FormCard>
   );
 }

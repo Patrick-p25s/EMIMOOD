@@ -9,7 +9,7 @@ export const userData = [
     matricule: "DAII2026001",
     password_hash: "password",
     role: "student",
-    classe_id: "650e8400-e29b-41d4-a716-446655440001",
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440002",
@@ -21,7 +21,7 @@ export const userData = [
     matricule: "DAII2026002",
     password_hash: "password",
     role: "student",
-    classe_id: "650e8400-e29b-41d4-a716-446655440001",
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440003",
@@ -32,8 +32,8 @@ export const userData = [
     email: "jean.rakoto@example.com",
     matricule: "DAII2026003",
     password_hash: "password",
-    role: "student",
-    classe_id: "650e8400-e29b-41d4-a716-446655440002",
+    role: "moderator",
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440004",
@@ -45,7 +45,7 @@ export const userData = [
     matricule: null,
     password_hash: "password",
     role: "moderator",
-    classe_id: null,
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440005",
