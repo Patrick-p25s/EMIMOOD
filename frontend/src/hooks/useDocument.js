@@ -43,8 +43,7 @@ export default function useDocument() {
     return docs;
   };
 
-  const getDocumentById = async (documentId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const getDocumentById = (documentId) => {
     return documents.find((doc) => doc.id === documentId);
   };
 
@@ -107,6 +106,7 @@ export default function useDocument() {
     const docs = documents.filter((doc) => doc.owner_id === userId);
     return docs;
   };
+
   return {
     documents,
     deleteDocument,

@@ -11,16 +11,23 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
+import { useNavigate } from "react-router-dom";
 
 export default function MatiereCard({ matiere, onUpdate, onDelete }) {
   if (!matiere) return null;
+  const navigate = useNavigate();
 
   return (
     <Card className="hover:border-primary/50 transition-colors flex flex-col justify-between">
       <div>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2.5">
+            <div
+              className="flex items-center gap-2.5 cursor-pointer"
+              onClick={() => {
+                navigate(matiere.id);
+              }}
+            >
               <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <BookOpen className="h-5 w-5 text-primary" />
               </div>

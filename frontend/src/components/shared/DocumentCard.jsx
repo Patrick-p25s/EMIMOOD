@@ -24,6 +24,7 @@ import {
   Check,
   X,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function DocumentCard({
   document,
@@ -38,7 +39,7 @@ export default function DocumentCard({
   if (!document) return null;
 
   const [isSaved, setIsSaved] = useState(isSavedInitial);
-
+  const navigate = useNavigate();
   const {
     titre,
     description,
@@ -212,7 +213,10 @@ export default function DocumentCard({
             </div>
           </div>
 
-          <div className="flex items-start gap-2.5 pt-2">
+          <div
+            className="flex items-start gap-2.5 pt-2 cursor-pointer"
+            onClick={() => navigate(document.id)}
+          >
             <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <CardTitle className="text-base font-semibold leading-tight text-foreground line-clamp-2">
               {titre}

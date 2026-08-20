@@ -26,6 +26,8 @@ import StudentModerator from "./page/moderator/StudentModerator";
 import AnnounceModerator from "./page/moderator/AnnounceModerator";
 import SubjectModerator from "./page/moderator/SubjectModerator";
 import DocumentModerator from "./page/moderator/DocumentModerator";
+import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
+import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
 export default function App() {
   return (
     <AuthProvider>
@@ -70,7 +72,15 @@ export default function App() {
                 <Route path="students" element={<StudentModerator />} />
                 <Route path="annonces" element={<AnnounceModerator />} />
                 <Route path="matieres" element={<SubjectModerator />} />
+                <Route
+                  path="matieres/:subjectId"
+                  element={<OneSubjectModerator />}
+                />
                 <Route path="documents" element={<DocumentModerator />} />
+                <Route
+                  path="documents/:documentId"
+                  element={<OneDocumentModerator />}
+                />
               </Route>
             </Route>
           </Routes>
