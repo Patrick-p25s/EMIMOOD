@@ -21,7 +21,10 @@ import Etudiant from "./page/admin/Etudiant";
 import ModeratorLayout from "./layout/ModeratorLayout";
 import ModeratorRoute from "./route/ModeratorRoute";
 import DashboardModerator from "./page/moderator/Dashboard";
-
+import ModeratorStudent from "./page/moderator/StudentModerator";
+import StudentModerator from "./page/moderator/StudentModerator";
+import AnnounceModerator from "./page/moderator/AnnounceModerator";
+import SubjectModerator from "./page/moderator/SubjectModerator";
 export default function App() {
   return (
     <AuthProvider>
@@ -59,9 +62,13 @@ export default function App() {
             </Route>
 
             {/* Route pour les moderator seulement  */}
-            <Route element={<ModeratorLayout />}>
-              <Route path="/moderator" element={<ModeratorRoute />}>
-                <Route path="" element={<DashboardModerator />} />
+            <Route path="/moderator" element={<ModeratorRoute />}>
+              {/* Layout unique qui gère la Sidebar et le Context */}
+              <Route element={<ModeratorLayout />}>
+                <Route index element={<DashboardModerator />} />
+                <Route path="students" element={<StudentModerator />} />
+                <Route path="annonces" element={<AnnounceModerator />} />
+                <Route path="matieres" element={<SubjectModerator />} />
               </Route>
             </Route>
           </Routes>

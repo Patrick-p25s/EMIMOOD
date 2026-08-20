@@ -135,8 +135,9 @@ export default function ManageClasse() {
           <ButtonStyled
             onClick={() => setOpen(true)}
             className="flex items-center gap-2"
+            icon={<Plus className="w-4 h-4" />}
           >
-            <Plus className="w-4 h-4" /> Ajouter Modérateur
+            Ajouter Modérateur
           </ButtonStyled>
 
           <FormModal

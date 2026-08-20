@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
+import { useMemo } from "react";
 import {
   ShieldAlert,
   LayoutDashboard,
@@ -8,26 +9,101 @@ import {
   LogOut,
   Menu,
   X,
+  Megaphone,
+  BookOpen,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
-
+import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
+import useMatiere from "@/hooks/useMatiere";
+import useClasse from "@/hooks/useClasse";
+import useDocument from "@/hooks/useDocument";
 const NAV_ITEMS = [
   {
-    to: "/moderator/dashboard",
+    to: "/moderator",
     label: "Tableau de bord",
     icon: LayoutDashboard,
   },
-  { to: "/moderator/reports", label: "Signalements", icon: Flag },
-  { to: "/moderator/users", label: "Utilisateurs", icon: Users },
+  { to: "/moderator/matieres", label: "Matieres", icon: BookOpen },
+  { to: "/moderator/students", label: "Utilisateurs", icon: Users },
+  { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
 ];
+
+const RECENT_LIMIT = 5;
 
 export default function ModeratorLayout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const moderatorClasseId = user?.classe_id || user?.classeId;
+
+  const { classes, loading: classesLoading } = useClasse();
+  const { matieres } = useMatiere();
+  const { documents, valideDocument, rejeteDocument } = useDocument();
+
+  const userClasse = useMemo(
+    () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
+    [classes, moderatorClasseId],
+  );
+
+  const classMatieres = useMemo(() => {
+    if (!matieres || !moderatorClasseId) return [];
+    return matieres.filter(
+      (m) => String(m.classe_id) === String(moderatorClasseId),
+    );
+  }, [matieres, moderatorClasseId]);
+
+  const classMatiereIds = useMemo(
+    () => classMatieres.map((m) => String(m.id)),
+    [classMatieres],
+  );
+
+  const classDocuments = useMemo(() => {
+    if (!documents || classMatiereIds.length === 0) return [];
+
+    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
+    const matiereSet = new Set(classMatiereIds.map(String));
+
+    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
+  }, [documents, classMatiereIds]);
+
+  const pendingDocs = useMemo(
+    () => classDocuments.filter((d) => d.statut === "pending"),
+    [classDocuments],
+  );
+  const publicDocs = useMemo(
+    () => classDocuments.filter((d) => d.statut === "public"),
+    [classDocuments],
+  );
+  const rejectedDocs = useMemo(
+    () => classDocuments.filter((d) => d.statut === "rejete"),
+    [classDocuments],
+  );
+
+  const recentPendingDocs = useMemo(
+    () => pendingDocs.slice(0, RECENT_LIMIT),
+    [pendingDocs],
+  );
+
+  const matiereNameById = useMemo(() => {
+    const map = new Map();
+    classMatieres.forEach((m) => map.set(String(m.id), m.nom));
+    return map;
+  }, [classMatieres]);
+
+  console.log(classDocuments);
+  const contextValue = {
+    userClasse,
+    classMatieres,
+    classMatiereIds,
+    classDocuments,
+    matiereNameById,
+    recentPendingDocs,
+    rejectedDocs,
+    publicDocs,
+  };
   return (
     <div className="min-h-screen flex bg-orange-50/30">
       {/* Overlay mobile */}
@@ -48,14 +124,16 @@ export default function ModeratorLayout() {
         <div className="flex items-center gap-2 px-4 h-16 border-b border-orange-200">
           <ShieldAlert className="h-6 w-6 text-orange-600" />
           <span className="font-semibold text-orange-900">Modération</span>
-          <Button
+          <ButtonStyled
             variant="ghost"
-            size="icon"
-            className="ml-auto lg:hidden"
+            className={cn(
+              buttonVariants({ size: "icon" }),
+              "ml-auto lg:hidden",
+            )}
             onClick={() => setSidebarOpen(false)}
           >
             <X className="h-5 w-5" />
-          </Button>
+          </ButtonStyled>
         </div>
 
         <nav className="flex-1 px-2 py-4 flex flex-col gap-1">
@@ -80,28 +158,30 @@ export default function ModeratorLayout() {
         </nav>
 
         <div className="px-4 py-4 border-t border-orange-200">
-          <Button
+          <ButtonStyled
+            icon={<LogOut className="h-4 w-4" />}
             variant="ghost"
-            className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
             onClick={logout}
+            className={
+              "w-full justify-start gap-2 text-gray-600 hover:text-red-600"
+            }
           >
-            <LogOut className="h-4 w-4" />
             Déconnexion
-          </Button>
+          </ButtonStyled>
         </div>
       </aside>
 
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-white border-b border-orange-200 flex items-center justify-between px-4 lg:px-6">
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className={cn(buttonVariants({ size: "icon" }), "lg:hidden")}
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
-          </Button>
+          </ButtonStyled>
 
           <div className="hidden lg:block" />
 
@@ -117,7 +197,7 @@ export default function ModeratorLayout() {
         </header>
 
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          <Outlet />
+          <Outlet context={contextValue} />
         </main>
       </div>
     </div>

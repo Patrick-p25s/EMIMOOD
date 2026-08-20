@@ -1,20 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import useAuth from "@/hooks/useAuth";
-import useClasse from "@/hooks/useClasse";
-import useMatiere from "@/hooks/useMatiere";
 import useDocument from "@/hooks/useDocument";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +23,7 @@ import AnnouncementDialog from "./AnnouncementDialog";
 import DocumentUploadDialog from "./DialogUploadDialog";
 
 import StatCard from "@/components/shared/StatCard";
+import { useOutletContext } from "react-router-dom";
 
 // ── Sous-composant : carte info classe ───────────────────────
 function ClasseInfoCard({ classe, matiereCount, studentCount, loading }) {
@@ -137,59 +126,20 @@ export default function DashboardModerator() {
 
   const moderatorClasseId = user?.classe_id || user?.classeId;
 
-  const { classes, loading: classesLoading } = useClasse();
-  const { matieres } = useMatiere();
-  const { documents, valideDocument, rejeteDocument } = useDocument();
+  const { valideDocument, rejeteDocument } = useDocument();
 
-  const userClasse = useMemo(
-    () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
-    [classes, moderatorClasseId],
-  );
-
-  const classMatieres = useMemo(() => {
-    if (!matieres || !moderatorClasseId) return [];
-    return matieres.filter(
-      (m) => String(m.classe_id) === String(moderatorClasseId),
-    );
-  }, [matieres, moderatorClasseId]);
-
-  const classMatiereIds = useMemo(
-    () => classMatieres.map((m) => String(m.id)),
-    [classMatieres],
-  );
-
-  const classDocuments = useMemo(() => {
-    if (!documents || classMatiereIds.length === 0) return [];
-
-    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
-    const matiereSet = new Set(classMatiereIds.map(String));
-
-    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
-  }, [documents, classMatiereIds]);
-
-  const pendingDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "pending"),
-    [classDocuments],
-  );
-  const publicDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "public"),
-    [classDocuments],
-  );
-  const rejectedDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "rejete"),
-    [classDocuments],
-  );
-
-  const recentPendingDocs = useMemo(
-    () => pendingDocs.slice(0, RECENT_LIMIT),
-    [pendingDocs],
-  );
-
-  const matiereNameById = useMemo(() => {
-    const map = new Map();
-    classMatieres.forEach((m) => map.set(String(m.id), m.nom));
-    return map;
-  }, [classMatieres]);
+  // Extraction sécurisée depuis useOutletContext avec valeurs par défaut
+  const {
+    userClasse,
+    classMatieres,
+    classDocuments = [],
+    pendingDocs = [],
+    publicDocs = [],
+    rejectedDocs = [],
+    recentPendingDocs = [],
+    matiereNameById = new Map(),
+    classesLoading = false, // 👈 Récupéré ou initialisé à false
+  } = useOutletContext();
 
   const handleValide = async (docId) => {
     setProcessingId(docId);
@@ -333,47 +283,6 @@ export default function DashboardModerator() {
           )}
         </CardContent>
       </Card>
-
-      {/* Onglets détaillés */}
-      {/* <Tabs defaultValue="pending" className="w-full space-y-4">
-        <TabsList className="bg-muted p-1">
-          <TabsTrigger value="pending" className="gap-2">
-            <Clock className="w-4 h-4" /> En attente ({pendingDocs.length})
-          </TabsTrigger>
-          <TabsTrigger value="public" className="gap-2">
-            <FileText className="w-4 h-4" /> Publics ({publicDocs.length})
-          </TabsTrigger>
-          <TabsTrigger value="rejected" className="gap-2">
-            <X className="w-4 h-4" /> Rejetés ({rejectedDocs.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="pending" className="space-y-2">
-          {pendingDocs.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                Aucun document en attente de validation.
-              </CardContent>
-            </Card>
-          ) : (
-            pendingDocs.map((doc) => (
-              <PendingDocRow
-                key={doc.id}
-                doc={doc}
-                matiereName={matiereNameById.get(String(doc.matiere_id))}
-                processing={processingId === doc.id}
-                onValide={handleValide}
-                onRejete={handleRejete}
-              />
-            ))
-          )}
-        </TabsContent> */}
-
-      {/* <TabsContent value="public">
-        </TabsContent>
-        <TabsContent value="rejected">
-        </TabsContent>
-      </Tabs> */}
     </div>
   );
 }
