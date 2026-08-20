@@ -24,7 +24,7 @@ export const documentData = [
     mime_type: "application/pdf",
     taille_octets: 1843200,
     owner_id: "550e8400-e29b-41d4-a716-446655440004",
-    matiere_id: "750e8400-e29b-41d4-a716-446655440001",
+    matiere_id: "30000000-0000-4000-8000-000000000001",
     validated_by_id: "550e8400-e29b-41d4-a716-446655440005",
   },
   {
@@ -38,7 +38,7 @@ export const documentData = [
     mime_type: "application/pdf",
     taille_octets: 3145728,
     owner_id: "550e8400-e29b-41d4-a716-446655440004",
-    matiere_id: "750e8400-e29b-41d4-a716-446655440003",
+    matiere_id: "30000000-0000-4000-8000-000000000001",
     validated_by_id: null,
   },
   {
@@ -52,7 +52,7 @@ export const documentData = [
     mime_type: "application/pdf",
     taille_octets: 4096000,
     owner_id: "550e8400-e29b-41d4-a716-446655440004",
-    matiere_id: "750e8400-e29b-41d4-a716-446655440002",
+    matiere_id: "30000000-0000-4000-8000-000000000001",
     validated_by_id: "550e8400-e29b-41d4-a716-446655440005",
   },
 ];

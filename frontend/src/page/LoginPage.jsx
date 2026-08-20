@@ -30,9 +30,14 @@ export default function LoginPage() {
     setIsSubmiting(true);
     try {
       const user = await login(email, password);
-      user.role === "admin"
-        ? navigate("/admin", { replace: true })
-        : navigate("/dashboard", { replace: true });
+      console.log(user.role);
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (user.role === "moderator") {
+        navigate("/moderator", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (e) {
       setErreur(e.message.toString());
     } finally {

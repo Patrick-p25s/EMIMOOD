@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import LandingPage from "./page/LandingPage";
 import AuthProvider from "./context/AuthContext";
 import { AnneeProvider } from "./context/AnneeContext";
@@ -18,6 +18,9 @@ import Annee from "./page/admin/Annee";
 import Classe from "./page/admin/Classe";
 import Delegue from "./page/admin/Delegue";
 import Etudiant from "./page/admin/Etudiant";
+import ModeratorLayout from "./layout/ModeratorLayout";
+import ModeratorRoute from "./route/ModeratorRoute";
+import DashboardModerator from "./page/moderator/Dashboard";
 
 export default function App() {
   return (
@@ -52,6 +55,13 @@ export default function App() {
                 <Route path="delegues" element={<Delegue />} />
                 <Route path="etudiants" element={<Etudiant />} />
                 <Route path="documents" element={<Classe />} />
+              </Route>
+            </Route>
+
+            {/* Route pour les moderator seulement  */}
+            <Route element={<ModeratorLayout />}>
+              <Route path="/moderator" element={<ModeratorRoute />}>
+                <Route path="" element={<DashboardModerator />} />
               </Route>
             </Route>
           </Routes>

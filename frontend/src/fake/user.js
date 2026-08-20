@@ -45,7 +45,7 @@ export const userData = [
     matricule: null,
     password_hash: "password",
     role: "moderator",
-    classe_id: null,
+    classe_id: "20000000-0000-4000-8000-000000000001",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440005",

@@ -11,7 +11,9 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import useAuth from "@/hooks/useAuth";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 const menuGeneral = [
   { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, end: true },
   { to: "/admin/annonces", label: "Annonces", icon: Megaphone },
@@ -31,6 +33,7 @@ const menuContenu = [
 
 export default function AdminLayout() {
   const { getActiveYear } = useYear();
+  const { logout } = useAuth();
   return (
     <div className="flex min-h-screen">
       {/* SIDEBAR */}
@@ -47,6 +50,16 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col">
         {/* HEADER */}
         <header className="flex justify-end items-center px-6 py-3 border-b">
+          <div className="px-4 py-4 border-t border-orange-200">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
+              onClick={logout}
+            >
+              <LogOut className="h-4 w-4" />
+              Déconnexion
+            </Button>
+          </div>
           <Badge
             variant="secondary"
             className="gap-1.5 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-100"

@@ -11,6 +11,9 @@ export default function ProtectedRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  if (role !== "student") {
+    return <Navigate to="/admin" replace />;
+  }
 
   return <Outlet />;
 }

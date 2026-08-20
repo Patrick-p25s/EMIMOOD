@@ -42,8 +42,12 @@ export default function RegisterPage() {
     setErreur(null);
     setIsSubmiting(true);
     try {
-      await register(formData);
-      navigate("/admin");
+      const user = await register(formData);
+      user.role === "admin"
+        ? navigate("/admin", { replace: true })
+        : user.role === "moderator"
+          ? navigate("/moderator", { replace: true })
+          : navigate("/dashboard", { replace: true });
     } catch (e) {
       setErreur(e.message.toString());
     } finally {
