@@ -55,14 +55,8 @@ export default function useStudent() {
     return students.filter((student) => student.classe_id === classeId);
   };
 
-  const getMyProfile = async (studentId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const student = students.find((s) => s.id === studentId);
-    if (!student) {
-      throw new Error("Aucun étudiant trouvé avec cet ID");
-    }
-    return student;
-  };
+  const getMyProfile = async (studentId) =>
+    students.find((student) => student.id === studentId);
 
   return {
     students,

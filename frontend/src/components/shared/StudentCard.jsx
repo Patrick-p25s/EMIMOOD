@@ -14,7 +14,12 @@ import { Button } from "@/components/ui/button";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function StudentCard({ student, onUpdate, onDelete }) {
+export default function StudentCard({
+  student,
+  onUpdate,
+  onDelete,
+  onProfile,
+}) {
   if (!student) return null;
 
   // Formatage du nom complet
@@ -32,7 +37,14 @@ export default function StudentCard({ student, onUpdate, onDelete }) {
       <div>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+            <div
+              className={
+                onProfile
+                  ? "cursor-pointer flex items-center gap-3 min-w-0"
+                  : "flex items-center gap-3 min-w-0"
+              }
+              onClick={onProfile}
+            >
               {/* Avatar de l'étudiant / modérateur */}
               <Avatar className="h-10 w-10 border border-border shrink-0">
                 <AvatarImage src={student.avatar_url} alt={fullName} />

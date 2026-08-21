@@ -20,7 +20,6 @@ import Etudiant from "./page/admin/Etudiant";
 import ModeratorLayout from "./layout/ModeratorLayout";
 import ModeratorRoute from "./route/ModeratorRoute";
 import DashboardModerator from "./page/moderator/Dashboard";
-import ModeratorStudent from "./page/moderator/StudentModerator";
 import StudentModerator from "./page/moderator/StudentModerator";
 import AnnounceModerator from "./page/moderator/AnnounceModerator";
 import SubjectModerator from "./page/moderator/SubjectModerator";

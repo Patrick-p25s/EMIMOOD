@@ -5,9 +5,18 @@ import { useState } from "react";
 import FormModal from "@/components/shared/FormModal";
 import { ChampUsersCreate } from "../RegisterPage";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import ProfileStudent from "@/components/special/ProfileStudent";
+import useClasse from "@/hooks/useClasse";
+import UserProfileModal from "@/components/special/StudentProfileModal";
 export default function Etudiant() {
-  const { students, deleteStudent, updateProfile, createStudent } =
-    useStudent();
+  const {
+    students,
+    deleteStudent,
+    updateProfile,
+    createStudent,
+    getMyProfile,
+  } = useStudent();
+  const { getStudentClasse } = useClasse();
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null); // Pour l'édition si besoin
   const isEditing = Boolean(selectedStudent);
@@ -22,8 +31,15 @@ export default function Etudiant() {
     code_invitation: "",
   });
 
+  const [studentProfile, setStudentProfile] = useState({
+    user: {},
+    classe: {},
+    stats: {},
+  });
+
   const [erreur, setErreur] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   // Réinitialisation propre à la fermeture du modal
   const handleOpenChange = (isOpen) => {
@@ -103,6 +119,13 @@ export default function Etudiant() {
     setOpen(true);
   };
 
+  const handleProfile = async (studentId) => {
+    setOpenProfile(true);
+    if (!studentId) return;
+    const student = await getMyProfile(studentId);
+    const studentClasse = await getStudentClasse(student.id);
+    setStudentProfile({ user: student, classe: { studentClasse } });
+  };
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -117,6 +140,13 @@ export default function Etudiant() {
           {erreur}
         </div>
       )}
+
+      <UserProfileModal
+        open={openProfile}
+        onOpenChange={setOpenProfile}
+        classe={studentProfile.classe}
+        user={studentProfile.user}
+      />
 
       <FormModal
         open={open}
@@ -143,6 +173,7 @@ export default function Etudiant() {
             student={student}
             onDelete={handleDelete}
             onUpdate={handleUpdate}
+            onProfile={() => handleProfile(student.id)}
           />
         ))}
       </div>
