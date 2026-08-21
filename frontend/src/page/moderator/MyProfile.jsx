@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ProfileStudent from "@/components/special/ProfileStudent";
 // Import de tes composants déjà créés
 import DocumentCard from "@/components/shared/DocumentCard";
-import DocumentUploadDialog from "./DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 export default function StudentLayout({
   user,
   classe,

@@ -29,9 +29,9 @@ export const classeData = [
   {
     id: "20000000-0000-4000-8000-000000000004",
     year_id: "10000000-0000-4000-8000-000000000002",
-    mention: "DAII",
-    niveau: "L1",
-    code_invitation: "DAII-L1-2027",
+    mention: "ICM",
+    niveau: "M2",
+    code_invitation: "ICM-M2",
     create_at: "2027-06-20T08:00:00Z",
     update_at: "2027-06-20T08:00:00Z",
   },

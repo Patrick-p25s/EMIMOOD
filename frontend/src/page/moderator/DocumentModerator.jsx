@@ -2,7 +2,7 @@ import DocumentCard from "@/components/shared/DocumentCard";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "./DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 export default function DocumentModerator() {
   const {
     classDocuments,

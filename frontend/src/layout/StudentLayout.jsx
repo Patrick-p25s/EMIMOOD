@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 // Import de tes composants déjà créés
 import ProfileStudent from "@/components/special/ProfileStudent";
 import DocumentCard from "@/components/shared/DocumentCard";
-import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "@/components/special/DocumentUploadDialog";
+import PublicSpace from "@/components/special/PublicSpace";
 export default function StudentLayout({
   user,
   classe,
@@ -15,7 +16,7 @@ export default function StudentLayout({
 }) {
   const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "public" | "courses"
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-
+  const handleSave = null;
   // Filtrage des documents
   const publicDocuments = documents.filter((doc) => doc.statut === "public");
   const myDocuments = documents.filter((doc) => doc.owner_id === user.id);
@@ -88,16 +89,11 @@ export default function StudentLayout({
 
       {/* Vue 2 : Espace Public */}
       {activeTab === "public" && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold">
-            Documents publics de {classe?.nom}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {publicDocuments.map((doc) => (
-              <DocumentCard key={doc.id} document={doc} />
-            ))}
-          </div>
-        </div>
+        <PublicSpace
+          documents={publicDocuments}
+          classe={classe}
+          onSaveDocument={handleSave}
+        />
       )}
 
       {/* Vue 3 : Cours par Matière */}

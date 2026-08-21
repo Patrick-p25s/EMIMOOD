@@ -9,7 +9,7 @@ export const userData = [
     matricule: "DAII2026001",
     password_hash: "password",
     role: "student",
-    classe_id: "20000000-0000-4000-8000-000000000001",
+    classe_id: "20000000-0000-4000-8000-000000000004",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440002",

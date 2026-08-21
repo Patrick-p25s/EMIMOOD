@@ -3,13 +3,14 @@ import { useState } from "react";
 import useAnnonce from "./useAnnonce";
 import useStudent from "./useStudent";
 import useMatiere from "./useMatiere";
+import useDocument from "./useDocument";
 
 export default function useClasse() {
   const [classes, setClasses] = useState(classeData);
   const { annonces: allAnnonces } = useAnnonce();
   const { students } = useStudent();
   const { matieres } = useMatiere();
-
+  const { documents } = useDocument();
   const createClasse = async (classeDataInput, year_id) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -103,8 +104,19 @@ export default function useClasse() {
     const matiere = matieres.filter((matier) => matier.classe_id === classeId);
     return matiere;
   };
+
+  // const getMatieresIds = getMatiere.map((cl) => cl.id);
+
+  const classDocs = async (classeId) => {
+    const matiere = await getMatiere(-classeId);
+    const matieresIds = matiere.map((cl) => cl.id);
+    const matiereSet = new Set(matieresIds.map(String));
+
+    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
+  };
   return {
     classes,
+    classDocs,
     regenerateCodeInvitation,
     createClasse,
     updateClasse,

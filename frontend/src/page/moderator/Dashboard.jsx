@@ -19,8 +19,8 @@ import {
   Users,
 } from "lucide-react";
 
-import AnnouncementDialog from "./AnnouncementDialog";
-import DocumentUploadDialog from "./DocumentUploadDialog";
+import AnnouncementDialog from "../../components/special/AnnouncementDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 
 import StatCard from "@/components/shared/StatCard";
 import { useOutletContext } from "react-router-dom";

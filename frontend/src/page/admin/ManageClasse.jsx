@@ -12,7 +12,7 @@ import {
 
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
-import { ChampUsersCreate } from "../RegisterPage";
+import { ChampUsersCreate } from "../public/RegisterPage";
 
 import useAnnonce from "@/hooks/useAnnonce";
 import useClasse from "@/hooks/useClasse";

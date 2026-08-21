@@ -3,7 +3,7 @@ import useStudent from "@/hooks/useStudent";
 import React from "react";
 import { useState } from "react";
 import FormModal from "@/components/shared/FormModal";
-import { ChampUsersCreate } from "../RegisterPage";
+import { ChampUsersCreate } from "../public/RegisterPage";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import ProfileStudent from "@/components/special/ProfileStudent";
 import useClasse from "@/hooks/useClasse";

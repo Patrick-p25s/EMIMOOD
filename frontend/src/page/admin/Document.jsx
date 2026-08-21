@@ -1,7 +1,7 @@
 import DocumentCard from "@/components/shared/DocumentCard";
 import React, { useState } from "react";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "../moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 import useDocument from "@/hooks/useDocument";
 export default function DocumentAdmin() {
   const {

@@ -3,7 +3,7 @@ import FormModal from "@/components/shared/FormModal";
 import StudentCard from "@/components/shared/StudentCard";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { ChampUsersCreate } from "../RegisterPage";
+import { ChampUsersCreate } from "../public/RegisterPage";
 import UserProfileModal from "@/components/special/StudentProfileModal";
 export default function StudentModerator() {
   // 1. Valeurs de secours pour éviter que 'allStudents' ou 'userClasse' fasse planter le composant
