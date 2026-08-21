@@ -16,20 +16,24 @@ function YearBlog() {
   const [open, setOpen] = useState(false);
   const { createYear, years, deleteYear, updateYear, activeYear } = useYear();
   return (
-    <div>
-      <h1>Anné universitaire blog </h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold">Anné universitaire blog </h1>
+        <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
+      </div>
 
-      <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
       <YearForm onCreate={createYear} open={open} onOpen={setOpen} />
 
-      {years.map((year) => (
-        <YearItem
-          year={year}
-          key={year.id}
-          onDelete={deleteYear}
-          onActive={activeYear}
-        />
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {years.map((year) => (
+          <YearItem
+            year={year}
+            key={year.id}
+            onDelete={deleteYear}
+            onActive={activeYear}
+          />
+        ))}
+      </div>
     </div>
   );
 }

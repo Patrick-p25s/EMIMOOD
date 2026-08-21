@@ -23,7 +23,6 @@ const menuAnnee = [{ to: "/admin/annees", label: "Années", icon: Calendar }];
 
 const menuStructure = [
   { to: "/admin/classes", label: "Classes", icon: School },
-  { to: "/admin/delegues", label: "Délégués", icon: Users },
   { to: "/admin/etudiants", label: "Étudiants", icon: User },
 ];
 

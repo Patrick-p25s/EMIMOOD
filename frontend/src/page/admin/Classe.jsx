@@ -48,7 +48,14 @@ export default function Classe() {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold">Gestion des classes </h1>
+        <ButtonStyled type="button" onClick={() => setOpen(true)}>
+          Ajouter
+        </ButtonStyled>
+      </div>
+
       <FormModal
         onSubmit={handleSubmit}
         title="Formulaire pour ajouter la classe "
@@ -73,10 +80,6 @@ export default function Classe() {
           onChange={() => setErreur(null)}
         />
       </FormModal>
-
-      <ButtonStyled type="button" onClick={() => setOpen(true)}>
-        Ajouter
-      </ButtonStyled>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {classes.map((classe) => {
           return (

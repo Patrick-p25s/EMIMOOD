@@ -5,7 +5,6 @@ import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
 import useAnnonce from "@/hooks/useAnnonce";
 import React, { useEffect, useMemo, useState } from "react";
-
 export default function Annonces() {
   const {
     annonces,
@@ -19,14 +18,16 @@ export default function Annonces() {
 
   const [open, setOpen] = useState(false);
   const [updated, setUpdated] = useState(null);
-
+  const [erreur, setErreur] = useState(null);
+  const [loading, setLoading] = useState(false);
   const filteredAnnonces = useMemo(() => {
     let resultat = annonces;
     if (filter !== "all") {
       resultat = resultat.filter((ann) => ann.statut === filter);
     }
     return resultat;
-  }, [filter]);
+  }, [filter, annonces]);
+
   const cancelUpdate = () => {
     setUpdated(null);
     setOpen(false);
@@ -36,18 +37,71 @@ export default function Annonces() {
     setUpdated(annonce);
   };
 
+  const handleDelete = async (annonce) => {
+    const annonceId = annonce?.id;
+    if (!annonceId) return;
+
+    setLoading(true);
+    setErreur(null);
+    try {
+      await deleteAnnonce(annonceId);
+    } catch (error) {
+      setErreur(`Erreur : ${error.message.toString()}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleArchive = async (annoceId) => {
+    setErreur(null);
+    setLoading(true);
+    try {
+      await archiveAnnonce(annoceId);
+    } catch (error) {
+      setErreur(`Erreur ${error.message.toString()}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold">
+          Gestion des annonces administrations
+        </h1>
+        <div>
+          <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
+        </div>
       </div>
-      <div>
-        <ButtonStyled onClick={() => setFilter("all")}>Tout</ButtonStyled>
-        <ButtonStyled onClick={() => setFilter("active")}>Actif</ButtonStyled>
-        <ButtonStyled onClick={() => setFilter("archive")}>
+
+      {erreur && (
+        <div className="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+          {erreur}
+        </div>
+      )}
+
+      <div className="flex gap-5">
+        <ButtonStyled
+          onClick={() => setFilter("all")}
+          variant={filter === "all" ? "default" : "secondary"}
+        >
+          Tout
+        </ButtonStyled>
+        <ButtonStyled
+          onClick={() => setFilter("active")}
+          variant={filter === "active" ? "default" : "secondary"}
+        >
+          Actif
+        </ButtonStyled>
+        <ButtonStyled
+          onClick={() => setFilter("archive")}
+          variant={filter === "archive" ? "default" : "secondary"}
+        >
           Archive
         </ButtonStyled>
       </div>
+
       <div>
         <AnnonceForm
           onOpen={setOpen}
@@ -58,15 +112,25 @@ export default function Annonces() {
           onCancel={cancelUpdate}
         />
       </div>
-      {filteredAnnonces.map((annonce) => (
-        <AnnonceItem
-          annonce={annonce}
-          key={annonce.id}
-          onDelete={() => deleteAnnonce(annonce.id)}
-          onArchive={() => archiveAnnonce(annonce.id)}
-          onEdit={() => handleEdit(annonce)}
-        />
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredAnnonces.length <= 0 ? (
+          <div className="border-dashed">
+            <h1 className=" text-xl pt-6 text-center text-muted-foreground">
+              Aucune annonces disponible
+            </h1>
+          </div>
+        ) : (
+          filteredAnnonces.map((annonce) => (
+            <AnnonceItem
+              annonce={annonce}
+              key={annonce.id}
+              onDelete={() => handleDelete(annonce)}
+              onArchive={() => handleArchive(annonce.id)}
+              onEdit={() => handleEdit(annonce)}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }

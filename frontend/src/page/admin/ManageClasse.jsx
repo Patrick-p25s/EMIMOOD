@@ -7,6 +7,7 @@ import {
   KeyRound,
   Folder,
   PaperBagIcon,
+  Recycle,
 } from "lucide-react";
 
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
@@ -28,6 +29,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import AnnonceItem from "@/components/shared/AnnonceItem";
+import StudentCard from "@/components/shared/StudentCard";
+import MatiereCard from "@/components/shared/MatiereCard";
 
 export default function ManageClasse() {
   const { classeId } = useParams();
@@ -40,7 +44,8 @@ export default function ManageClasse() {
   });
 
   // 1. Récupération des hooks
-  const { classes, studentByClasse, getMatiere } = useClasse();
+  const { classes, studentByClasse, getMatiere, regenerateCodeInvitation } =
+    useClasse();
   const { getActiveAnnonce, annonces } = useAnnonce();
 
   // 2. États locaux pour stocker les résultats asynchrones
@@ -49,6 +54,7 @@ export default function ManageClasse() {
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState(null);
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // 3. Recherche synchrone de la classe dans le tableau `classes`
   const classe = classes.find((cl) => cl.id === classeId);
@@ -94,6 +100,18 @@ export default function ManageClasse() {
     );
   }
 
+  const handleRegenerate = async () => {
+    setIsRegenerating(true); // ✅ N'impacte pas le 'loading' global de la page
+    setErreur("");
+    try {
+      await regenerateCodeInvitation(classeId);
+    } catch (error) {
+      setErreur(`Erreur : ${error.message.toString()}`);
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setErreur(null);
     setIsSubmiting(true);
@@ -132,13 +150,24 @@ export default function ManageClasse() {
         </div>
 
         <div>
-          <ButtonStyled
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-2"
-            icon={<Plus className="w-4 h-4" />}
-          >
-            Ajouter Modérateur
-          </ButtonStyled>
+          <div className="flex gap-4">
+            <ButtonStyled
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2"
+              icon={<Plus className="w-4 h-4" />}
+              disable={loading}
+            >
+              Ajouter Modérateur
+            </ButtonStyled>
+            <ButtonStyled
+              onClick={handleRegenerate}
+              className="flex items-center gap-2"
+              icon={<Recycle className="w-4 h-4" />}
+              disable={isRegenerating}
+            >
+              Regénérer code
+            </ButtonStyled>
+          </div>
 
           <FormModal
             open={open}
@@ -195,7 +224,7 @@ export default function ManageClasse() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {studentsClasse.map((student, idx) => (
-                  <StudentCard key={student.id || idx} student={student} />
+                  <StudentCard student={student} key={student.id || idx} />
                 ))}
               </div>
             )}
@@ -212,7 +241,7 @@ export default function ManageClasse() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {annoncesClasse.map((annonce, idx) => (
-                  <AnnonceCard key={annonce.id || idx} annonce={annonce} />
+                  <AnnonceItem annonce={annonce} key={annonce.id || idx} />
                 ))}
               </div>
             )}
@@ -228,9 +257,7 @@ export default function ManageClasse() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {getMatiere(classeId).map((matiere) => (
-                  <div key={matiere.id}>
-                    <h1>{matiere.name}</h1>
-                  </div>
+                  <MatiereCard matiere={matiere} key={matiere.id} />
                 ))}
               </div>
             )}
@@ -238,33 +265,6 @@ export default function ManageClasse() {
         </Tabs>
       )}
     </div>
-  );
-}
-
-{
-  /* Composant Cartes Étudiants aux normes shadcn */
-}
-function StudentCard({ student }) {
-  return (
-    <Card className="hover:border-primary/50 transition-colors">
-      <CardHeader className="p-4 flex flex-row items-center gap-3 space-y-0">
-        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0">
-          {(
-            student.first_name?.[0] ||
-            student.last_name?.[0] ||
-            "U"
-          ).toUpperCase()}
-        </div>
-        <div className="overflow-hidden">
-          <CardTitle className="text-base truncate">
-            {student.first_name} {student.last_name}
-          </CardTitle>
-          <CardDescription className="text-xs truncate">
-            {student.email}
-          </CardDescription>
-        </div>
-      </CardHeader>
-    </Card>
   );
 }
 

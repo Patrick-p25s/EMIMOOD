@@ -16,7 +16,6 @@ import AdminLayout from "./layout/AdminLayout";
 import Annonces from "./page/admin/Annonces";
 import Annee from "./page/admin/Annee";
 import Classe from "./page/admin/Classe";
-import Delegue from "./page/admin/Delegue";
 import Etudiant from "./page/admin/Etudiant";
 import ModeratorLayout from "./layout/ModeratorLayout";
 import ModeratorRoute from "./route/ModeratorRoute";
@@ -28,6 +27,8 @@ import SubjectModerator from "./page/moderator/SubjectModerator";
 import DocumentModerator from "./page/moderator/DocumentModerator";
 import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
 import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
+import DocumentAdmin from "./page/admin/Document";
+import OneDocument from "./page/admin/OneDocument";
 export default function App() {
   return (
     <AuthProvider>
@@ -58,9 +59,9 @@ export default function App() {
                 <Route path="annees" element={<Annee />} />
                 <Route path="classes" element={<Classe />} />
                 <Route path="classes/:classeId" element={<ManageClasse />} />
-                <Route path="delegues" element={<Delegue />} />
                 <Route path="etudiants" element={<Etudiant />} />
-                <Route path="documents" element={<Classe />} />
+                <Route path="documents" element={<DocumentAdmin />} />
+                <Route path="documents/:documentId" element={<OneDocument />} />
               </Route>
             </Route>
 
