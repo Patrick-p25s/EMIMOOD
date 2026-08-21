@@ -47,6 +47,11 @@ export default function useDocument() {
     return documents.find((doc) => doc.id === documentId);
   };
 
+  const studentDocument = async (studentId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return documents.filter((docs) => docs.owner_id === studentId);
+  };
+
   const valideDocument = async (documentId) => {
     try {
       // 1. Récupération du document
@@ -109,6 +114,7 @@ export default function useDocument() {
 
   return {
     documents,
+    studentDocument,
     deleteDocument,
     createDocument,
     getDocumentById,

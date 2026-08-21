@@ -4,7 +4,7 @@ import StudentCard from "@/components/shared/StudentCard";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ChampUsersCreate } from "../RegisterPage";
-
+import UserProfileModal from "@/components/special/StudentProfileModal";
 export default function StudentModerator() {
   // 1. Valeurs de secours pour éviter que 'allStudents' ou 'userClasse' fasse planter le composant
   const {
@@ -13,12 +13,19 @@ export default function StudentModerator() {
     createStudent,
     deleteStudent,
     updateProfile,
+    getMyProfile,
+    getStudentClasse,
+    studentDocument,
   } = useOutletContext() || {};
 
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null); // Pour l'édition si besoin
   const isEditing = Boolean(selectedStudent);
-
+  const [studentProfile, setStudentProfile] = useState({
+    user: {},
+    classe: {},
+    stats: {},
+  });
   const [newStudent, setNewStudent] = useState({
     first_name: "",
     last_name: "",
@@ -31,7 +38,7 @@ export default function StudentModerator() {
 
   const [erreur, setErreur] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [openProfile, setOpenProfile] = useState(false);
   // Réinitialisation propre à la fermeture du modal
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen);
@@ -110,6 +117,24 @@ export default function StudentModerator() {
     setOpen(true);
   };
 
+  const handleProfile = async (studentId) => {
+    setOpenProfile(true);
+    if (!studentId) return;
+    const student = await getMyProfile(studentId);
+    const studentClasse = await getStudentClasse(student.id);
+    const document = await studentDocument(studentId);
+    const pendindDocs = document?.filter((docs) => docs.statut === "pending");
+    setStudentProfile({
+      user: student,
+      classe: { studentClasse },
+      stats: {
+        documentsCount: document.length,
+        pendingCount: pendindDocs.length,
+        savedCound: 1,
+      },
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -156,9 +181,17 @@ export default function StudentModerator() {
             key={student.id}
             onDelete={() => handleDelete(student)}
             onUpdate={() => handleUpdate(student)}
+            onProfile={() => handleProfile(student.id)}
           />
         ))}
       </div>
+      <UserProfileModal
+        open={openProfile}
+        onOpenChange={setOpenProfile}
+        classe={studentProfile.classe}
+        user={studentProfile.user}
+        stats={studentProfile.stats}
+      />
     </div>
   );
 }

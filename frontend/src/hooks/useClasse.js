@@ -31,6 +31,20 @@ export default function useClasse() {
     return newClasse;
   };
 
+  const regenerateCodeInvitation = async (classId) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // ✅ On met à jour le state 'classes' du Context React
+    setClasses((prevClasses) =>
+      prevClasses.map((cl) =>
+        cl.id === classId ? { ...cl, code_invitation: newCode } : cl,
+      ),
+    );
+
+    return newCode;
+  };
+
   const updateClasse = async (id, mention, niveau, code_invitation) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -91,6 +105,7 @@ export default function useClasse() {
   };
   return {
     classes,
+    regenerateCodeInvitation,
     createClasse,
     updateClasse,
     deleteClasse,

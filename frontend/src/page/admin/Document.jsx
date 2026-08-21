@@ -1,17 +1,16 @@
 import DocumentCard from "@/components/shared/DocumentCard";
 import React, { useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "./DocumentUploadDialog";
-export default function DocumentModerator() {
+import DocumentUploadDialog from "../moderator/DocumentUploadDialog";
+import useDocument from "@/hooks/useDocument";
+export default function DocumentAdmin() {
   const {
-    classDocuments,
-    createDocument,
-    classMatieres,
-    deleteDocument,
+    documents,
     valideDocument,
     rejeteDocument,
-  } = useOutletContext();
+    createDocument,
+    deleteDocument,
+  } = useDocument();
   const [open, setOpen] = useState(false);
 
   const [erreur, setErreur] = useState(null);
@@ -67,7 +66,7 @@ export default function DocumentModerator() {
     }
   };
   return (
-    <div className="spacallStudentse-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Gestion des documents</h1>
         <ButtonStyled onClick={() => setOpen(true)} loading={loading}>
@@ -78,10 +77,9 @@ export default function DocumentModerator() {
         open={open}
         onOpenChange={setOpen}
         onCreate={createDocument}
-        matieres={classMatieres}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classDocuments.map((document) => (
+        {documents.map((document) => (
           <DocumentCard
             onRejete={() => handleRejete(document)}
             onValide={() => handleValide(document)}

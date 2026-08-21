@@ -33,6 +33,7 @@ const NAV_ITEMS = [
   { to: "/moderator/students", label: "Utilisateurs", icon: Users },
   { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
   { to: "/moderator/documents", label: "Documents", icon: Book },
+  { to: "/moderator/profile", label: "My Profile", icon: Users },
 ];
 
 const RECENT_LIMIT = 5;
@@ -51,17 +52,23 @@ export default function ModeratorLayout() {
   } = useAnnonce();
   const moderatorClasseId = user?.classe_id || user?.classeId;
 
-  const { classes } = useClasse();
+  const { classes, getStudentClasse } = useClasse();
   const { matieres, createSubject, updateSubject, deleteSubject } =
     useMatiere();
-  const { students, updateProfile, deleteStudent, createStudent } =
-    useStudent();
+  const {
+    students,
+    updateProfile,
+    deleteStudent,
+    createStudent,
+    getMyProfile,
+  } = useStudent();
   const {
     documents,
     valideDocument,
     rejeteDocument,
     createDocument,
     deleteDocument,
+    studentDocument,
   } = useDocument();
 
   const userClasse = useMemo(
@@ -154,6 +161,9 @@ export default function ModeratorLayout() {
     deleteStudent,
     valideDocument,
     rejeteDocument,
+    studentDocument,
+    getStudentClasse,
+    getMyProfile,
   };
   return (
     <div className="min-h-screen flex bg-orange-50/30">

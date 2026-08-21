@@ -16,18 +16,19 @@ import AdminLayout from "./layout/AdminLayout";
 import Annonces from "./page/admin/Annonces";
 import Annee from "./page/admin/Annee";
 import Classe from "./page/admin/Classe";
-import Delegue from "./page/admin/Delegue";
 import Etudiant from "./page/admin/Etudiant";
 import ModeratorLayout from "./layout/ModeratorLayout";
 import ModeratorRoute from "./route/ModeratorRoute";
 import DashboardModerator from "./page/moderator/Dashboard";
-import ModeratorStudent from "./page/moderator/StudentModerator";
 import StudentModerator from "./page/moderator/StudentModerator";
 import AnnounceModerator from "./page/moderator/AnnounceModerator";
 import SubjectModerator from "./page/moderator/SubjectModerator";
 import DocumentModerator from "./page/moderator/DocumentModerator";
 import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
 import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
+import DocumentAdmin from "./page/admin/Document";
+import OneDocument from "./page/admin/OneDocument";
+import StudentLayout from "./page/moderator/MyProfile";
 export default function App() {
   return (
     <AuthProvider>
@@ -58,9 +59,9 @@ export default function App() {
                 <Route path="annees" element={<Annee />} />
                 <Route path="classes" element={<Classe />} />
                 <Route path="classes/:classeId" element={<ManageClasse />} />
-                <Route path="delegues" element={<Delegue />} />
                 <Route path="etudiants" element={<Etudiant />} />
-                <Route path="documents" element={<Classe />} />
+                <Route path="documents" element={<DocumentAdmin />} />
+                <Route path="documents/:documentId" element={<OneDocument />} />
               </Route>
             </Route>
 
@@ -72,6 +73,7 @@ export default function App() {
                 <Route path="students" element={<StudentModerator />} />
                 <Route path="annonces" element={<AnnounceModerator />} />
                 <Route path="matieres" element={<SubjectModerator />} />
+                <Route path="profile" element={<StudentLayout />} />
                 <Route
                   path="matieres/:subjectId"
                   element={<OneSubjectModerator />}
