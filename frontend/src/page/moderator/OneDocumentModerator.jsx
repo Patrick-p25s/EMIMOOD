@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useDocument from "@/hooks/useDocument";
 import { DocumentViewerPage } from "@/components/special/DocumentViewer";
 export default function OneDocumentModerator() {

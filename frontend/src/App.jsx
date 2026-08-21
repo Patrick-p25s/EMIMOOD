@@ -28,6 +28,7 @@ import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
 import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
 import DocumentAdmin from "./page/admin/Document";
 import OneDocument from "./page/admin/OneDocument";
+import StudentLayout from "./page/moderator/MyProfile";
 export default function App() {
   return (
     <AuthProvider>
@@ -72,6 +73,7 @@ export default function App() {
                 <Route path="students" element={<StudentModerator />} />
                 <Route path="annonces" element={<AnnounceModerator />} />
                 <Route path="matieres" element={<SubjectModerator />} />
+                <Route path="profile" element={<StudentLayout />} />
                 <Route
                   path="matieres/:subjectId"
                   element={<OneSubjectModerator />}

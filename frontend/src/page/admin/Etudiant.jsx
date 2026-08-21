@@ -8,6 +8,7 @@ import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import ProfileStudent from "@/components/special/ProfileStudent";
 import useClasse from "@/hooks/useClasse";
 import UserProfileModal from "@/components/special/StudentProfileModal";
+import useDocument from "@/hooks/useDocument";
 export default function Etudiant() {
   const {
     students,
@@ -17,6 +18,7 @@ export default function Etudiant() {
     getMyProfile,
   } = useStudent();
   const { getStudentClasse } = useClasse();
+  const { studentDocument } = useDocument();
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null); // Pour l'édition si besoin
   const isEditing = Boolean(selectedStudent);
@@ -124,7 +126,17 @@ export default function Etudiant() {
     if (!studentId) return;
     const student = await getMyProfile(studentId);
     const studentClasse = await getStudentClasse(student.id);
-    setStudentProfile({ user: student, classe: { studentClasse } });
+    const document = await studentDocument(studentId);
+    const pendindDocs = document.filter(document.statut === "pending");
+    setStudentProfile({
+      user: student,
+      classe: { studentClasse },
+      stats: {
+        documentCount: document.length,
+        pendingCount: pendindDocs.length,
+        savedCound: 1,
+      },
+    });
   };
   return (
     <div className="space-y-6">
@@ -146,6 +158,7 @@ export default function Etudiant() {
         onOpenChange={setOpenProfile}
         classe={studentProfile.classe}
         user={studentProfile.user}
+        stats={studentProfile.stats}
       />
 
       <FormModal
