@@ -27,7 +27,7 @@ class Annonce(Base, UuidStamp):
     )
 
     # nullable=True : NULL = annonce globale (visible par tous), sinon portée à une classe précise.
-    # Pas de ondelete="CASCADE" : on ne veut jamais perdre l'historique des annonces
+    # Pas de  ondelete="CASCADE" : on ne veut jamais perdre l'historique des annonces
     # en supprimant une classe — même logique que Document → Subject.
     classe_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("classe.id"), nullable=True, index=True
@@ -43,7 +43,8 @@ class AnnonceLecture(Base, UuidStamp):
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id"), nullable=False
     )
-
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_archive: Mapped[bool] = mapped_column(Boolean, default=False)
     __table_args__ = (
         UniqueConstraint("annonce_id", "user_id", name="uq_annonce_user_lecture"),
     )

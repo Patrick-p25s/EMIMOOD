@@ -56,6 +56,11 @@ class UserRepository:
         result = await self.db.execute(select(func.count()).select_from(Users))
         return result.scalar_one()
 
+    async def get_all_students(self, classe_id: UUID | str):
+        id = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
+        stmt = await self.db.execute(select(Users).where(Users.classe_id == id))
+        return stmt.scalars().all()
+
     async def get_user_classe(self, user_id: UUID):
         stmt = (
             select(Classe)

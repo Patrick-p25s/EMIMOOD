@@ -100,7 +100,7 @@ class AnnonceService:
 
         # Le public visé : les étudiants de la classe ciblée (ou tout le monde si annonce globale).
         if annonce.classe_id is not None:
-            etudiants = await self.user_repo.get_all_student(annonce.classe_id)
+            etudiants = await self.user_repo.get_all_students(annonce.classe_id)
         else:
             etudiants = await self.user_repo.list_all()
 
@@ -112,3 +112,39 @@ class AnnonceService:
             total_lu=len(lecteur_ids),
             non_lecteurs_ids=non_lecteurs,
         )
+
+    async def delete_annonces(self, annonce_id: str, current_user: Users):
+        annonce = await self._get_annonce_or_404(annonce_id)
+        if not self._peut_gerer_annonce(annonce, current_user):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
+        return await self.repo.delete(annonce)
+
+
+class AnnonceLectureService:
+    def __init__(
+        self,
+        repo: AnnonceRepository,
+        lecture_repo: AnnonceLectureRepository,
+        user_repo: UserRepository,
+    ):
+        self.repo = repo
+        self.lecture_repo = lecture_repo
+        self.user_repo = user_repo
+
+    async def read_annonce(self, annonce_id: str):
+        annonce = await self.repo.get_by_id(annonce_id)
+        if annonce:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Annonce non trouvé"
+            )
+
+        return await self.lecture_repo.update(annonce, {"is_read": True})
+
+    async def archive_annonce(self, annonce_id: str):
+        annonce = await self.repo.get_by_id(annonce_id)
+        if annonce:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Annonce non trouvé"
+            )
+
+        return await self.lecture_repo.update(annonce, {"is_archive": True})

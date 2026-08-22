@@ -25,6 +25,16 @@ class AnnonceOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class LecteurAnnonceOut(BaseModel):
+    id: UUID
+    user_id: UUID
+    annonce_id: UUID
+    is_read: bool
+    is_archive: bool
+    create_at: datetime
+    update_at: datetime
+
+
 class LecteurStats(BaseModel):
     total_etudiants: int
     total_lu: int

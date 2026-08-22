@@ -49,6 +49,10 @@ class AnnonceRepository:
         )
         return result.scalars().all()
 
+    async def delete(self, annonce: Annonce):
+        await self.db.delete(annonce)
+        await self.db.commit()
+
 
 class AnnonceLectureRepository:
     def __init__(self, db: AsyncSession):
@@ -60,6 +64,21 @@ class AnnonceLectureRepository:
         await self.db.commit()
         await self.db.refresh(lecture)
         return lecture
+
+    async def update(self, annonce: AnnonceLecture, data: dict) -> AnnonceLecture:
+        for key, value in data.items():
+            setattr(annonce, key, value)
+
+        await self.db.commit()
+        await self.db.refresh(annonce)
+        return annonce
+
+    async def get_lectureBy(self, annonce_id: UUID | str):
+        id = annonce_id if isinstance(annonce_id, UUID) else UUID(annonce_id)
+        stmt = await self.db.execute(
+            select(AnnonceLecture).where(AnnonceLecture.id == id)
+        )
+        return stmt.scalar_one_or_none()
 
     async def exists(self, annonce_id: UUID, user_id: UUID) -> bool:
         result = await self.db.execute(
