@@ -129,7 +129,7 @@ export default function DocumentUploadDialog({
             <SelectValue placeholder="Sélectionner une matière" />
           </SelectTrigger>
           <SelectContent>
-            {matieres.map((m) => (
+            {matieres?.map((m) => (
               <SelectItem key={m.id} value={String(m.id)}>
                 {m.name || m.titre || m.nom}
               </SelectItem>

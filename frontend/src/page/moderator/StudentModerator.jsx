@@ -1,15 +1,16 @@
+import React, { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
 import StudentCard from "@/components/shared/StudentCard";
-import React, { useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { ChampUsersCreate } from "../public/RegisterPage";
 import UserProfileModal from "@/components/special/StudentProfileModal";
+import { ChampUsersCreate } from "../public/RegisterPage";
+import useStudentManager from "@/hooks/useStudentManager";
+import useAuth from "@/hooks/useAuth";
+
 export default function StudentModerator() {
-  // 1. Valeurs de secours pour éviter que 'allStudents' ou 'userClasse' fasse planter le composant
   const {
-    allStudents = [],
-    userClasse,
+    studentByClasse = [],
     createStudent,
     deleteStudent,
     updateProfile,
@@ -17,123 +18,39 @@ export default function StudentModerator() {
     getStudentClasse,
     studentDocument,
   } = useOutletContext() || {};
+  const { user } = useAuth();
+  const [students, setStudents] = useState([]);
 
-  const [open, setOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null); // Pour l'édition si besoin
-  const isEditing = Boolean(selectedStudent);
-  const [studentProfile, setStudentProfile] = useState({
-    user: {},
-    classe: {},
-    stats: {},
+  useEffect(() => {
+    studentByClasse(user.classe_id)
+      .then((res) => setStudents(res))
+      .catch((res) => console.log(res.message));
+  }, []);
+  const {
+    open,
+    setOpen,
+    openProfile,
+    setOpenProfile,
+    isEditing,
+    newStudent,
+    setNewStudent,
+    studentProfile,
+    erreur,
+    loading,
+    handleOpenChange,
+    handleSubmit,
+    handleDelete,
+    handleUpdate,
+    handleProfile,
+  } = useStudentManager({
+    createStudentFn: createStudent,
+    updateProfileFn: updateProfile,
+    deleteStudentFn: deleteStudent,
+    getMyProfileFn: getMyProfile,
+    getStudentClasseFn: getStudentClasse,
+    studentDocumentFn: studentDocument,
+    defaultClasseId: getStudentClasse?.id,
   });
-  const [newStudent, setNewStudent] = useState({
-    first_name: "",
-    last_name: "",
-    matricule: "",
-    phone_number: "",
-    email: "",
-    password_hash: "",
-    code_invitation: "",
-  });
-
-  const [erreur, setErreur] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [openProfile, setOpenProfile] = useState(false);
-  // Réinitialisation propre à la fermeture du modal
-  const handleOpenChange = (isOpen) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      setSelectedStudent(null);
-      setErreur(null);
-      setNewStudent({
-        first_name: "",
-        last_name: "",
-        matricule: "",
-        phone_number: "",
-        email: "",
-        password_hash: "",
-        code_invitation: "",
-      });
-    }
-  };
-
-  const handleSubmit = async () => {
-    setErreur(null);
-    setLoading(true);
-
-    try {
-      if (isEditing) {
-        if (updateProfile) await updateProfile(selectedStudent.id, newStudent);
-      } else {
-        const user = await createStudent(newStudent, userClasse.id, "student");
-        console.log(user);
-      }
-
-      // Fermeture et réinitialisation SEULEMENT si la requête réussit
-      handleOpenChange(false);
-    } catch (e) {
-      setErreur(
-        e?.message || "Une erreur est survenue lors de l'enregistrement.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (student) => {
-    const studentId = student?.id || student;
-    if (!studentId) return;
-
-    if (
-      !window.confirm(
-        "Voulez-vous vraiment retirer cet étudiant de la classe ?",
-      )
-    )
-      return;
-
-    setLoading(true);
-    try {
-      if (deleteStudent) {
-        await deleteStudent(studentId);
-      }
-    } catch (e) {
-      setErreur(e?.message || "Erreur lors de la suppression de l'étudiant.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdate = (student) => {
-    setSelectedStudent(student);
-    setNewStudent({
-      first_name: student.first_name || "",
-      last_name: student.last_name || "",
-      matricule: student.matricule || "",
-      phone_number: student.phone_number || "",
-      email: student.email || "",
-      password_hash: "",
-      code_invitation: "",
-    });
-    setOpen(true);
-  };
-
-  const handleProfile = async (studentId) => {
-    setOpenProfile(true);
-    if (!studentId) return;
-    const student = await getMyProfile(studentId);
-    const studentClasse = await getStudentClasse(student.id);
-    const document = await studentDocument(studentId);
-    const pendindDocs = document?.filter((docs) => docs.statut === "pending");
-    setStudentProfile({
-      user: student,
-      classe: { studentClasse },
-      stats: {
-        documentsCount: document.length,
-        pendingCount: pendindDocs.length,
-        savedCound: 1,
-      },
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -169,22 +86,22 @@ export default function StudentModerator() {
         />
       </FormModal>
 
-      {/* Grille responsive d'étudiants */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {allStudents.map((student) => (
+        {students.map((student) => (
           <StudentCard
+            key={student.id}
             student={{
               ...student,
-              niveau: userClasse?.niveau,
-              mention: userClasse?.mention,
+              niveau: getStudentClasse?.niveau,
+              mention: getStudentClasse?.mention,
             }}
-            key={student.id}
             onDelete={() => handleDelete(student)}
             onUpdate={() => handleUpdate(student)}
             onProfile={() => handleProfile(student.id)}
           />
         ))}
       </div>
+
       <UserProfileModal
         open={openProfile}
         onOpenChange={setOpenProfile}

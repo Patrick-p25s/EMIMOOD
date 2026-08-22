@@ -44,15 +44,22 @@ export default function ModeratorLayout() {
 
   const {
     annonces,
-    getActiveAnnonce,
+    getClasseActiveAnnonce,
     archiveAnnonce,
     deleteAnnonce,
     updateAnnonce,
+    getClasseAnnonce,
     createAnnonce,
   } = useAnnonce();
   const moderatorClasseId = user?.classe_id || user?.classeId;
 
-  const { classes, getStudentClasse } = useClasse();
+  const {
+    classes,
+    getStudentClasse,
+    getClasseDocuments,
+    getClasseSubject,
+    studentByClasse,
+  } = useClasse();
   const { matieres, createSubject, updateSubject, deleteSubject } =
     useMatiere();
   const {
@@ -71,81 +78,12 @@ export default function ModeratorLayout() {
     studentDocument,
   } = useDocument();
 
-  const userClasse = useMemo(
-    () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
-    [classes, moderatorClasseId],
-  );
-
-  const allAnnonces = useMemo(() => {
-    if (!annonces || !moderatorClasseId) return [];
-    return annonces.filter(
-      (annonce) => String(annonce.classe_id) === String(moderatorClasseId),
-    );
-  });
-
-  const allStudents = useMemo(() => {
-    if (!students || !moderatorClasseId) return [];
-    return students.filter(
-      (student) => String(student.classe_id) === String(moderatorClasseId),
-    );
-  }, [students, moderatorClasseId]);
-
-  const classMatieres = useMemo(() => {
-    if (!matieres || !moderatorClasseId) return [];
-    return matieres.filter(
-      (m) => String(m.classe_id) === String(moderatorClasseId),
-    );
-  }, [matieres, moderatorClasseId]);
-
-  const classMatiereIds = useMemo(
-    () => classMatieres.map((m) => String(m.id)),
-    [classMatieres],
-  );
-
-  const classDocuments = useMemo(() => {
-    if (!documents || classMatiereIds.length === 0) return [];
-
-    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
-    const matiereSet = new Set(classMatiereIds.map(String));
-
-    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
-  }, [documents, classMatiereIds]);
-
-  const pendingDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "pending"),
-    [classDocuments],
-  );
-  const publicDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "public"),
-    [classDocuments],
-  );
-  const rejectedDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "rejete"),
-    [classDocuments],
-  );
-
-  const recentPendingDocs = useMemo(
-    () => pendingDocs.slice(0, RECENT_LIMIT),
-    [pendingDocs],
-  );
-
-  const matiereNameById = useMemo(() => {
-    const map = new Map();
-    classMatieres.forEach((m) => map.set(String(m.id), m.nom));
-    return map;
-  }, [classMatieres]);
-
   const contextValue = {
-    userClasse,
-    classMatieres,
-    classMatiereIds,
-    classDocuments,
-    matiereNameById,
-    recentPendingDocs,
-    rejectedDocs,
-    publicDocs,
-    allStudents,
-    allAnnonces,
+    getStudentClasse,
+    getClasseSubject,
+    getClasseDocuments,
+    studentByClasse,
+    getClasseAnnonce,
     createDocument,
     deleteDocument,
     archiveAnnonce,
@@ -153,7 +91,7 @@ export default function ModeratorLayout() {
     deleteAnnonce,
     updateAnnonce,
     createAnnonce,
-    getActiveAnnonce,
+    getClasseActiveAnnonce,
     createSubject,
     deleteSubject,
     updateSubject,

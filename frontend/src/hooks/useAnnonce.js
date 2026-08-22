@@ -32,15 +32,19 @@ export default function useAnnonce() {
     );
   };
 
-  const getActiveAnnonce = async (classeId) => {
+  const getClasseAnnonce = async (classeId) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return annonces.filter(
+      (ann) => ann.classe_id === classeId || ann.classe_id === null,
+    );
+  };
+
+  const getClasseActiveAnnonce = async (classeId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    const annoncesClasse = await getClasseAnnonce(classeId);
     // Filtrage avec le return explicite et condition corrigée
-    return annonces.filter(
-      (ann) =>
-        ann.statut === "active" &&
-        (ann.classe_id === classeId || ann.classe_id === null),
-    );
+    return annoncesClasse.filter((ann) => ann.statut === "active");
   };
 
   const deleteAnnonce = async (annonceId) => {
@@ -78,6 +82,7 @@ export default function useAnnonce() {
     updateAnnonce,
     deleteAnnonce,
     archiveAnnonce,
-    getActiveAnnonce,
+    getClasseAnnonce,
+    getClasseActiveAnnonce,
   };
 }

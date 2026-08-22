@@ -135,9 +135,9 @@ export default function DashboardModerator() {
 
   // Extraction sécurisée depuis useOutletContext avec valeurs par défaut
   const {
-    userClasse,
-    classMatieres,
-    classDocuments = [],
+    getStudentClasse,
+    getClasseSubject,
+    getClasseDocuments = [],
     pendingDocs = [],
     publicDocs = [],
     rejectedDocs = [],
@@ -188,8 +188,8 @@ export default function DashboardModerator() {
       <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
         <div className="flex-1">
           <ClasseInfoCard
-            classe={userClasse}
-            matiereCount={classMatieres.length}
+            classe={getStudentClasse}
+            matiereCount={getClasseSubject.length}
             loading={classesLoading}
           />
         </div>
@@ -217,7 +217,7 @@ export default function DashboardModerator() {
           <DocumentUploadDialog
             open={uploadOpen}
             onOpenChange={setUploadOpen}
-            matieres={classMatieres}
+            matieres={getClasseSubject(user.classe_id)}
           />
         </div>
       </div>
@@ -244,7 +244,7 @@ export default function DashboardModerator() {
         />
         <StatCard
           title="Matières"
-          value={classMatieres.length}
+          value={getClasseSubject.length}
           icon={BookOpen}
         />
       </div>

@@ -7,7 +7,7 @@ import useDocument from "./useDocument";
 
 export default function useClasse() {
   const [classes, setClasses] = useState(classeData);
-  const { annonces: allAnnonces } = useAnnonce();
+  const { annonces } = useAnnonce();
   const { students } = useStudent();
   const { matieres } = useMatiere();
   const { documents } = useDocument();
@@ -32,11 +32,10 @@ export default function useClasse() {
     return newClasse;
   };
 
-  const regenerateCodeInvitation = async (classId) => {
+  const regenerateCodeClasse = async (classId) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // ✅ On met à jour le state 'classes' du Context React
     setClasses((prevClasses) =>
       prevClasses.map((cl) =>
         cl.id === classId ? { ...cl, code_invitation: newCode } : cl,
@@ -46,7 +45,7 @@ export default function useClasse() {
     return newCode;
   };
 
-  const updateClasse = async (id, mention, niveau, code_invitation) => {
+  const updateClasse = async (id, mention, niveau) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     let updatedItem = null;
@@ -58,7 +57,6 @@ export default function useClasse() {
             ...item,
             mention,
             niveau,
-            code_invitation,
             updated_at: new Date().toISOString(),
           };
           return updatedItem;
@@ -75,17 +73,17 @@ export default function useClasse() {
     setClasses((prevClasses) => prevClasses.filter((c) => c.id !== id));
   };
 
-  const getAnnonces = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return allAnnonces.filter((ann) => ann.classe_id === classeId);
-  };
+  // const getClasseAnnonce = async (classeId) => {
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+  //   return annonces.filter((ann) => ann.classe_id === classeId);
+  // };
 
-  const getActiveAnnonce = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return allAnnonces.filter(
-      (ann) => ann.statut === "active" && ann.classe_id === classeId,
-    );
-  };
+  // const getClasseActiveAnnonce = async (classeId) => {
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+  //   return annonces.filter(
+  //     (ann) => ann.statut === "active" && ann.classe_id === classeId,
+  //   );
+  // };
 
   const studentByClasse = async (classeId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -100,15 +98,15 @@ export default function useClasse() {
     return classes.find((cl) => cl.id === student.classe_id);
   };
 
-  const getMatiere = (classeId) => {
+  const getClasseSubject = (classeId) => {
     const matiere = matieres.filter((matier) => matier.classe_id === classeId);
     return matiere;
   };
 
-  // const getMatieresIds = getMatiere.map((cl) => cl.id);
+  // const getClasseSubjectsIds = getClasseSubject.map((cl) => cl.id);
 
-  const classDocs = async (classeId) => {
-    const matiere = await getMatiere(-classeId);
+  const getClasseDocuments = async (classeId) => {
+    const matiere = await getClasseSubject(-classeId);
     const matieresIds = matiere.map((cl) => cl.id);
     const matiereSet = new Set(matieresIds.map(String));
 
@@ -116,15 +114,13 @@ export default function useClasse() {
   };
   return {
     classes,
-    classDocs,
-    regenerateCodeInvitation,
+    getClasseDocuments,
+    regenerateCodeClasse,
     createClasse,
     updateClasse,
     deleteClasse,
     studentByClasse,
-    getActiveAnnonce,
-    getAnnonces,
     getStudentClasse,
-    getMatiere,
+    getClasseSubject,
   };
 }

@@ -1,17 +1,21 @@
 import DocumentCard from "@/components/shared/DocumentCard";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
+import useAuth from "@/hooks/useAuth";
 export default function DocumentModerator() {
   const {
-    classDocuments,
+    getClasseDocuments,
     createDocument,
-    classMatieres,
+    getClasseSubject,
     deleteDocument,
     valideDocument,
     rejeteDocument,
   } = useOutletContext();
+
+  const { user } = useAuth();
+
   const [open, setOpen] = useState(false);
 
   const [erreur, setErreur] = useState(null);
@@ -19,6 +23,16 @@ export default function DocumentModerator() {
   const handleEdit = async () => {
     return null;
   };
+  const [classeDocument, setClasseDocument] = useState([]);
+  const [classeMatiere, setClasseMatiere] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setClasseDocument(await getClasseDocuments(user.classe_id));
+      setClasseMatiere(await getClasseDocuments(user.classe_id));
+    };
+    loadData();
+  }, []);
 
   const handleValide = async (document) => {
     setLoading(true);
@@ -67,7 +81,7 @@ export default function DocumentModerator() {
     }
   };
   return (
-    <div className="spacallStudentse-y-6">
+    <div className="spacstudentByClassee-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Gestion des documents</h1>
         <ButtonStyled onClick={() => setOpen(true)} loading={loading}>
@@ -78,10 +92,10 @@ export default function DocumentModerator() {
         open={open}
         onOpenChange={setOpen}
         onCreate={createDocument}
-        matieres={classMatieres}
+        matieres={classeMatiere}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classDocuments.map((document) => (
+        {classeDocument.map((document) => (
           <DocumentCard
             onRejete={() => handleRejete(document)}
             onValide={() => handleValide(document)}

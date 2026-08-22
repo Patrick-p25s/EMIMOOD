@@ -10,7 +10,8 @@ export default function Dashboard() {
   const [classe, setClasse] = useState(null);
   const [matieres, setMatieres] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { classDocs, getStudentClasse, getMatiere } = useClasse();
+  const { getClasseDocuments, getStudentClasse, getClasseSubject } =
+    useClasse();
 
   // Hook ou state pour gérer les documents
   const { documents, createDocument } = useDocument();
@@ -23,13 +24,13 @@ export default function Dashboard() {
         setLoading(true);
 
         const classeStudent = await getStudentClasse(user.id);
-        const matiereStudent = await getMatiere(user.classe_id);
+        const matiereStudent = await getClasseSubject(user.classe_id);
         setClasse(classeStudent);
 
         setMatieres(matiereStudent);
 
-        if (classDocs) {
-          await classDocs(user.classe_id);
+        if (getClasseDocuments) {
+          await getClasseDocuments(user.classe_id);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);

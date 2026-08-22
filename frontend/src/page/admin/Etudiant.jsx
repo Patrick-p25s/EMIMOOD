@@ -1,14 +1,15 @@
-import StudentCard from "@/components/shared/StudentCard";
-import useStudent from "@/hooks/useStudent";
 import React from "react";
-import { useState } from "react";
-import FormModal from "@/components/shared/FormModal";
-import { ChampUsersCreate } from "../public/RegisterPage";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import ProfileStudent from "@/components/special/ProfileStudent";
+import useStudent from "@/hooks/useStudent";
 import useClasse from "@/hooks/useClasse";
-import UserProfileModal from "@/components/special/StudentProfileModal";
 import useDocument from "@/hooks/useDocument";
+import useStudentManager from "@/hooks/useStudentManager";
+
+import StudentCard from "@/components/shared/StudentCard";
+import FormModal from "@/components/shared/FormModal";
+import UserProfileModal from "@/components/special/StudentProfileModal";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import { ChampUsersCreate } from "../public/RegisterPage";
+
 export default function Etudiant() {
   const {
     students,
@@ -19,125 +20,33 @@ export default function Etudiant() {
   } = useStudent();
   const { getStudentClasse } = useClasse();
   const { studentDocument } = useDocument();
-  const [open, setOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null); // Pour l'édition si besoin
-  const isEditing = Boolean(selectedStudent);
 
-  const [newStudent, setNewStudent] = useState({
-    first_name: "",
-    last_name: "",
-    matricule: "",
-    phone_number: "",
-    email: "",
-    password_hash: "",
-    code_invitation: "",
+  const {
+    open,
+    setOpen,
+    openProfile,
+    setOpenProfile,
+    isEditing,
+    newStudent,
+    setNewStudent,
+    studentProfile,
+    erreur,
+    loading,
+    handleOpenChange,
+    handleSubmit,
+    handleDelete,
+    handleUpdate,
+    handleProfile,
+  } = useStudentManager({
+    createStudentFn: createStudent,
+    updateProfileFn: updateProfile,
+    deleteStudentFn: deleteStudent,
+    getMyProfileFn: getMyProfile,
+    getStudentClasseFn: getStudentClasse,
+    studentDocumentFn: studentDocument,
+    defaultClasseId: null,
   });
 
-  const [studentProfile, setStudentProfile] = useState({
-    user: {},
-    classe: {},
-    stats: {},
-  });
-
-  const [erreur, setErreur] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [openProfile, setOpenProfile] = useState(false);
-
-  // Réinitialisation propre à la fermeture du modal
-  const handleOpenChange = (isOpen) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      setSelectedStudent(null);
-      setErreur(null);
-      setNewStudent({
-        first_name: "",
-        last_name: "",
-        matricule: "",
-        phone_number: "",
-        email: "",
-        password_hash: "",
-        code_invitation: "",
-      });
-    }
-  };
-
-  const handleSubmit = async () => {
-    setErreur(null);
-    setLoading(true);
-
-    try {
-      if (isEditing) {
-        if (updateProfile) await updateProfile(selectedStudent.id, newStudent);
-      } else {
-        const user = await createStudent(newStudent, null, "student");
-        console.log(user);
-      }
-
-      // Fermeture et réinitialisation SEULEMENT si la requête réussit
-      handleOpenChange(false);
-    } catch (e) {
-      setErreur(
-        e?.message || "Une erreur est survenue lors de l'enregistrement.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (student) => {
-    const studentId = student?.id || student;
-    if (!studentId) return;
-
-    if (
-      !window.confirm(
-        "Voulez-vous vraiment retirer cet étudiant de la classe ?",
-      )
-    )
-      return;
-
-    setLoading(true);
-    try {
-      if (deleteStudent) {
-        await deleteStudent(studentId);
-      }
-    } catch (e) {
-      setErreur(e?.message || "Erreur lors de la suppression de l'étudiant.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdate = (student) => {
-    setSelectedStudent(student);
-    setNewStudent({
-      first_name: student.first_name || "",
-      last_name: student.last_name || "",
-      matricule: student.matricule || "",
-      phone_number: student.phone_number || "",
-      email: student.email || "",
-      password_hash: "",
-      code_invitation: "",
-    });
-    setOpen(true);
-  };
-
-  const handleProfile = async (studentId) => {
-    setOpenProfile(true);
-    if (!studentId) return;
-    const student = await getMyProfile(studentId);
-    const studentClasse = await getStudentClasse(student.id);
-    const document = await studentDocument(studentId);
-    const pendindDocs = document.filter(document.statut === "pending");
-    setStudentProfile({
-      user: student,
-      classe: { studentClasse },
-      stats: {
-        documentCount: document.length,
-        pendingCount: pendindDocs.length,
-        savedCound: 1,
-      },
-    });
-  };
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -179,13 +88,14 @@ export default function Etudiant() {
           isEdit={isEditing}
         />
       </FormModal>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {students.map((student) => (
+        {(students || []).map((student) => (
           <StudentCard
             key={student.id}
             student={student}
-            onDelete={handleDelete}
-            onUpdate={handleUpdate}
+            onDelete={() => handleDelete(student)}
+            onUpdate={() => handleUpdate(student)}
             onProfile={() => handleProfile(student.id)}
           />
         ))}

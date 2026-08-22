@@ -44,9 +44,9 @@ export default function ManageClasse() {
   });
 
   // 1. Récupération des hooks
-  const { classes, studentByClasse, getMatiere, regenerateCodeInvitation } =
+  const { classes, studentByClasse, getClasseSubject, regenerateCodeClasse } =
     useClasse();
-  const { getActiveAnnonce, annonces } = useAnnonce();
+  const { getClasseActiveAnnonce, annonces } = useAnnonce();
 
   // 2. États locaux pour stocker les résultats asynchrones
   const [annoncesClasse, setAnnoncesClasse] = useState([]);
@@ -69,7 +69,7 @@ export default function ManageClasse() {
 
       try {
         const [annoncesData, studentsData] = await Promise.all([
-          getActiveAnnonce(classeId),
+          getClasseActiveAnnonce(classeId),
           studentByClasse(classeId),
         ]);
 
@@ -104,7 +104,7 @@ export default function ManageClasse() {
     setIsRegenerating(true); // ✅ N'impacte pas le 'loading' global de la page
     setErreur("");
     try {
-      await regenerateCodeInvitation(classeId);
+      await regenerateCodeClasse(classeId);
     } catch (error) {
       setErreur(`Erreur : ${error.message.toString()}`);
     } finally {
@@ -248,7 +248,7 @@ export default function ManageClasse() {
           </TabsContent>
 
           <TabsContent value="matiere" className="space-y-4">
-            {getMatiere(classeId).length <= 0 ? (
+            {getClasseSubject(classeId).length <= 0 ? (
               <Card className="border-dashed">
                 <CardContent className="pt-6 text-center text-muted-foreground">
                   Aucune matiere / annonce disponible.
@@ -256,7 +256,7 @@ export default function ManageClasse() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {getMatiere(classeId).map((matiere) => (
+                {getClasseSubject(classeId).map((matiere) => (
                   <MatiereCard matiere={matiere} key={matiere.id} />
                 ))}
               </div>

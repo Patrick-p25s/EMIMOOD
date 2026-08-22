@@ -41,7 +41,7 @@ export const userData = [
     last_name: "Andria",
     avatar_url: "/avatars/hery.jpg",
     phone_number: "0349988776",
-    email: "hery.andria@example.com",
+    email: "mod@example.com",
     matricule: null,
     password_hash: "password",
     role: "moderator",

@@ -5,16 +5,19 @@ import TextareaLabeled from "@/components/shared/TextareaLabeled";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import MatiereCard from "@/components/shared/MatiereCard";
+import useAuth from "@/hooks/useAuth";
 
 export default function SubjectModerator() {
   const {
-    classMatieres = [],
-    userClasse,
+    getClasseSubject,
+    getStudentClasse,
     createSubject,
     deleteSubject,
     updateSubject,
   } = useOutletContext() || {};
 
+  const [matiere, setMatiere] = useState([]);
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [updated, setUpdated] = useState(null);
   const isEditing = Boolean(updated);
@@ -48,6 +51,11 @@ export default function SubjectModerator() {
     }
   }, [updated]);
 
+  useEffect(() => {
+    const data = getClasseSubject(user.classe_id);
+    setMatiere(data);
+  }, []);
+
   // Réinitialiser l'état 'updated' lorsque le modal se ferme
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen);
@@ -66,7 +74,7 @@ export default function SubjectModerator() {
       if (isEditing) {
         await updateSubject(updated.id, newData);
       } else {
-        await createSubject(newData, userClasse?.id);
+        await createSubject(newData, getStudentClasse?.id);
       }
 
       // Fermeture et réinitialisation UNIQUEMENT en cas de succès
@@ -170,7 +178,7 @@ export default function SubjectModerator() {
       </FormModal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classMatieres.map((matiere) => (
+        {matiere.map((matiere) => (
           <MatiereCard
             matiere={matiere}
             key={matiere.id}
