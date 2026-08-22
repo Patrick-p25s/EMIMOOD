@@ -73,18 +73,6 @@ export default function useClasse() {
     setClasses((prevClasses) => prevClasses.filter((c) => c.id !== id));
   };
 
-  // const getClasseAnnonce = async (classeId) => {
-  //   await new Promise((resolve) => setTimeout(resolve, 1000));
-  //   return annonces.filter((ann) => ann.classe_id === classeId);
-  // };
-
-  // const getClasseActiveAnnonce = async (classeId) => {
-  //   await new Promise((resolve) => setTimeout(resolve, 1000));
-  //   return annonces.filter(
-  //     (ann) => ann.statut === "active" && ann.classe_id === classeId,
-  //   );
-  // };
-
   const studentByClasse = async (classeId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return students.filter((stud) => stud.classe_id === classeId);
@@ -103,10 +91,8 @@ export default function useClasse() {
     return matiere;
   };
 
-  // const getClasseSubjectsIds = getClasseSubject.map((cl) => cl.id);
-
   const getClasseDocuments = async (classeId) => {
-    const matiere = await getClasseSubject(-classeId);
+    const matiere = await getClasseSubject(classeId);
     const matieresIds = matiere.map((cl) => cl.id);
     const matiereSet = new Set(matieresIds.map(String));
 

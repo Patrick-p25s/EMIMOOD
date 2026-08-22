@@ -1,16 +1,14 @@
 import AnnonceItem from "@/components/shared/AnnonceItem";
-import React, { useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useState } from "react";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
 import TextareaLabeled from "@/components/shared/TextareaLabeled";
-import useAuth from "@/hooks/useAuth";
 export default function AnnounceModerator() {
   const {
-    getStudentClasse,
-    getClasseAnnonce,
+    userClasse,
+    allAnnonces,
     archiveAnnonce,
     deleteAnnonce,
     updateAnnonce,
@@ -20,20 +18,15 @@ export default function AnnounceModerator() {
   const [open, setOpen] = useState(false);
   const [selectedAnnonce, setSelectedAnnonce] = useState(null); // Pour l'édition si besoin
   const isEditing = Boolean(selectedAnnonce);
-  const [annonces, setAnnonces] = useState([]);
   const [newAnnonce, setNewAnnonce] = useState({
     titre: "",
     contenu: "",
     important: false,
   });
-  const { user } = useAuth();
 
   const [erreur, setErreur] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getClasseAnnonce(user.classe_id).then((res) => setAnnonces(res));
-  }, []);
   // Réinitialisation propre à la fermeture du modal
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen);
@@ -73,8 +66,8 @@ export default function AnnounceModerator() {
       if (isEditing) {
         if (updateAnnonce) await updateAnnonce(selectedAnnonce.id, newAnnonce);
       } else {
-        if (getStudentClasse) {
-          await createAnnonce(newAnnonce, getStudentClasse.id);
+        if (userClasse) {
+          await createAnnonce(newAnnonce, userClasse.id);
         } else {
           setErreur("Pas de classe séléctionne");
         }
@@ -156,7 +149,7 @@ export default function AnnounceModerator() {
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {annonces.map((annonce) => (
+        {allAnnonces.map((annonce) => (
           <AnnonceItem
             annonce={annonce}
             key={annonce.id}

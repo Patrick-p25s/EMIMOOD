@@ -6,9 +6,9 @@ import DocumentUploadDialog from "../../components/special/DocumentUploadDialog"
 import useAuth from "@/hooks/useAuth";
 export default function DocumentModerator() {
   const {
-    getClasseDocuments,
+    allDocuments,
+    allSubjects,
     createDocument,
-    getClasseSubject,
     deleteDocument,
     valideDocument,
     rejeteDocument,
@@ -23,16 +23,6 @@ export default function DocumentModerator() {
   const handleEdit = async () => {
     return null;
   };
-  const [classeDocument, setClasseDocument] = useState([]);
-  const [classeMatiere, setClasseMatiere] = useState([]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      setClasseDocument(await getClasseDocuments(user.classe_id));
-      setClasseMatiere(await getClasseDocuments(user.classe_id));
-    };
-    loadData();
-  }, []);
 
   const handleValide = async (document) => {
     setLoading(true);
@@ -92,10 +82,10 @@ export default function DocumentModerator() {
         open={open}
         onOpenChange={setOpen}
         onCreate={createDocument}
-        matieres={classeMatiere}
+        matieres={allSubjects}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classeDocument.map((document) => (
+        {allDocuments.map((document) => (
           <DocumentCard
             onRejete={() => handleRejete(document)}
             onValide={() => handleValide(document)}

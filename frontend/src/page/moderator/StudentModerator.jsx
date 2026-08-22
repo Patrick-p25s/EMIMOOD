@@ -10,7 +10,7 @@ import useAuth from "@/hooks/useAuth";
 
 export default function StudentModerator() {
   const {
-    studentByClasse = [],
+    allStudents,
     createStudent,
     deleteStudent,
     updateProfile,
@@ -18,14 +18,7 @@ export default function StudentModerator() {
     getStudentClasse,
     studentDocument,
   } = useOutletContext() || {};
-  const { user } = useAuth();
-  const [students, setStudents] = useState([]);
 
-  useEffect(() => {
-    studentByClasse(user.classe_id)
-      .then((res) => setStudents(res))
-      .catch((res) => console.log(res.message));
-  }, []);
   const {
     open,
     setOpen,
@@ -87,7 +80,7 @@ export default function StudentModerator() {
       </FormModal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {students.map((student) => (
+        {allStudents.map((student) => (
           <StudentCard
             key={student.id}
             student={{

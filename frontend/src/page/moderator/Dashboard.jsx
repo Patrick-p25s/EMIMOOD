@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import useAuth from "@/hooks/useAuth";
-import useDocument from "@/hooks/useDocument";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -135,13 +133,9 @@ export default function DashboardModerator() {
 
   // Extraction sécurisée depuis useOutletContext avec valeurs par défaut
   const {
-    getStudentClasse,
-    getClasseSubject,
-    getClasseDocuments = [],
-    pendingDocs = [],
-    publicDocs = [],
-    rejectedDocs = [],
-    recentPendingDocs = [],
+    userClasse,
+    allSubjects,
+    allDocuments,
     matiereNameById = new Map(),
     valideDocument,
     rejeteDocument,
@@ -159,6 +153,10 @@ export default function DashboardModerator() {
     }
   };
 
+  const pendingDocs = allDocuments.filter((docs) => docs.statut === "pending");
+  const publicDocs = allDocuments.filter((docs) => docs.statut === "public");
+  const rejectedDocs = allDocuments.filter((docs) => docs.statut === "rejete");
+  const recentPendingDocs = pendingDocs.slice(0, RECENT_LIMIT);
   const handleRejete = async (docId) => {
     setProcessingId(docId);
     try {
@@ -188,8 +186,8 @@ export default function DashboardModerator() {
       <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
         <div className="flex-1">
           <ClasseInfoCard
-            classe={getStudentClasse}
-            matiereCount={getClasseSubject.length}
+            classe={userClasse}
+            matiereCount={allSubjects.length}
             loading={classesLoading}
           />
         </div>
@@ -217,7 +215,7 @@ export default function DashboardModerator() {
           <DocumentUploadDialog
             open={uploadOpen}
             onOpenChange={setUploadOpen}
-            matieres={getClasseSubject(user.classe_id)}
+            matieres={allSubjects}
           />
         </div>
       </div>
@@ -242,11 +240,7 @@ export default function DashboardModerator() {
           icon={X}
           tone="danger"
         />
-        <StatCard
-          title="Matières"
-          value={getClasseSubject.length}
-          icon={BookOpen}
-        />
+        <StatCard title="Matières" value={allSubjects.length} icon={BookOpen} />
       </div>
 
       {/* Documents en attente récents */}

@@ -1,4 +1,5 @@
 import { userData } from "@/fake/user";
+import { Users } from "lucide-react";
 import { useState } from "react";
 
 export default function useStudent() {
@@ -47,6 +48,11 @@ export default function useStudent() {
     setStudents((prev) => prev.filter((student) => student.id !== studentId));
   };
 
+  const getStudentById = async (userId) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return students.find((student) => student.id === userId);
+  };
+
   const getByClasse = async (classeId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (!classeId) {
@@ -58,9 +64,22 @@ export default function useStudent() {
   const getMyProfile = async (studentId) =>
     students.find((student) => student.id === studentId);
 
+  const updatePassword = async (studentId, oldPassword, newPassword) => {
+    const student = await getStudentById(studentId);
+    if (student.password_hash !== oldPassword) {
+      throw new Error("Mot de passe incorrect");
+    }
+    setStudents((std) =>
+      std.id === studentId ? { ...std, password_hash: newPassword } : std,
+    );
+    return student;
+  };
+
   return {
     students,
     updateProfile,
+    updatePassword,
+    getStudentById,
     getByClasse,
     deleteStudent,
     getMyProfile,

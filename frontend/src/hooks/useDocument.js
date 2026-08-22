@@ -5,7 +5,7 @@ export default function useDocument() {
   const [documents, setDocuments] = useState(documentData);
 
   const createDocument = async (newDocument, matiereId, ownerId) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const document = {
       id: crypto.randomUUID(),
@@ -34,17 +34,19 @@ export default function useDocument() {
     return docs;
   };
 
-  const getPublicDocument = async () => {
-    const docs = documents.filter((doc) => doc.statut === "publique");
+  const getPublicsDocument = async () => {
+    const docs = documents.filter((doc) => doc.statut === "public");
     return docs;
   };
 
   const getPendingDocument = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const docs = documents.filter((doc) => doc.statut === "pending");
     return docs;
   };
 
-  const getDocumentById = (documentId) => {
+  const getDocumentById = async (documentId) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
     return documents.find((doc) => doc.id === documentId);
   };
 
@@ -55,18 +57,14 @@ export default function useDocument() {
 
   const valideDocument = async (documentId) => {
     try {
-      // 1. Récupération du document
       const document = await getDocumentById(documentId);
 
-      // 2. Vérification sur le statut (et non sur l'id)
       if (document.statut !== "pending") {
         throw new Error("Ce document n'est plus en attente");
       }
 
-      // 3. Objet document mis à jour
       const updatedDocument = { ...document, statut: "public" };
 
-      // 4. Mise à jour propre de l'état React avec un .map()
       setDocuments((prevDocuments) =>
         prevDocuments.map((doc) =>
           doc.id === documentId ? updatedDocument : doc,
@@ -79,18 +77,14 @@ export default function useDocument() {
 
   const rejeteDocument = async (documentId) => {
     try {
-      // 1. Récupération du document
       const document = await getDocumentById(documentId);
 
-      // 2. Vérification sur le statut (et non sur l'id)
       if (document.statut !== "pending") {
         throw new Error("Ce document n'est plus en attente");
       }
 
-      // 3. Objet document mis à jour
       const updatedDocument = { ...document, statut: "rejete" };
 
-      // 4. Mise à jour propre de l'état React avec un .map()
       setDocuments((prevDocuments) =>
         prevDocuments.map((doc) =>
           doc.id === documentId ? updatedDocument : doc,
@@ -108,11 +102,6 @@ export default function useDocument() {
     );
   };
 
-  const getMyDocument = async (userId) => {
-    const docs = documents.filter((doc) => doc.owner_id === userId);
-    return docs;
-  };
-
   return {
     documents,
     studentDocument,
@@ -121,8 +110,7 @@ export default function useDocument() {
     getDocumentById,
     getDocumentByType,
     getPendingDocument,
-    getPublicDocument,
-    getMyDocument,
+    getPublicsDocument,
     rejeteDocument,
     valideDocument,
   };

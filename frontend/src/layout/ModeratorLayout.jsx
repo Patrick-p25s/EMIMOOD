@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import { useMemo } from "react";
 import {
   ShieldAlert,
   LayoutDashboard,
-  Flag,
   Users,
   LogOut,
   Menu,
@@ -14,7 +12,6 @@ import {
   Book,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
@@ -23,54 +20,42 @@ import useClasse from "@/hooks/useClasse";
 import useDocument from "@/hooks/useDocument";
 import useStudent from "@/hooks/useStudent";
 import useAnnonce from "@/hooks/useAnnonce";
+
 const NAV_ITEMS = [
-  {
-    to: "/moderator",
-    label: "Tableau de bord",
-    icon: LayoutDashboard,
-  },
-  { to: "/moderator/matieres", label: "Matieres", icon: BookOpen },
+  { to: "/moderator", label: "Tableau de bord", icon: LayoutDashboard },
+  { to: "/moderator/matieres", label: "Matières", icon: BookOpen },
   { to: "/moderator/students", label: "Utilisateurs", icon: Users },
   { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
   { to: "/moderator/documents", label: "Documents", icon: Book },
-  { to: "/moderator/profile", label: "My Profile", icon: Users },
+  { to: "/moderator/profile", label: "Mon Profil", icon: Users },
 ];
-
-const RECENT_LIMIT = 5;
 
 export default function ModeratorLayout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Hooks d'actions
   const {
-    annonces,
-    getClasseActiveAnnonce,
     archiveAnnonce,
     deleteAnnonce,
     updateAnnonce,
-    getClasseAnnonce,
     createAnnonce,
+    getClasseAnnonce,
+    getClasseActiveAnnonce,
   } = useAnnonce();
-  const moderatorClasseId = user?.classe_id || user?.classeId;
 
   const {
-    classes,
     getStudentClasse,
     getClasseDocuments,
     getClasseSubject,
     studentByClasse,
   } = useClasse();
-  const { matieres, createSubject, updateSubject, deleteSubject } =
-    useMatiere();
+  const isProfilePage = location.pathname.startsWith("/moderator/profile");
+
+  const { createSubject, updateSubject, deleteSubject } = useMatiere();
+  const { updateProfile, deleteStudent, createStudent, getMyProfile } =
+    useStudent();
   const {
-    students,
-    updateProfile,
-    deleteStudent,
-    createStudent,
-    getMyProfile,
-  } = useStudent();
-  const {
-    documents,
     valideDocument,
     rejeteDocument,
     createDocument,
@@ -78,31 +63,106 @@ export default function ModeratorLayout() {
     studentDocument,
   } = useDocument();
 
+  const classeId = user?.classe_id || user?.classeId || null;
+
+  // États pour stocker les données résolues
+  const [moderatorData, setModeratorData] = useState({
+    userClasse: null,
+    allStudents: [],
+    allDocuments: [],
+    allSubjects: [],
+    allAnnonces: [],
+    loading: true,
+    error: null,
+  });
+
+  // Fonction de rechargement/rafraîchissement des données
+  const fetchClasseData = async () => {
+    if (!user || !classeId) {
+      setModeratorData((prev) => ({ ...prev, loading: false }));
+      return;
+    }
+
+    try {
+      setModeratorData((prev) => ({ ...prev, loading: true, error: null }));
+
+      // Execution de toutes les requêtes en parallèle pour des performances maximales
+      const [classe, studentsList, docsList, subjectsList, annoncesList] =
+        await Promise.all([
+          getStudentClasse ? getStudentClasse(user.id) : Promise.resolve(null),
+          studentByClasse ? studentByClasse(classeId) : Promise.resolve([]),
+          getClasseDocuments
+            ? getClasseDocuments(classeId)
+            : Promise.resolve([]),
+          getClasseSubject ? getClasseSubject(classeId) : Promise.resolve([]),
+          getClasseAnnonce ? getClasseAnnonce(classeId) : Promise.resolve([]),
+        ]);
+
+      setModeratorData({
+        userClasse: classe,
+        allStudents: Array.isArray(studentsList) ? studentsList : [],
+        allDocuments: Array.isArray(docsList) ? docsList : [],
+        allSubjects: Array.isArray(subjectsList) ? subjectsList : [],
+        allAnnonces: Array.isArray(annoncesList) ? annoncesList : [],
+        loading: false,
+        error: null,
+      });
+    } catch (err) {
+      console.error("Erreur lors du chargement des données modérateur :", err);
+      setModeratorData((prev) => ({
+        ...prev,
+        loading: false,
+        error: err?.message || "Erreur de chargement des données.",
+      }));
+    }
+  };
+
+  useEffect(() => {
+    fetchClasseData();
+  }, [classeId]);
+
+  // Regroupement des données et des méthodes d'action dans le contexte
   const contextValue = {
-    getStudentClasse,
-    getClasseSubject,
-    getClasseDocuments,
-    studentByClasse,
-    getClasseAnnonce,
+    // Données chargées
+    user,
+    userClasse: moderatorData.userClasse,
+    allStudents: moderatorData.allStudents,
+    allDocuments: moderatorData.allDocuments,
+    allSubjects: moderatorData.allSubjects,
+    allAnnonces: moderatorData.allAnnonces,
+    loadingData: moderatorData.loading,
+    errorData: moderatorData.error,
+    refreshData: fetchClasseData,
+
+    // Actions & Méthodes CRUD
     createDocument,
+    getStudentClasse,
     deleteDocument,
+    valideDocument,
+    rejeteDocument,
+    studentDocument,
     archiveAnnonce,
-    createStudent,
     deleteAnnonce,
     updateAnnonce,
     createAnnonce,
     getClasseActiveAnnonce,
+    createStudent,
+    deleteStudent,
+    updateProfile,
+    getMyProfile,
     createSubject,
     deleteSubject,
     updateSubject,
-    updateProfile,
-    deleteStudent,
-    valideDocument,
-    rejeteDocument,
-    studentDocument,
-    getStudentClasse,
-    getMyProfile,
   };
+
+  if (isProfilePage) {
+    return (
+      <div className="min-h-screen bg-orange-50/30">
+        <Outlet context={contextValue} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-orange-50/30">
       {/* Overlay mobile */}
@@ -161,9 +221,7 @@ export default function ModeratorLayout() {
             icon={<LogOut className="h-4 w-4" />}
             variant="ghost"
             onClick={logout}
-            className={
-              "w-full justify-start gap-2 text-gray-600 hover:text-red-600"
-            }
+            className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
           >
             Déconnexion
           </ButtonStyled>
@@ -191,12 +249,22 @@ export default function ModeratorLayout() {
             >
               Modérateur
             </Badge>
-            <span className="text-sm text-gray-600">{user?.name}</span>
+            <span className="text-sm text-gray-600">
+              {user?.first_name
+                ? `${user.first_name} ${user.last_name || ""}`
+                : user?.name}
+            </span>
           </div>
         </header>
 
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          <Outlet context={contextValue} />
+          {moderatorData.loading ? (
+            <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">
+              Chargement des données de la classe...
+            </div>
+          ) : (
+            <Outlet context={contextValue} />
+          )}
         </main>
       </div>
     </div>

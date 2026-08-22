@@ -41,7 +41,9 @@ export default function useMatiere() {
 
   const deleteSubject = async (id) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    setMatieres((prev) => prev.filter((mat) => String(mat.id) !== String(id)));
+    return setMatieres((prev) =>
+      prev.filter((mat) => String(mat.id) !== String(id)),
+    );
   };
 
   return {
@@ -51,6 +53,4 @@ export default function useMatiere() {
     updateSubject,
     deleteSubject,
   };
-
-  return { matieres, createSubject, updateSubject, deleteSubject };
 }
