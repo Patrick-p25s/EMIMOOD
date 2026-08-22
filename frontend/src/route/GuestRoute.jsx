@@ -9,11 +9,12 @@ export default function GuestRoute() {
     return <h1>Chargement ...</h1>;
   }
   if (isAuthenticated) {
-    return role === "admin" ? (
-      <Navigate to="/admin" replace />
-    ) : (
-      <Navigate to="/dashboard" replace />
-    );
+    // return role === "admin" ? (
+    //   <Navigate to="/admin" replace />
+    // ) : (
+    //   <Navigate to="/dashboard" replace />
+    // );
+    <Navigate to="/dashboard" replace />;
   }
   return <Outlet />;
 }

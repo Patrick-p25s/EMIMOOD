@@ -34,6 +34,13 @@ export default function useDocument() {
     return docs;
   };
 
+  const getTraitableDocs = async () => {
+    const document = await documents.filter(
+      (docs) => docs.statut !== "private",
+    );
+    return document;
+  };
+
   const getPublicsDocument = async () => {
     const docs = documents.filter((doc) => doc.statut === "public");
     return docs;
@@ -105,6 +112,7 @@ export default function useDocument() {
   return {
     documents,
     studentDocument,
+    getTraitableDocs,
     deleteDocument,
     createDocument,
     getDocumentById,

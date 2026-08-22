@@ -38,7 +38,9 @@ import DocumentModerator from "./page/moderator/DocumentModerator";
 import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
 import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
 import ProfileModerator from "./page/moderator/MyProfile"; // Renommé pour clarté
-
+import GestionRouter from "./layout/GestionRouter";
+import Gestion from "./page/Gestion";
+import GestionLayout from "./layout/GestionLaoyout";
 export default function App() {
   return (
     <AuthProvider>
@@ -90,6 +92,11 @@ export default function App() {
                   element={<OneDocumentModerator />}
                 />
                 <Route path="profile" element={<ProfileModerator />} />
+              </Route>
+            </Route>
+            <Route path="/gestion" element={<GestionRouter />}>
+              <Route element={<GestionLayout />}>
+                <Route index element={<Gestion />} />
               </Route>
             </Route>
           </Routes>
