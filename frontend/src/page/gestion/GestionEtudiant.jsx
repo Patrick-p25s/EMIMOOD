@@ -8,7 +8,7 @@ import UserProfileModal from "@/components/special/StudentProfileModal";
 export default function Gestion() {
   // 1. Valeurs de secours pour éviter que 'allStudents' ou 'userClasse' fasse planter le composant
   const {
-    studentTraite = [],
+    allStudents = [],
     user,
     createStudent,
     deleteStudent,
@@ -182,10 +182,10 @@ export default function Gestion() {
 
       {/* Grille responsive d'étudiants */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {studentTraite.length <= 0 ? (
+        {allStudents.length <= 0 ? (
           <h1>Aucune donnée disponible </h1>
         ) : (
-          studentTraite.map((student) => (
+          allStudents.map((student) => (
             <StudentCard
               student={{
                 ...student,

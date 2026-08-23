@@ -39,6 +39,10 @@ export default function useMatiere() {
     );
   };
 
+  const getClasseSuject = async (classeId) => {
+    return matieres.filter((matiere) => matiere.classe_id === classeId);
+  };
+
   const deleteSubject = async (id) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     return setMatieres((prev) =>
@@ -49,6 +53,7 @@ export default function useMatiere() {
   return {
     matieres,
     setMatieres,
+    getClasseSuject,
     createSubject,
     updateSubject,
     deleteSubject,

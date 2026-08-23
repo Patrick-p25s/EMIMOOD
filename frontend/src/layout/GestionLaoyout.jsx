@@ -17,9 +17,10 @@ import { LogOut } from "lucide-react";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import useDocument from "@/hooks/useDocument";
 import useStudent from "@/hooks/useStudent";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import useMatiere from "@/hooks/useMatiere";
 import useClasse from "@/hooks/useClasse";
+import useAnnonce from "@/hooks/useAnnonce";
 const menuGeneral = [
   {
     to: "/gestion",
@@ -45,61 +46,151 @@ const menuProfile = [
 ];
 
 export default function GestionLayout() {
-  const { getActiveYear } = useYear();
-  const { logout, user } = useAuth();
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const classeId = user?.classe_id;
+
+  // 1. Déclarations propres des états locaux
+  const [allDocuments, setAllDocuments] = useState([]);
+  const [allStudents, setAllStudents] = useState([]);
+  const [allAnnonces, setAllAnnonces] = useState([]);
+  const [allSubjects, setAllSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Hooks d'actions
   const { getClasseDocuments, getStudentClasse } = useClasse();
-  const { matieres } = useMatiere();
+  const { matieres, getClasseSubject } = useMatiere();
   const { documents, studentDocument } = useDocument();
+  const { annonces, getClasseAnnonce } = useAnnonce();
   const {
     students,
     getByClasse,
-    getMyProfile,
-    updateProfile,
-    deleteStudent,
     createStudent,
+    deleteStudent,
+    getMyProfile,
+    updatePassword,
+    updateProfile,
   } = useStudent();
-  const [studentTraite, setStudentTraite] = useState([]);
 
-  const [documentTraiter, setDocumentTraiter] = useState([]);
-
-  const isAdmin = user.role === "admin";
-  const matiere = useMemo(() => {
+  const loadDocuments = useCallback(async () => {
     if (isAdmin) {
-      return matieres;
-    } else {
-      return matieres.filter((mat) => mat.classe_id === user.classe_id);
+      setAllDocuments(documents || []);
+    } else if (classeId) {
+      const docs = await getClasseDocuments(classeId);
+      setAllDocuments(docs || []);
     }
-  }, [user, matieres]);
+  }, [isAdmin, classeId, getClasseDocuments, documents]);
 
-  const loadDocuments = async () => {
+  const loadStudents = useCallback(async () => {
     if (isAdmin) {
-      setDocumentTraiter(documents);
-    } else {
-      const docs = await getClasseDocuments(user.classe_id);
-      setDocumentTraiter(docs);
+      setAllStudents(students || []);
+    } else if (classeId) {
+      const stds = await getByClasse(classeId);
+      setAllStudents(stds || []);
     }
-  };
-  const loadStudent = async () => {
-    if (isAdmin) {
-      setStudentTraite(students);
-    } else {
-      const stds = await getByClasse(user.classe_id);
-      setStudentTraite(stds);
-    }
-  };
+  }, [isAdmin, classeId, getByClasse, students]);
 
+  const loadAnnonces = useCallback(async () => {
+    if (isAdmin) {
+      setAllAnnonces(annonces || []);
+    } else if (classeId) {
+      const ann = await getClasseAnnonce(classeId);
+      setAllAnnonces(ann || []);
+    }
+  }, [isAdmin, classeId, getClasseAnnonce, annonces]);
+
+  const loadSubjects = useCallback(async () => {
+    if (isAdmin) {
+      setAllSubjects(matieres || []);
+    } else if (classeId) {
+      const subs = await getClasseSubject(classeId);
+      setAllSubjects(subs || []);
+    }
+  }, [isAdmin, classeId, getClasseSubject, matieres]);
+
+  // 3. Un seul useEffect d'initialisation en parallèle
   useEffect(() => {
-    loadDocuments();
-  }, [user, documents]);
-  useEffect(() => {
-    loadStudent();
-  }, [students, user]);
+    if (!user) return;
+
+    let isMounted = true;
+
+    async function initData() {
+      setLoading(true);
+      await Promise.all([
+        loadDocuments(),
+        loadStudents(),
+        loadAnnonces(),
+        loadSubjects(),
+      ]);
+      if (isMounted) setLoading(false);
+    }
+
+    initData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, classeId]);
+
+  const userClasse = useMemo(
+    () => classes?.find((cl) => String(cl.id) === String(classeId)),
+    [classes, classeId],
+  );
+
+  const classMatieres = useMemo(() => {
+    if (!allSubjects || !classeId) return [];
+    return allSubjects.filter((m) => String(m.classe_id) === String(classeId));
+  }, [allSubjects, classeId]);
+
+  const classMatiereIds = useMemo(
+    () => allSubjects.map((m) => String(m.id)),
+    [allSubjects],
+  );
+
+  const classDocuments = useMemo(() => {
+    if (!allDocuments || classMatiereIds.length === 0) return [];
+
+    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
+    const matiereSet = new Set(classMatiereIds.map(String));
+
+    return allDocuments.filter((doc) => matiereSet.has(String(doc.matiere_id)));
+  }, [allDocuments, classMatiereIds]);
+
+  const pendingDocs = useMemo(
+    () => allDocuments.filter((d) => d.statut === "pending"),
+    [allDocuments],
+  );
+  const publicDocs = useMemo(
+    () => allDocuments.filter((d) => d.statut === "public"),
+    [allDocuments],
+  );
+  const rejectedDocs = useMemo(
+    () => allDocuments.filter((d) => d.statut === "rejete"),
+    [allDocuments],
+  );
+
+  const recentPendingDocs = useMemo(
+    () => pendingDocs.slice(0, RECENT_LIMIT),
+    [pendingDocs],
+  );
+
+  const matiereNameById = useMemo(() => {
+    const map = new Map();
+    classMatieres.forEach((m) => map.set(String(m.id), m.nom));
+    return map;
+  }, [classMatieres]);
 
   const contextValue = {
-    studentTraite,
-    documentTraiter,
-    matiere,
+    allStudents,
+    allAnnonces,
+    allDocuments,
+    allSubjects,
     user,
+    pendingDocs,
+    rejectedDocs,
+    recentPendingDocs,
+    matiereNameById,
+    classDocuments,
     createStudent,
     deleteStudent,
     updateProfile,
