@@ -39,7 +39,7 @@ import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
 import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
 import ProfileModerator from "./page/moderator/MyProfile"; // Renommé pour clarté
 import GestionRouter from "./layout/GestionRouter";
-import Gestion from "./page/Gestion";
+import Gestion from "./page/gestion/Gestion";
 import GestionLayout from "./layout/GestionLaoyout";
 export default function App() {
   return (
@@ -97,6 +97,10 @@ export default function App() {
             <Route path="/gestion" element={<GestionRouter />}>
               <Route element={<GestionLayout />}>
                 <Route index element={<Gestion />} />
+                <Route path="/annonces" element={<GestionAnnonces />} />
+                <Route path="/classes" element={<GestionClasse />} />
+                <Route path="/etudiant" element={<GestionEtudiant />} />
+                <Route path="/annee" element={<GestionAnne />} />
               </Route>
             </Route>
           </Routes>

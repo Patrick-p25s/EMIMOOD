@@ -3,8 +3,8 @@ import FormModal from "@/components/shared/FormModal";
 import StudentCard from "@/components/shared/StudentCard";
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import RegisterPage from "./public/RegisterPage";
-import { ChampUsersCreate } from "./public/RegisterPage";
+import RegisterPage from "../public/RegisterPage";
+import { ChampUsersCreate } from "../public/RegisterPage";
 import UserProfileModal from "@/components/special/StudentProfileModal";
 export default function Gestion() {
   // 1. Valeurs de secours pour éviter que 'allStudents' ou 'userClasse' fasse planter le composant
@@ -36,7 +36,7 @@ export default function Gestion() {
     password_hash: "",
     code_invitation: "",
   });
-
+  const [loadingProfile, setLoadingProfile] = useState(false);
   const [erreur, setErreur] = useState(null);
   const [loading, setLoading] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
@@ -124,20 +124,27 @@ export default function Gestion() {
 
   const handleProfile = async (studentId) => {
     setOpenProfile(true);
+    setLoadingProfile(true);
     if (!studentId) return;
-    const student = await getMyProfile(studentId);
-    const studentClasse = await getStudentClasse(student.id);
-    const document = await studentDocument(studentId);
-    const pendindDocs = document?.filter((docs) => docs.statut === "pending");
-    setStudentProfile({
-      user: student,
-      classe: { studentClasse },
-      stats: {
-        documentsCount: document.length,
-        pendingCount: pendindDocs.length,
-        savedCound: 1,
-      },
-    });
+    try {
+      const student = await getMyProfile(studentId);
+      const studentClasse = await getStudentClasse(student.id);
+      const document = await studentDocument(studentId);
+      const pendindDocs = document?.filter((docs) => docs.statut === "pending");
+      setStudentProfile({
+        user: student,
+        classe: { studentClasse },
+        stats: {
+          documentsCount: document.length,
+          pendingCount: pendindDocs.length,
+          savedCound: 1,
+        },
+      });
+    } catch (error) {
+      setErreur(`Erreur : ${error.message}`);
+    } finally {
+      setLoadingProfile(false);
+    }
   };
 
   return (
@@ -176,21 +183,27 @@ export default function Gestion() {
 
       {/* Grille responsive d'étudiants */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {studentTraite.map((student) => (
-          <StudentCard
-            student={{
-              ...student,
-              niveau: user?.classe_id,
-              mention: user?.classe_id,
-            }}
-            key={student.id}
-            onDelete={() => handleDelete(student)}
-            onUpdate={() => handleUpdate(student)}
-            onProfile={() => handleProfile(student.id)}
-          />
-        ))}
+        {studentTraite.length <= 0 ? (
+          <h1>Aucune donnée disponible </h1>
+        ) : (
+          studentTraite.map((student) => (
+            <StudentCard
+              student={{
+                ...student,
+                niveau: user?.classe_id,
+                mention: user?.classe_id,
+              }}
+              loading={loading}
+              key={student.id}
+              onDelete={() => handleDelete(student)}
+              onUpdate={() => handleUpdate(student)}
+              onProfile={() => handleProfile(student.id)}
+            />
+          ))
+        )}
       </div>
       <UserProfileModal
+        loading={loadingProfile}
         open={openProfile}
         onOpenChange={setOpenProfile}
         classe={studentProfile.classe}

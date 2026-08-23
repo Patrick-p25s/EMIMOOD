@@ -19,6 +19,7 @@ export default function StudentCard({
   onUpdate,
   onDelete,
   onProfile,
+  loading,
 }) {
   if (!student) return null;
 
@@ -116,8 +117,11 @@ export default function StudentCard({
         <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-end gap-2">
           {onUpdate && (
             <ButtonStyled
+              loading={loading}
+              variant="ghost"
+              size="sm"
+              disable={loading}
               onClick={() => onUpdate(student)}
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
               icon={<Pencil className="h-3.5 w-3.5" />}
             >
               Modifier
@@ -125,15 +129,17 @@ export default function StudentCard({
           )}
 
           {onDelete && (
-            <Button
+            <ButtonStyled
+              loading={loading}
               variant="destructive"
               size="sm"
               className="gap-1.5 h-8 text-xs"
               onClick={() => onDelete(student)}
+              icon={<Trash2 className="h-3.5 w-3.5" />}
+              disable={loading}
             >
-              <Trash2 className="h-3.5 w-3.5" />
               Supprimer
-            </Button>
+            </ButtonStyled>
           )}
         </CardFooter>
       )}

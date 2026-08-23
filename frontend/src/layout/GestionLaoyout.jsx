@@ -9,6 +9,7 @@ import {
   Users,
   User,
   FileText,
+  User2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
@@ -38,6 +39,9 @@ const menuStructure = [
 
 const menuContenu = [
   { to: "/gestion/documents", label: "Documents", icon: FileText },
+];
+const menuProfile = [
+  { to: "/gestion/profile", label: "Mon profile", icon: User2 },
 ];
 
 export default function GestionLayout() {
@@ -110,9 +114,12 @@ export default function GestionLayout() {
         <div className="text-sm font-medium px-2 pb-4">EMIMOOD</div>
 
         <MenuSection titre="Général" items={menuGeneral} />
-        <MenuSection titre="Année universitaire" items={menuAnnee} />
+        {isAdmin && (
+          <MenuSection titre="Année universitaire" items={menuAnnee} />
+        )}
         <MenuSection titre="Structure" items={menuStructure} />
         <MenuSection titre="Contenu" items={menuContenu} />
+        {!isAdmin && <MenuSection titre="Mon Profile" items={menuProfile} />}
       </aside>
 
       {/* CONTENU PRINCIPAL */}
