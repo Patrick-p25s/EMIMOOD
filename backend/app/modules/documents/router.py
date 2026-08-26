@@ -11,7 +11,6 @@ from app.modules.documents.schema import (
     DocumentUpdate,
 )
 from app.modules.documents.service import DocumentService
-from app.modules.sauvegarde.repository import SauvegardeRepository
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.users.model import Users
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
@@ -20,9 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
-    return DocumentService(
-        DocumentRepository(db), SubjectRepository(db), SauvegardeRepository(db)
-    )
+    return DocumentService(DocumentRepository(db), SubjectRepository(db))
 
 
 router = APIRouter(prefix="/documents", tags=["Gestion des Documents"])

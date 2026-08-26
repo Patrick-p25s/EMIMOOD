@@ -5,7 +5,6 @@ from app.modules.documents.repository import DocumentRepository
 from app.modules.documents.schema import DocumentCreate, DocumentUpdate
 from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
-from app.modules.sauvegarde.repository import SauvegardeRepository
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
 
@@ -15,11 +14,11 @@ class DocumentService:
         self,
         document_repo: DocumentRepository,
         subject_repo: SubjectRepository,
-        save_repo: SauvegardeRepository,
+        # save_repo: SauvegardeRepository,
     ):
         self.document_repo = document_repo
         self.subject_repo = subject_repo
-        self.save_repo = save_repo
+        # self.save_repo = save_repo
 
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
@@ -140,22 +139,22 @@ class DocumentService:
     # Actions Utilisateur (Favoris / Dashboard)
     # ------------------------------------------------------------------
 
-    async def enregistrer_document(
-        self, document_id: UUID, current_user: Users
-    ) -> None:
-        document = await self._get_document_or_404(document_id)
-        if not self._peut_acceder(document, current_user):
-            raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+    # async def enregistrer_document(
+    #     self, document_id: UUID, current_user: Users
+    # ) -> None:
+    #     document = await self._get_document_or_404(document_id)
+    #     if not self._peut_acceder(document, current_user):
+    #         raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
 
-        if await self.save_repo.exists(current_user.id, document_id):
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "Document déjà présent dans votre dashboard",
-            )
+    #     if await self.save_repo.exists(current_user.id, document_id):
+    #         raise HTTPException(
+    #             status.HTTP_400_BAD_REQUEST,
+    #             "Document déjà présent dans votre dashboard",
+    #         )
 
-        await self.save_repo.create(
-            {"user_id": current_user.id, "document_id": document_id}
-        )
+    #     await self.save_repo.create(
+    #         {"user_id": current_user.id, "document_id": document_id}
+    #     )
 
     # ------------------------------------------------------------------
     # Modération (Admin / Modérateur)

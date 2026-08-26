@@ -11,7 +11,6 @@ from app.core.database import Base, SessionLocal, engine
 from app.core.logging import configure_logging
 from app.modules.documents.router import router as docs_router
 from app.modules.matiere.router import router as subject_router
-from app.modules.sauvegarde.router import router as save_router
 from app.modules.users.router import router as user_router
 from app.modules.years.router import router as year_router
 from app.modules.annonce.router import router as annonce_router
@@ -91,5 +90,4 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(subject_router)
 app.include_router(docs_router)
-app.include_router(save_router)
 app.include_router(annonce_router)
