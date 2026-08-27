@@ -22,22 +22,18 @@ export default function LoginPage() {
   const [erreur, setErreur] = React.useState(null);
   const [isSubmiting, setIsSubmiting] = React.useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur("");
     setIsSubmiting(true);
     try {
-      const user = await login(email, password);
-      console.log(user.role);
-      if (user.role === "admin") {
-        navigate("/admin", { replace: true });
-      } else if (user.role === "moderator") {
-        navigate("/moderator", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      await login(email, password);
+
+      user?.role === "admin"
+        ? navigate("/admin", { replace: true })
+        : navigate("/dashboard", { replace: true });
     } catch (e) {
       setErreur(e.message.toString());
     } finally {

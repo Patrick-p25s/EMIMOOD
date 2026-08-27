@@ -51,6 +51,4 @@ export default function useMatiere() {
     updateSubject,
     deleteSubject,
   };
-
-  return { matieres, createSubject, updateSubject, deleteSubject };
 }

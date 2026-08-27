@@ -26,7 +26,11 @@ export default function MainLayout() {
                   Bonjour{" "}
                   <strong className="text-slate-900">{user?.first_name}</strong>
                 </span>
-                <Button variant="outline" size="sm" onClick={() => logout()}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => await logout()}
+                >
                   Déconnecter
                 </Button>
               </div>

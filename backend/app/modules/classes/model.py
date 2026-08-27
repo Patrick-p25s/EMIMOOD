@@ -9,7 +9,7 @@ from app.core.base_model import UuidStamp
 if TYPE_CHECKING:
     from app.modules.users.model import Users
     from app.modules.years.model import YearUniv
-    from app.modules.subjects.model import Subject
+    from app.modules.matiere.model import Subject
 
 
 class Mention(str, PyEnum.Enum):

@@ -39,4 +39,5 @@ class UserRead(BaseModel):
     last_name: str
     phone_number: str | str = None
     email: EmailStr
+    role: str
     model_config = {"from_attributes": True}

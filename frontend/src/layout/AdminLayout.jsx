@@ -33,6 +33,13 @@ const menuContenu = [
 export default function AdminLayout() {
   const { getActiveYear } = useYear();
   const { logout } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   return (
     <div className="flex min-h-screen">
       {/* SIDEBAR */}
@@ -53,7 +60,7 @@ export default function AdminLayout() {
             <Button
               variant="ghost"
               className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
-              onClick={logout}
+              onClick={handleLogout}
             >
               <LogOut className="h-4 w-4" />
               Déconnexion

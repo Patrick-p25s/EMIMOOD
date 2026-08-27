@@ -8,11 +8,5 @@ export default function AdminRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return role === "admin" ? (
-    <Outlet />
-  ) : role === "moderator" ? (
-    <Navigate to="/moderator" replace />
-  ) : (
-    <Navigate to="/dasboard" replace />
-  );
+  return role === "admin" ? <Outlet /> : <Navigate to="/dashboard" replace />;
 }

@@ -222,7 +222,7 @@ export default function ModeratorLayout() {
           <ButtonStyled
             icon={<LogOut className="h-4 w-4" />}
             variant="ghost"
-            onClick={logout}
+            onClick={async () => await logout()}
             className={
               "w-full justify-start gap-2 text-gray-600 hover:text-red-600"
             }
