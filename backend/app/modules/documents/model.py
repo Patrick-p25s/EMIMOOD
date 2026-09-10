@@ -54,6 +54,7 @@ class Document(UuidStamp):
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     taille_octets: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    # relation
     owner_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -61,6 +62,8 @@ class Document(UuidStamp):
     matiere_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("subject.id", ondelete="SET NULL"), nullable=True, index=True
     )
+
+    classe_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("classe.id"))
 
     validated_by_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="SET NULL"), nullable=True

@@ -84,3 +84,8 @@ class DocumentRepository:
             select(Document).where(Document.statut == DocumentStatus.en_attente.value)
         )
         return result.scalars().all()
+
+
+class DocumentSaveRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db

@@ -1,8 +1,8 @@
-"""Reinitialiser migrate
+"""reinit sqlalchemy
 
-Revision ID: 89eab1969d0b
+Revision ID: af5798059ed1
 Revises: 
-Create Date: 2026-08-26 17:42:32.394768
+Create Date: 2026-09-10 21:15:02.859517
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '89eab1969d0b'
+revision: str = 'af5798059ed1'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -134,11 +134,13 @@ def upgrade() -> None:
     sa.Column('taille_octets', sa.Integer(), nullable=False),
     sa.Column('owner_id', sa.Uuid(), nullable=False),
     sa.Column('matiere_id', sa.Uuid(), nullable=True),
+    sa.Column('classe_id', sa.Uuid(), nullable=False),
     sa.Column('validated_by_id', sa.Uuid(), nullable=True),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['classe_id'], ['classe.id'], ),
     sa.ForeignKeyConstraint(['matiere_id'], ['subject.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['validated_by_id'], ['users.id'], ondelete='SET NULL'),

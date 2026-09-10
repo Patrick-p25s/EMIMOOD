@@ -7,6 +7,7 @@ from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
+from typing import Optional
 
 
 class DocumentService:
@@ -59,7 +60,7 @@ class DocumentService:
 
     async def create_document(
         self,
-        matiere_id: UUID,
+        matiere_id: UUID | None,
         current_user: Users,
         request: DocumentCreate,
         file: UploadFile,
@@ -100,6 +101,7 @@ class DocumentService:
             "taille_octets": taille_octets,
             "owner_id": current_user.id,
             "matiere_id": matiere_id,
+            "classe_id": current_user.classe_id,
             "validated_by_id": current_user.id
             if statut == DocumentStatus.public
             else None,
@@ -134,31 +136,6 @@ class DocumentService:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN, "Action réservée aux modérateurs"
         )
-
-    # ------------------------------------------------------------------
-    # Actions Utilisateur (Favoris / Dashboard)
-    # ------------------------------------------------------------------
-
-    # async def enregistrer_document(
-    #     self, document_id: UUID, current_user: Users
-    # ) -> None:
-    #     document = await self._get_document_or_404(document_id)
-    #     if not self._peut_acceder(document, current_user):
-    #         raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
-
-    #     if await self.save_repo.exists(current_user.id, document_id):
-    #         raise HTTPException(
-    #             status.HTTP_400_BAD_REQUEST,
-    #             "Document déjà présent dans votre dashboard",
-    #         )
-
-    #     await self.save_repo.create(
-    #         {"user_id": current_user.id, "document_id": document_id}
-    #     )
-
-    # ------------------------------------------------------------------
-    # Modération (Admin / Modérateur)
-    # ------------------------------------------------------------------
 
     async def _verifier_droit_moderation(
         self, document: Document, current_user: Users
