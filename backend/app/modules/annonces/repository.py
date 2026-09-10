@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.modules.annonce.model import Annonce, AnnonceLecture, AnnonceStatut
+from app.modules.annonces.model import Annonce, AnnonceLecture, AnnonceStatut
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

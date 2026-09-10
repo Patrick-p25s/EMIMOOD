@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.modules.annonce.model import AnnonceStatut
+from app.modules.annonces.model import AnnonceStatut
 from pydantic import BaseModel
 
 

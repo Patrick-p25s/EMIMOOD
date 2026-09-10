@@ -29,7 +29,7 @@ export default function AnnouncementDialog({ classeId, onOpen, onOpenChange }) {
       setForm({ titre: "", contenu: "" });
       onClose?.();
     } catch (err) {
-      setError(err?.message || "Erreur lors de la publication de l'annonce.");
+      setError(err?.message || "Erreur lors de la publication de l'annonces.");
     } finally {
       setLoading(false);
     }

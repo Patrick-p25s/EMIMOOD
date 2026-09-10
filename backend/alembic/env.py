@@ -11,7 +11,7 @@ from app.modules.classes.model import Classe
 from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document, DocumentSauvegarde
 from sqlalchemy import pool
-from app.modules.annonce.model import Annonce, AnnonceLecture
+from app.modules.annonces.model import Annonce, AnnonceLecture
 
 # Importation pour le moteur asynchrone
 from sqlalchemy.ext.asyncio import async_engine_from_config

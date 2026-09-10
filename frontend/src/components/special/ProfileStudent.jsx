@@ -44,7 +44,6 @@ export default function ProfileStudent({
   const userInitials =
     `${first_name?.[0] || ""}${last_name?.[0] || ""}`.toUpperCase() || "U";
 
-  // Libellé et style selon le rôle
   const getRoleBadge = (roleName) => {
     switch (roleName?.toLowerCase()) {
       case "admin":
@@ -70,14 +69,11 @@ export default function ProfileStudent({
 
   return (
     <Card className="relative overflow-hidden border border-border shadow-sm bg-card">
-      {/* Couverture / Fond supérieur décoratif */}
       <div className="h-28 md:h-36 bg-linear-to-r from-primary/20 via-primary/10 to-background border-b border-border/50" />
 
       <CardContent className="relative px-4 pb-6 md:px-8 -mt-12 md:-mt-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          {/* Bloc Photo + Infos Principales */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-            {/* Photo de profil avec bordure accentuée */}
             <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background shrink-0">
               <AvatarImage
                 src={avatar_url}
@@ -89,7 +85,6 @@ export default function ProfileStudent({
               </AvatarFallback>
             </Avatar>
 
-            {/* Identité + Métadonnées */}
             <div className="space-y-1.5 pb-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
@@ -104,7 +99,6 @@ export default function ProfileStudent({
                 </Badge>
               </div>
 
-              {/* Ligne Classe, Niveau et Matricule */}
               <div className="flex items-center gap-3 justify-center sm:justify-start text-xs md:text-sm text-muted-foreground flex-wrap">
                 {classe ? (
                   <>
@@ -185,7 +179,6 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          {/* Stat 2 : Documents enregistrés / favoris */}
           <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
             <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-500 shrink-0">
               <Bookmark className="h-5 w-5" />
@@ -200,7 +193,6 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          {/* Stat 3 : En attente de modération */}
           <div className="col-span-2 md:col-span-1 flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
             <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-500 shrink-0">
               <User className="h-5 w-5" />

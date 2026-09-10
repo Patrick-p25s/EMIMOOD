@@ -13,7 +13,7 @@ from app.modules.documents.router import router as docs_router
 from app.modules.matiere.router import router as subject_router
 from app.modules.users.router import router as user_router
 from app.modules.years.router import router as year_router
-from app.modules.annonce.router import router as annonce_router
+from app.modules.annonces.router import router as annonce_router
 from fastapi.middleware.cors import CORSMiddleware
 
 configure_logging()

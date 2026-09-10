@@ -45,7 +45,7 @@ export default function AnnounceModerator() {
 
     if (
       !window.confirm(
-        "Voulez-vous vraiment archiver cet annonce de la classe ?",
+        "Voulez-vous vraiment archiver cet annonces de la classe ?",
       )
     )
       return;
@@ -91,7 +91,7 @@ export default function AnnounceModerator() {
     if (!annonceId) return;
 
     if (
-      !window.confirm("Voulez-vous vraiment retirer cet annonce de la classe ?")
+      !window.confirm("Voulez-vous vraiment retirer cet annonces de la classe ?")
     )
       return;
 
@@ -129,7 +129,7 @@ export default function AnnounceModerator() {
         onSubmit={handleSubmit}
         error={erreur}
         loading={loading}
-        title={isEditing ? "Modifier une annonce" : "Créer une annonces"}
+        title={isEditing ? "Modifier une annonces" : "Créer une annonces"}
         submitLabel={isEditing ? "Modifier" : "Créer"}
       >
         <InputLabeled

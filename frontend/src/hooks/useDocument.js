@@ -78,18 +78,14 @@ export default function useDocument() {
 
   const rejeteDocument = async (documentId) => {
     try {
-      // 1. Récupération du document
       const document = await getDocumentById(documentId);
 
-      // 2. Vérification sur le statut (et non sur l'id)
       if (document.statut !== "pending") {
         throw new Error("Ce document n'est plus en attente");
       }
 
-      // 3. Objet document mis à jour
       const updatedDocument = { ...document, statut: "rejete" };
 
-      // 4. Mise à jour propre de l'état React avec un .map()
       setDocuments((prevDocuments) =>
         prevDocuments.map((doc) =>
           doc.id === documentId ? updatedDocument : doc,

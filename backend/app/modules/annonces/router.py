@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from app.modules.annonce.repository import AnnonceLectureRepository, AnnonceRepository
-from app.modules.annonce.schema import AnnonceCreate, AnnonceOut, LecteurStats
-from app.modules.annonce.service import AnnonceService
+from app.modules.annonces.repository import AnnonceLectureRepository, AnnonceRepository
+from app.modules.annonces.schema import AnnonceCreate, AnnonceOut, LecteurStats
+from app.modules.annonces.service import AnnonceService
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.modules.users.model import Users

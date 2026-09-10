@@ -67,7 +67,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       })
     : null;
 
-  // Affiche le bon lecteur selon le mime_type
   const renderViewer = () => {
     if (!fichier_path) {
       return (
@@ -78,7 +77,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       );
     }
 
-    // 1. Vidéos (MP4, WebM, Ogg, etc.)
     if (mime_type?.startsWith("video/")) {
       return (
         <div className="flex flex-col items-center justify-center bg-black/90 rounded-lg overflow-hidden border border-border shadow-lg">
@@ -96,7 +94,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       );
     }
 
-    // 2. PDF
     if (mime_type === "application/pdf") {
       return (
         <iframe
@@ -107,7 +104,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       );
     }
 
-    // 3. Images
     if (mime_type?.startsWith("image/")) {
       return (
         <div className="flex items-center justify-center p-4 bg-black/5 dark:bg-black/40 rounded-lg border border-border min-h-[50vh]">
@@ -120,7 +116,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       );
     }
 
-    // 4. Documents Office (Word, Excel, PPT via Google Viewer)
     if (
       mime_type?.includes("word") ||
       mime_type?.includes("officedocument") ||
@@ -140,7 +135,6 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       );
     }
 
-    // 5. Autre / Non supporté directement
     return (
       <div className="flex flex-col items-center justify-center h-80 gap-4 bg-muted/20 rounded-lg border border-dashed border-border p-6 text-center">
         <FileText className="h-12 w-12 text-primary" />

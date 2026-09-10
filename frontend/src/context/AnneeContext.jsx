@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from "react";
 import { anneeUniv } from "@/mocks/year";
-// 1. On crée le "contenant" du contexte
 const AnneeContext = createContext(null);
 
 export function AnneeProvider({ children }) {

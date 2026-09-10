@@ -10,11 +10,11 @@ export default function useMatiere() {
     const newSubject = {
       id: crypto.randomUUID(),
       name: data.name,
-      nom: data.name, // Doublon de sécurité pour l'UI
+      nom: data.name,
       description: data.description,
       coefficient: Number(data.coefficient) || 1,
       semester: data.semester,
-      semestre: data.semester, // Doublon de sécurité pour l'UI
+      semestre: data.semester,
       classe_id: classeId,
     };
 

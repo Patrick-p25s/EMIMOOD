@@ -121,7 +121,7 @@ export default function AnnonceItem({
           </div>
         </CardHeader>
 
-        {/* Contenu de l'annonce */}
+        {/* Contenu de l'annonces */}
         <CardContent className="pb-4">
           <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
             {contenu}

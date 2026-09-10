@@ -1,43 +1,86 @@
-import enum as PyEnum
+import enum
 import uuid
-from typing import TYPE_CHECKING, Optional
-from sqlalchemy import Enum, ForeignKey, String, Uuid
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
 
 if TYPE_CHECKING:
-    from app.modules.classes.model import Classe
+    from app.modules.annonces.model import Annonce, AnnonceLecture
+    from app.modules.classes.model import Classe, ClasseModerateur
+    from app.modules.documents.model import Document, DocumentSauvegarde
+    from app.modules.folders.model import Folder
 
 
-class UserRole(str, PyEnum.Enum):
+class UserRole(str, enum.Enum):
     student = "student"
     moderator = "moderator"
     admin = "admin"
 
 
-class Users(UuidStamp):
+class User(UuidStamp):
     __tablename__ = "users"
 
-    first_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
-    last_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
-    avatar_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    nom: Mapped[str] = mapped_column(String(100), nullable=False)
+    prenom: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(
-        String(100), unique=True, index=True, nullable=False
+        String(255),
+        unique=True,
+        nullable=False,
+        index=True,
     )
-    matricule: Mapped[str | None] = mapped_column(
-        String(20), unique=True, index=True, nullable=True
-    )
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.student, nullable=False, index=True
+        SAEnum(UserRole),
+        nullable=False,
+        index=True,
     )
-
+    # Nullable : un admin peut ne pas appartenir à une classe
     classe_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid, ForeignKey("classe.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("classe.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
-
-    classe: Mapped[Optional["Classe"]] = relationship(
-        "Classe", back_populates="students"
+    # Relations
+    classe: Mapped["Classe | None"] = relationship(
+        "Classe",
+        back_populates="students",
+    )
+    documents_uploades: Mapped[list["Document"]] = relationship(
+        "Document",
+        back_populates="uploaded_by",
+        foreign_keys="Document.owner_id",
+    )
+    documents_sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
+        "DocumentSauvegarde",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    folders: Mapped[list["Folder"]] = relationship(
+        "Folder",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    annonces_ecrites: Mapped[list["Annonce"]] = relationship(
+        "Annonce",
+        back_populates="auteur",
+        foreign_keys="Annonce.auteur_id",
+    )
+    annonce_lectures: Mapped[list["AnnonceLecture"]] = relationship(
+        "AnnonceLecture",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    moderations: Mapped[list["ClasseModerateur"]] = relationship(
+        "ClasseModerateur",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    documents_valides: Mapped[list["Document"]] = relationship(
+        "Document",
+        back_populates="validated_by",
+        foreign_keys="Document.validated_by_id",
     )

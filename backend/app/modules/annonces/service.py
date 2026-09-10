@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from app.modules.annonce.model import Annonce, AnnonceStatut
-from app.modules.annonce.repository import AnnonceLectureRepository, AnnonceRepository
-from app.modules.annonce.schema import AnnonceCreate, LecteurStats
+from app.modules.annonces.model import Annonce, AnnonceStatut
+from app.modules.annonces.repository import AnnonceLectureRepository, AnnonceRepository
+from app.modules.annonces.schema import AnnonceCreate, LecteurStats
 from app.modules.users.model import UserRole, Users
 from app.modules.users.repository import UserRepository
 from fastapi import HTTPException, status
@@ -57,7 +57,7 @@ class AnnonceService:
     async def get_annonce_by_id(self, annonce_id: UUID, current_user: Users) -> Annonce:
         annonce = await self._get_annonce_or_404(annonce_id)
 
-        # Marque automatiquement l'annonce comme lue par l'utilisateur qui la consulte.
+        # Marque automatiquement l'annonces comme lue par l'utilisateur qui la consulte.
         if not await self.lecture_repo.exists(annonce_id, current_user.id):
             await self.lecture_repo.create(
                 {"annonce_id": annonce_id, "user_id": current_user.id}
@@ -98,7 +98,7 @@ class AnnonceService:
         if not self._peut_gerer_annonce(annonce, current_user):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
 
-        # Le public visé : les étudiants de la classe ciblée (ou tout le monde si annonce globale).
+        # Le public visé : les étudiants de la classe ciblée (ou tout le monde si annonces globale).
         if annonce.classe_id is not None:
             etudiants = await self.user_repo.get_all_student(annonce.classe_id)
         else:
