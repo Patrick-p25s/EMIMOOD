@@ -7,7 +7,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_admin, require_moderator
 from app.core.pagination import PaginationParams
 from app.modules.classes.repository import ClasseRepository
-from app.modules.users.model import Users
+from app.modules.users.model import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.schema import (
     UpdatePassword,
@@ -18,8 +18,8 @@ from app.modules.users.schema import (
 from app.modules.users.service import UserService
 
 
-def _get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
-    return UserService(
+def _get_user_service(db: AsyncSession = Depends(get_db)) ->UserService:
+    return  UserService(
         user_repo=UserRepository(db=db), classe_repo=ClasseRepository(db)
     )
 
@@ -35,7 +35,7 @@ router = APIRouter(prefix="/users", tags=["Gestion des Utilisateurs"])
     description="Permet l'inscrire d'un compte utilisateur standard (étudiant/candidat).",
 )
 async def register_user(
-    request: UserCreate, service: UserService = Depends(_get_user_service)
+    request: UserCreate, service:UserService = Depends(_get_user_service)
 ) -> UserRead:
     user = await service.register(request=request)
     return UserRead.model_validate(user)
@@ -47,7 +47,7 @@ async def register_user(
     summary="Récupérer mon profil",
     description="Renvoie les informations de l'utilisateur actuellement connecté.",
 )
-async def get_my_profile(user: Users = Depends(get_current_user)) -> UserRead:
+async def get_my_profile(user:User = Depends(get_current_user)) -> UserRead:
     return UserRead.model_validate(user)
 
 
@@ -59,8 +59,8 @@ async def get_my_profile(user: Users = Depends(get_current_user)) -> UserRead:
 )
 async def update_my_profile(
     request: UpdateProfile,
-    user: Users = Depends(get_current_user),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(get_current_user),
+    service:UserService = Depends(_get_user_service),
 ) -> UserRead:
     updated_user = await service.update_profile(user.id, request)
     return UserRead.model_validate(updated_user)
@@ -74,8 +74,8 @@ async def update_my_profile(
 )
 async def update_my_password(
     request: UpdatePassword,
-    user: Users = Depends(get_current_user),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(get_current_user),
+    service:UserService = Depends(_get_user_service),
 ) -> UserRead:
     updated_user = await service.update_password(user.id, request)
     return UserRead.model_validate(updated_user)
@@ -88,8 +88,8 @@ async def update_my_password(
 )
 async def get_all_users(
     params: PaginationParams = Depends(),
-    user: Users = Depends(require_admin),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(require_admin),
+    service:UserService = Depends(_get_user_service),
 ):
     return await service.get_all_users(params)
 
@@ -103,8 +103,8 @@ async def get_all_users(
 )
 async def create_moderator(
     request: UserCreate,
-    user: Users = Depends(require_admin),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(require_admin),
+    service:UserService = Depends(_get_user_service),
 ) -> UserRead:
     moderator = await service.create_moderator(request=request)
     return UserRead.model_validate(moderator)
@@ -118,15 +118,15 @@ async def create_moderator(
 )
 async def delete_one_user(
     user_id: UUID,
-    user: Users = Depends(require_moderator),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(require_moderator),
+    service:UserService = Depends(_get_user_service),
 ) -> None:
     return await service.delete_user(id=user_id, requester_id=user.id)
 
 
 @router.get("/classe")
 async def get_user_classe(
-    user: Users = Depends(get_current_user),
-    service: UserService = Depends(_get_user_service),
+    user:User = Depends(get_current_user),
+    service:UserService = Depends(_get_user_service),
 ):
     return await service.get_classe_user(user.id)

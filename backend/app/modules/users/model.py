@@ -2,17 +2,18 @@ import enum
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum as SAEnum
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Enum, ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.modules.classes.model import Classe
+    from app.modules.documents.model import Document
+    from app.modules.folder.model import Folder
     from app.modules.annonces.model import Annonce, AnnonceLecture
-    from app.modules.classes.model import Classe, ClasseModerateur
-    from app.modules.documents.model import Document, DocumentSauvegarde
-    from app.modules.folders.model import Folder
+    from app.modules.documents.model import DocumentSauvegarde
 
 
 class UserRole(str, enum.Enum):
@@ -21,66 +22,76 @@ class UserRole(str, enum.Enum):
     admin = "admin"
 
 
-class User(UuidStamp):
+class User(UuidStamp, Base):
     __tablename__ = "users"
 
-    nom: Mapped[str] = mapped_column(String(100), nullable=False)
-    prenom: Mapped[str] = mapped_column(String(100), nullable=False)
+    nom: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    prenom: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
         nullable=False,
         index=True,
     )
-    password: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
     role: Mapped[UserRole] = mapped_column(
-        SAEnum(UserRole),
+        Enum(UserRole),
+        default=UserRole.student,
         nullable=False,
         index=True,
     )
-    # Nullable : un admin peut ne pas appartenir à une classe
-    classe_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("classe.id", ondelete="SET NULL"),
-        nullable=True,
+
+    class_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("classes.id", ondelete="RESTRICT"),
+        nullable=False,
         index=True,
     )
-    # Relations
-    classe: Mapped["Classe | None"] = relationship(
+
+    classe: Mapped["Classe"] = relationship(
         "Classe",
-        back_populates="students",
+        back_populates="users",
     )
-    documents_uploades: Mapped[list["Document"]] = relationship(
+
+    documents: Mapped[list["Document"]] = relationship(
         "Document",
         back_populates="uploaded_by",
-        foreign_keys="Document.owner_id",
+        foreign_keys="Document.uploaded_by_id",
     )
-    documents_sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
-        "DocumentSauvegarde",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
+
     folders: Mapped[list["Folder"]] = relationship(
         "Folder",
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    annonces_ecrites: Mapped[list["Annonce"]] = relationship(
-        "Annonce",
-        back_populates="auteur",
-        foreign_keys="Annonce.auteur_id",
+
+    saved_documents: Mapped[list["DocumentSauvegarde"]] = relationship(
+        "DocumentSauvegarde",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
-    annonce_lectures: Mapped[list["AnnonceLecture"]] = relationship(
+
+    announcements: Mapped[list["Annonce"]] = relationship(
+        "Annonce",
+        back_populates="author",
+        foreign_keys="Annonce.author_id",
+    )
+
+    announcement_reads: Mapped[list["AnnonceLecture"]] = relationship(
         "AnnonceLecture",
         back_populates="user",
         cascade="all, delete-orphan",
-    )
-    moderations: Mapped[list["ClasseModerateur"]] = relationship(
-        "ClasseModerateur",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
-    documents_valides: Mapped[list["Document"]] = relationship(
-        "Document",
-        back_populates="validated_by",
-        foreign_keys="Document.validated_by_id",
     )

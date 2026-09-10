@@ -4,7 +4,6 @@ from sqlalchemy import DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, declarative_base
 
-Base = declarative_base()
 
 
 class UuidStamp:

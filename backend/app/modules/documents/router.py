@@ -12,7 +12,7 @@ from app.modules.documents.schema import (
 )
 from app.modules.documents.service import DocumentService
 from app.modules.matiere.repository import SubjectRepository
-from app.modules.users.model import Users
+from app.modules.users.model import User
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,7 +43,7 @@ async def create_document(
     ),
     file: UploadFile = File(..., description="Fichier binaire à téléverser"),
     date_limite: datetime = Form(..., description="Date de limite pour les dévoirs "),
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentOut:
     request = DocumentCreate(
@@ -62,7 +62,7 @@ async def create_document(
     description="Récupère la liste des documents en attente de modération (Réservé aux modérateurs).",
 )
 async def get_pending_documents(
-    current_user: Users = Depends(require_moderator),
+    current_user: User = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.get_all_pending_docs()
@@ -76,7 +76,7 @@ async def get_pending_documents(
 )
 async def list_all_public_docs(
     service: DocumentService = Depends(get_document_service),
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> list[DocumentOut]:
     return await service.get_all_public_docs()
 
@@ -89,7 +89,7 @@ async def list_all_public_docs(
 )
 async def list_documents_by_matiere(
     matiere_id: UUID,
-    user: Users = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.list_by_matiere_public(matiere_id)
@@ -104,7 +104,7 @@ async def list_documents_by_matiere(
 async def valider_document(
     document_id: UUID,
     service: DocumentService = Depends(get_document_service),
-    user: Users = Depends(require_moderator),
+    user: User = Depends(require_moderator),
 ) -> DocumentOut:
     return await service.valide_document(document_id=document_id, validator_id=user.id)
 
@@ -118,7 +118,7 @@ async def valider_document(
 async def rejeter_document(
     document_id: UUID,
     service: DocumentService = Depends(get_document_service),
-    user: Users = Depends(require_moderator),
+    user: User = Depends(require_moderator),
 ) -> DocumentOut:
     return await service.rejeter_document(document_id=document_id, rejector_id=user.id)
 
@@ -137,7 +137,7 @@ async def rejeter_document(
 )
 async def telecharger_document_file(
     id: UUID,
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ):
     document = await service.telecharger_document(id, current_user)
@@ -156,7 +156,7 @@ async def telecharger_document_file(
 )
 async def get_documents_by_type(
     type: DocumentType,
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> list[DocumentOut]:
     return await service.get_document_by_type(type)
@@ -165,7 +165,7 @@ async def get_documents_by_type(
 @router.delete("/{document_id}/delete")
 async def delete_document(
     document_id: UUID,
-    user: Users = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ):
     return await service.delete_document(document_id, user)
@@ -175,7 +175,7 @@ async def delete_document(
 async def update_document(
     id: UUID,
     request: DocumentUpdate,
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentOut:
     return await service.update_document(id, current_user, request)

@@ -107,10 +107,10 @@ class UserService:
         return await self.user_repo.update(user, data)
 
     async def get_all_users(self, params: PaginationParams) -> Page[UserOut]:
-        users, total = await self.user_repo.list_all(
+        user, total = await self.user_repo.list_all(
             limit=params.limit, offset=params.limit
         )
-        return make_page([UserOut.model_validate(u) for u in users], total, params)
+        return make_page([UserOut.model_validate(u) for u in user], total, params)
 
     async def delete_user(self, id: UUID | str, requester_id: UUID) -> bool:
         user = await self._get_user_by_id(id)

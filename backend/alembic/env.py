@@ -4,14 +4,14 @@ from logging.config import fileConfig
 from alembic import context
 from app.core.config import setting
 from app.core.database import Base
-from app.modules.users.model import Users
+from app.modules.annonces.model import AnnonceLecture, Annonce
 from app.modules.auth.model import RefreshSession
+from app.modules.matiere.model import Subject
 from app.modules.years.model import YearUniv
 from app.modules.classes.model import Classe
-from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document, DocumentSauvegarde
+from app.modules.users.model import User
 from sqlalchemy import pool
-from app.modules.annonces.model import Annonce, AnnonceLecture
 
 # Importation pour le moteur asynchrone
 from sqlalchemy.ext.asyncio import async_engine_from_config

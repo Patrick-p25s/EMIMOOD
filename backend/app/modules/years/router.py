@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import require_admin
 from app.core.pagination import Page, PaginationParams
-from app.modules.users.model import Users
+from app.modules.users.model import User
 from app.modules.years.repository import YearRepository
 from app.modules.years.schema import YearCreate, YearOut
 from app.modules.years.service import YearService
@@ -32,7 +32,7 @@ router = APIRouter(
 )
 async def create_year(
     request: YearCreate,
-    user: Users = Depends(require_admin),
+    user: User = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> YearOut:
     return await service.create_year(request=request)
@@ -46,7 +46,7 @@ async def create_year(
 )
 async def get_all_year(
     params: PaginationParams = Depends(),
-    user: Users = Depends(require_admin),
+    user: User = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> Page[YearOut]:
     return await service.get_all_year(params)
@@ -73,7 +73,7 @@ async def get_year(
 )
 async def active_one_year(
     id: UUID,
-    user: Users = Depends(require_admin),
+    user: User = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> YearOut:
     return await service.activate_year(id)
@@ -87,7 +87,7 @@ async def active_one_year(
 )
 async def delete_year(
     id: UUID,
-    user: Users = Depends(require_admin),
+    user: User = Depends(require_admin),
     service: YearService = Depends(get_year_service),
 ) -> None:
     await service.delete_year(id)

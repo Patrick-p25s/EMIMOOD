@@ -1,17 +1,18 @@
 import uuid
-from typing import TYPE_CHECKING,
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, Uuid, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.modules.documents.model import DocumentSauvegarde
     from app.modules.users.model import User
 
 
-class Folder(UuidStamp):
+class Folder(UuidStamp, Base):
     __tablename__ = "folders"
     nom: Mapped[str] = mapped_column(
         String(100),

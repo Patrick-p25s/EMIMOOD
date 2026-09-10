@@ -5,7 +5,7 @@ from app.modules.classes.schema import ClasseCreate, ClasseOut
 from app.modules.classes.service import ClasseService
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_admin, require_moderator
-from app.modules.users.model import Users
+from app.modules.users.model import User
 from app.modules.years.repository import YearRepository
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,7 +29,7 @@ router = APIRouter(prefix="/classes", tags=["Gestion des Classes"])
 async def create_classe(
     request: ClasseCreate,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_admin),
+    user:User = Depends(require_admin),
 ) -> ClasseOut:
     return await service.create_classe(request)
 
@@ -43,7 +43,7 @@ async def create_classe(
 async def get_all_classe(
     params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_admin),
+    user:User = Depends(require_admin),
 ) -> list[ClasseOut]:
     return await service.get_all_classes(params)
 
@@ -56,7 +56,7 @@ async def get_all_classe(
 )
 async def regenerate_code(
     id: str,
-    current_user: Users = Depends(require_moderator),
+    current_user:User = Depends(require_moderator),
     service: ClasseService = Depends(get_classe_service),
 ) -> ClasseOut:
     return await service.regenerate_invitation_code(id)
@@ -71,7 +71,7 @@ async def regenerate_code(
 async def get_classe_by_id(
     id: str,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(get_current_user),
+    user:User = Depends(get_current_user),
 ) -> ClasseOut:
     return await service.get_by_id(id)
 
@@ -86,7 +86,7 @@ async def update_classe_by_id(
     id: str,
     request: ClasseCreate,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_moderator),
+    user:User = Depends(require_moderator),
 ) -> ClasseOut:
     return await service.update_classe(id, request)
 
@@ -100,7 +100,7 @@ async def update_classe_by_id(
 async def delete_one_classe(
     id: str,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_admin),
+    user:User = Depends(require_admin),
 ) -> None:
     return await service.delete_classe(id)
 
@@ -110,6 +110,6 @@ async def list_all_student(
     classe_id: str,
     params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(get_current_user),
+    user:User = Depends(get_current_user),
 ):
     return await service.get_all_student(classe_id, params)

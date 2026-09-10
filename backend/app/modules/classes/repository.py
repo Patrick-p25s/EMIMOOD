@@ -3,7 +3,7 @@ from uuid import UUID
 from app.modules.classes.model import Classe
 from app.modules.classes.schema import ClasseOut
 from sqlalchemy import select
-from app.modules.users.model import Users, UserRole
+from app.modules.users.model import User, UserRole
 from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -3,7 +3,7 @@ from uuid import UUID
 from app.modules.annonces.model import Annonce, AnnonceStatut
 from app.modules.annonces.repository import AnnonceLectureRepository, AnnonceRepository
 from app.modules.annonces.schema import AnnonceCreate, LecteurStats
-from app.modules.users.model import UserRole, Users
+from app.modules.users.model import UserRole, User
 from app.modules.users.repository import UserRepository
 from fastapi import HTTPException, status
 
@@ -20,7 +20,7 @@ class AnnonceService:
         self.user_repo = user_repo
 
     # Utilitaire
-    def _peut_gerer_annonce(self, annonce: Annonce, current_user: Users) -> bool:
+    def _peut_gerer_annonce(self, annonce: Annonce, current_user: User) -> bool:
         if current_user.role == UserRole.admin:
             return True
         if current_user.role == UserRole.moderator:
@@ -35,7 +35,7 @@ class AnnonceService:
 
     # Creation
     async def create_annonce(
-        self, request: AnnonceCreate, current_user: Users, classe_id: UUID | None = None
+        self, request: AnnonceCreate, current_user: User, classe_id: UUID | None = None
     ) -> Annonce:
         if current_user.role == UserRole.student:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
@@ -54,7 +54,7 @@ class AnnonceService:
         return await self.repo.create(data)
 
     # lecture et consultation
-    async def get_annonce_by_id(self, annonce_id: UUID, current_user: Users) -> Annonce:
+    async def get_annonce_by_id(self, annonce_id: UUID, current_user: User) -> Annonce:
         annonce = await self._get_annonce_or_404(annonce_id)
 
         # Marque automatiquement l'annonces comme lue par l'utilisateur qui la consulte.
@@ -65,20 +65,20 @@ class AnnonceService:
 
         return annonce
 
-    async def get_active_for_user(self, current_user: Users) -> list[Annonce]:
+    async def get_active_for_user(self, current_user: User) -> list[Annonce]:
         """Étudiant/modérateur : annonces actives de sa classe + globales.
         Admin : toutes les annonces actives."""
         if current_user.role == UserRole.admin:
             return await self.repo.get_active()
         return await self.repo.get_active_by_classe(current_user.classe_id)
 
-    async def all_archive(self, current_user: Users) -> list[Annonce]:
+    async def all_archive(self, current_user: User) -> list[Annonce]:
         if current_user.role not in (UserRole.moderator, UserRole.admin):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
         return await self.repo.get_archive()
 
     # Gestion des annonces
-    async def archive_annonce(self, annonce_id: UUID, current_user: Users) -> Annonce:
+    async def archive_annonce(self, annonce_id: UUID, current_user: User) -> Annonce:
         annonce = await self._get_annonce_or_404(annonce_id)
 
         if annonce.statut == AnnonceStatut.archivee:
@@ -91,7 +91,7 @@ class AnnonceService:
 
     # Suive de lecture
     async def get_lecteur_stats(
-        self, annonce_id: UUID, current_user: Users
+        self, annonce_id: UUID, current_user: User
     ) -> LecteurStats:
         annonce = await self._get_annonce_or_404(annonce_id)
 

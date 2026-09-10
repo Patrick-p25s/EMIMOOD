@@ -1,6 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import  relationship
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -11,9 +12,10 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationships
 
 from app.core.base_model import UuidStamp
+from app.core.database import  Base
 
 
 class AnnonceStatut(str, enum.Enum):
@@ -21,7 +23,7 @@ class AnnonceStatut(str, enum.Enum):
     archivee = "archivee"
 
 
-class Annonce(UuidStamp):
+class Annonce(UuidStamp, Base):
     __tablename__ = "annonces"
 
     titre: Mapped[str] = mapped_column(String(150), nullable=False)
@@ -38,12 +40,19 @@ class Annonce(UuidStamp):
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
 
+    classe: Mapped["Classe | None"] = relationship(
+        "Classe",
+        back_populates="annonces",
+    )
+
     classe_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("classe.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
 
-class AnnonceLecture(UuidStamp):
+
+
+class AnnonceLecture(UuidStamp, Base):
     __tablename__ = "annonce_lectures"
 
     annonce_id: Mapped[uuid.UUID] = mapped_column(

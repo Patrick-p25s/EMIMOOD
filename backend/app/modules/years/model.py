@@ -5,12 +5,13 @@ from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.modules.classes.model import Classe
 
 
-class YearUniv(UuidStamp):
+class YearUniv(UuidStamp, Base):
     __tablename__ = "year_univ"
 
     label: Mapped[str] = mapped_column(

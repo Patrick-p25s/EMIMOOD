@@ -5,7 +5,7 @@ from app.modules.documents.repository import DocumentRepository
 from app.modules.documents.schema import DocumentCreate, DocumentUpdate
 from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
-from app.modules.users.model import UserRole, Users
+from app.modules.users.model import UserRole, User
 from fastapi import HTTPException, UploadFile, status
 
 
@@ -20,7 +20,7 @@ class DocumentService:
         self.subject_repo = subject_repo
         # self.save_repo = save_repo
 
-    def _peut_acceder(self, document: Document, current_user: Users) -> bool:
+    def _peut_acceder(self, document: Document, current_user: User) -> bool:
         if document.statut == DocumentStatus.public:
             return True
         if document.owner_id == current_user.id:
@@ -36,13 +36,13 @@ class DocumentService:
         return document
 
     async def _moderateur_gere_ce_document(
-        self, document: Document, current_user: Users
+        self, document: Document, current_user: User
     ) -> bool:
         matiere = await self.subject_repo.get_by_id(document.matiere_id)
         return matiere.classe_id == current_user.classe_id
 
     def _est_moderateur_de_ce_document(
-        self, document: Document, current_user: Users, matiere
+        self, document: Document, current_user: User, matiere
     ) -> bool:
         return (
             current_user.role == UserRole.moderator
@@ -50,7 +50,7 @@ class DocumentService:
         )
 
     async def get_document_by_id(
-        self, document_id: UUID, current_user: Users
+        self, document_id: UUID, current_user: User
     ) -> Document:
         document = await self._get_document_or_404(document_id)
         if not self._peut_acceder(document, current_user):
@@ -60,7 +60,7 @@ class DocumentService:
     async def create_document(
         self,
         matiere_id: UUID,
-        current_user: Users,
+        current_user: User,
         request: DocumentCreate,
         file: UploadFile,
     ) -> Document:
@@ -107,7 +107,7 @@ class DocumentService:
         return await self.document_repo.create(data)
 
     async def telecharger_document(
-        self, document_id: UUID, current_user: Users
+        self, document_id: UUID, current_user: User
     ) -> Document:
         document = await self._get_document_or_404(document_id)
         if not self._peut_acceder(document, current_user):
@@ -120,11 +120,11 @@ class DocumentService:
     async def get_document_by_type(self, doc_type: DocumentType) -> list[Document]:
         return await self.document_repo.get_by_type(doc_type)
 
-    async def get_mes_documents(self, current_user: Users) -> list[Document]:
+    async def get_mes_documents(self, current_user: User) -> list[Document]:
         """Liste tous les documents de l'utilisateur connecté, peu importe leur statut."""
         return await self.document_repo.list_by_owner(current_user.id)
 
-    async def get_all_pending_docs(self, current_user: Users) -> list[Document]:
+    async def get_all_pending_docs(self, current_user: User) -> list[Document]:
         if current_user.role == UserRole.admin:
             return await self.document_repo.get_pending()
         if current_user.role == UserRole.moderator:
@@ -140,7 +140,7 @@ class DocumentService:
     # ------------------------------------------------------------------
 
     # async def enregistrer_document(
-    #     self, document_id: UUID, current_user: Users
+    #     self, document_id: UUID, current_user:User
     # ) -> None:
     #     document = await self._get_document_or_404(document_id)
     #     if not self._peut_acceder(document, current_user):
@@ -161,7 +161,7 @@ class DocumentService:
     # ------------------------------------------------------------------
 
     async def _verifier_droit_moderation(
-        self, document: Document, current_user: Users
+        self, document: Document, current_user: User
     ) -> None:
         if current_user.role == UserRole.admin:
             return
@@ -174,7 +174,7 @@ class DocumentService:
             status.HTTP_403_FORBIDDEN, "Action réservée au modérateur de cette classe"
         )
 
-    async def valide_document(self, document_id: UUID, current_user: Users) -> Document:
+    async def valide_document(self, document_id: UUID, current_user: User) -> Document:
         document = await self._get_document_or_404(document_id)
         await self._verifier_droit_moderation(document, current_user)
 
@@ -188,9 +188,7 @@ class DocumentService:
             {"statut": DocumentStatus.public, "validated_by_id": current_user.id},
         )
 
-    async def rejeter_document(
-        self, document_id: UUID, current_user: Users
-    ) -> Document:
+    async def rejeter_document(self, document_id: UUID, current_user: User) -> Document:
         document = await self._get_document_or_404(document_id)
         await self._verifier_droit_moderation(document, current_user)
 
@@ -204,7 +202,7 @@ class DocumentService:
             {"statut": DocumentStatus.rejete, "validated_by_id": current_user.id},
         )
 
-    async def delete_document(self, document_id: UUID, current_user: Users) -> None:
+    async def delete_document(self, document_id: UUID, current_user: User) -> None:
         document = await self._get_document_or_404(document_id)
 
         est_proprietaire = document.owner_id == current_user.id
@@ -225,7 +223,7 @@ class DocumentService:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Suppression non autorisée")
 
     async def update_document(
-        self, document_id: UUID, current_user: Users, request: DocumentUpdate
+        self, document_id: UUID, current_user: User, request: DocumentUpdate
     ) -> Document:
         document = await self._get_document_or_404(document_id)
 

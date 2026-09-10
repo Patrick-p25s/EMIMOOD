@@ -1,48 +1,39 @@
 import enum
 import uuid
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import (
-    DateTime,
-    Enum,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Text,
-    UniqueConstraint,
-    Uuid,
-)
+from sqlalchemy import Enum, ForeignKey, Integer, String, Text, Uuid, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+from app.core.database import Base
 
 if TYPE_CHECKING:
-    from app.modules.matiere.model import Subject
+    from app.modules.classes.model import Classe
     from app.modules.users.model import User
+    from app.modules.matiere.model import Matiere
+    from app.modules.folder.model import Folder
 
 
 class DocumentType(str, enum.Enum):
-    cours = "cours"
-    td = "td"
-    examen = "examen"
-    corrige = "corrige"
+    pdf = "pdf"
+    video = "video"
+    image = "image"
     autre = "autre"
 
 
 class DocumentStatus(str, enum.Enum):
-    prive = "prive"
-    en_attente = "en_attente"
-    public = "public"
-    rejete = "rejete"
+    private = "PRIVATE"
+    pending = "PENDING"
+    public = "PUBLIC"
+    rejected = "REJECTED"
 
 
-class Document(UuidStamp):
+class Document(UuidStamp, Base):
     __tablename__ = "documents"
 
-    titre: Mapped[str] = mapped_column(
-        String(150),
+    nom: Mapped[str] = mapped_column(
+        String(255),
         nullable=False,
     )
 
@@ -51,89 +42,79 @@ class Document(UuidStamp):
         nullable=True,
     )
 
-    date_limite: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
-        nullable=True,
+    file_url: Mapped[str] = mapped_column(
+        String(1000),
+        nullable=False,
     )
 
-    type_document: Mapped[DocumentType] = mapped_column(
+    type: Mapped[DocumentType] = mapped_column(
         Enum(DocumentType),
         nullable=False,
-    )
-
-    statut: Mapped[DocumentStatus] = mapped_column(
-        Enum(DocumentStatus),
-        nullable=False,
-        default=DocumentStatus.prive,
         index=True,
     )
 
-    motif_rejet: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
-    )
-
-    original_filename: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-
-    storage_key: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-
-    mime_type: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
-    )
-
-    taille_octets: Mapped[int] = mapped_column(
+    taille: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
     )
 
-    owner_id: Mapped[uuid.UUID] = mapped_column(
+    class_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("classes.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    uploaded_by_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
-    # Nullable : un document peut être général
     matiere_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid,
-        ForeignKey("subject.id", ondelete="SET NULL"),
+        ForeignKey("matieres.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
 
-    validated_by_id: Mapped[uuid.UUID | None] = mapped_column(
+    folder_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid,
-        ForeignKey("users.id", ondelete="SET NULL"),
+        ForeignKey("folders.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
 
-    # Relations
-    uploaded_by: Mapped["User"] = relationship(
-        "User",
-        back_populates="documents_uploades",
-        foreign_keys=[owner_id],
+    status: Mapped[DocumentStatus] = mapped_column(
+        Enum(DocumentStatus),
+        default=DocumentStatus.private,
+        nullable=False,
+        index=True,
     )
 
-    matiere: Mapped["Subject | None"] = relationship(
-        "Subject",
+    classe: Mapped["Classe"] = relationship(
+        "Classe",
         back_populates="documents",
     )
 
-    validated_by: Mapped["User | None"] = relationship(
+    uploaded_by: Mapped["User"] = relationship(
         "User",
-        back_populates="documents_valides",
-        foreign_keys=[validated_by_id],
+        back_populates="documents",
+        foreign_keys=[uploaded_by_id],
     )
 
-    documents_sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
+    matiere: Mapped["Matiere | None"] = relationship(
+        "Matiere",
+        back_populates="documents",
+    )
+
+    folder: Mapped["Folder | None"] = relationship(
+        "Folder",
+        back_populates="documents",
+    )
+
+    saved_documents: Mapped[list["DocumentSauvegarde"]] = relationship(
         "DocumentSauvegarde",
         back_populates="document",
         cascade="all, delete-orphan",
@@ -141,15 +122,15 @@ class Document(UuidStamp):
 
     __table_args__ = (
         Index(
-            "ix_documents_matiere_statut",
-            "matiere_id",
-            "statut",
+            "ix_documents_class_status",
+            "class_id",
+            "status",
         ),
     )
 
 
-class DocumentSauvegarde(UuidStamp):
-    __tablename__ = "document_sauvegardes"
+class DocumentSauvegarde(UuidStamp, Base):
+    __tablename__ = "saved_documents"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
@@ -165,21 +146,34 @@ class DocumentSauvegarde(UuidStamp):
         index=True,
     )
 
-    # Relations
+    folder_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid,
+        ForeignKey("folders.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    is_favorite: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+    )
+
+    is_hidden: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+    )
+
     user: Mapped["User"] = relationship(
         "User",
-        back_populates="documents_sauvegardes",
+        back_populates="saved_documents",
     )
 
     document: Mapped["Document"] = relationship(
         "Document",
-        back_populates="documents_sauvegardes",
+        back_populates="saved_documents",
     )
 
-    __table_args__ = (
-        UniqueConstraint(
-            "user_id",
-            "document_id",
-            name="uq_user_document",
-        ),
+    folder: Mapped["Folder | None"] = relationship(
+        "Folder",
+        back_populates="saved_documents",
     )

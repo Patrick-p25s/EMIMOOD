@@ -1,51 +1,35 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, Uuid
+from sqlalchemy import ForeignKey, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.modules.classes.model import Classe
     from app.modules.documents.model import Document
 
 
-class Subject(UuidStamp):
-    __tablename__ = "subject"
+class Matiere(UuidStamp, Base):
+    __tablename__ = "matieres"
 
-    name: Mapped[str] = mapped_column(
-        String(100),
+    nom: Mapped[str] = mapped_column(
+        String(150),
         nullable=False,
     )
 
-    description: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
-    )
-
-    coefficient: Mapped[int] = mapped_column(
-        Integer,
-        default=3,
-        nullable=False,
-    )
-
-    semester: Mapped[str] = mapped_column(
-        String(50),
-        nullable=False,
-    )
-
-    classe_id: Mapped[uuid.UUID] = mapped_column(
+    class_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
-        ForeignKey("classe.id", ondelete="CASCADE"),
+        ForeignKey("classes.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
-    # Relations
     classe: Mapped["Classe"] = relationship(
         "Classe",
-        back_populates="subjects",
+        back_populates="matieres",
     )
 
     documents: Mapped[list["Document"]] = relationship(
@@ -55,8 +39,8 @@ class Subject(UuidStamp):
 
     __table_args__ = (
         UniqueConstraint(
-            "classe_id",
-            "name",
-            name="uq_classe_subject_name",
+            "class_id",
+            "nom",
+            name="uq_matiere_class_nom",
         ),
     )

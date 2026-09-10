@@ -2,7 +2,7 @@ import logging
 
 from app.core.config import setting
 from app.core.security import hash_password
-from app.modules.users.model import UserRole, Users
+from app.modules.users.model import UserRole, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,11 +31,11 @@ async def ensure_admin_user1(session: AsyncSession) -> None:
             email,
         )
 
-    existing = await session.execute(select(Users).where(Users.email == email))
+    existing = await session.execute(select(User).where(User.email == email))
     if existing.scalar_one_or_none() is not None:
         return
 
-    admin = Users(
+    admin = User(
         # ADMIN_USERNAME sert de nom affiche : la variable existait mais
         # n'etait lue nulle part, ce qui la rendait trompeuse.
         first_name=(setting.ADMIN_NAME or "Admin").strip() or "Admin",

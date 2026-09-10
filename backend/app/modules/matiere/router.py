@@ -5,7 +5,7 @@ from app.core.dependencies import get_current_user, require_admin, require_moder
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.matiere.schema import SubjectCreate, SubjectOut
 from app.modules.matiere.service import SubjectService
-from app.modules.users.model import Users
+from app.modules.users.model import User
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination import PaginationParams, Page
@@ -29,7 +29,7 @@ async def create_subject(
     classe_id: UUID,
     request: SubjectCreate,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_moderator),
+    user: User = Depends(require_moderator),
 ) -> SubjectOut:
     return await service.create_new_subject(classe_id=classe_id, request=request)
 
@@ -43,7 +43,7 @@ async def create_subject(
 async def get_all_subjects(
     params: PaginationParams = Depends(),
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> Page[SubjectOut]:
     return await service.get_all_subject(params)
 
@@ -58,7 +58,7 @@ async def get_subjects_by_classe(
     classe_id: UUID,
     params: PaginationParams = Depends(),
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> Page[SubjectOut]:
     return await service.get_by_class(classe_id, params)
 
@@ -72,7 +72,7 @@ async def get_subjects_by_classe(
 async def get_subject_by_id(
     subject_id: UUID,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> SubjectOut:
     return await service.get_subject_by_id(subject_id)
 
@@ -87,7 +87,7 @@ async def update_subject(
     subject_id: UUID,
     request: SubjectCreate,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_moderator),
+    user: User = Depends(require_moderator),
 ) -> SubjectOut:
     return await service.update_subject(subject_id, request)
 
@@ -101,6 +101,6 @@ async def update_subject(
 async def delete_subject(
     subject_id: UUID,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_moderator),
+    user: User = Depends(require_moderator),
 ) -> None:
     return await service.delete_subject(subject_id)
