@@ -5,7 +5,7 @@ import {
   ShieldAlert,
   LayoutDashboard,
   Flag,
-  Users,
+  User,
   LogOut,
   Menu,
   X,
@@ -30,10 +30,10 @@ const NAV_ITEMS = [
     icon: LayoutDashboard,
   },
   { to: "/moderator/matieres", label: "Matieres", icon: BookOpen },
-  { to: "/moderator/students", label: "Utilisateurs", icon: Users },
+  { to: "/moderator/students", label: "Utilisateurs", icon: User },
   { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
   { to: "/moderator/documents", label: "Documents", icon: Book },
-  { to: "/moderator/profile", label: "My Profile", icon: Users },
+  { to: "/moderator/profile", label: "My Profile", icon: User },
 ];
 
 const RECENT_LIMIT = 5;

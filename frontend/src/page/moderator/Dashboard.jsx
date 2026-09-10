@@ -16,7 +16,7 @@ import {
   Upload,
   GraduationCap,
   BookOpen,
-  Users,
+  User,
 } from "lucide-react";
 
 import AnnouncementDialog from "./AnnouncementDialog";

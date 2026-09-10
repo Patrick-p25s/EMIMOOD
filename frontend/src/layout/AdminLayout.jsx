@@ -6,7 +6,7 @@ import {
   Megaphone,
   Calendar,
   School,
-  Users,
+  User,
   User,
   FileText,
 } from "lucide-react";

@@ -16,7 +16,7 @@ export default function AuthProvider({ children }) {
     const timer = setTimeout(() => {
       const userId = localStorage.getItem("user_id");
       if (userId) {
-        const user = users.find((user) => user.id === userId);
+        const user = User.find((user) => user.id === userId);
         setUser(user || null);
       }
       setLoading(false);
@@ -32,7 +32,7 @@ export default function AuthProvider({ children }) {
   const login = async (email, password) => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const foundUser = users.find(
+    const foundUser = User.find(
       (u) => u.email === email && u.password_hash === password,
     );
 
@@ -49,7 +49,7 @@ export default function AuthProvider({ children }) {
   const register = async (userData) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const exists = users.some((u) => u.email === userData.email);
+    const exists = User.some((u) => u.email === userData.email);
 
     if (exists) {
       throw new Error("Cet email est déjà utilisé");
