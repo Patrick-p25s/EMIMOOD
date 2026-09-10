@@ -5,7 +5,7 @@ import {
   logout as logoutApi,
 } from "@/api/authService";
 import { tokenStorage } from "@/api/tokenStorage";
-import { userData } from "@/fake/user";
+import { userData } from "@/mocks/user";
 import useClasse from "@/hooks/useClasse";
 import { createContext, use, useEffect, useState } from "react";
 

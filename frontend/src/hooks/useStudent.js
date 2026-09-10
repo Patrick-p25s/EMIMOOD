@@ -1,4 +1,4 @@
-import { userData } from "@/fake/user";
+import { userData } from "@/mocks/user";
 import { useState } from "react";
 
 export default function useStudent() {

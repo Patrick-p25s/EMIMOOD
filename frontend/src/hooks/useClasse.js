@@ -1,4 +1,4 @@
-import { classeData } from "@/fake/classe";
+import { classeData } from "@/mocks/classe";
 import { useState } from "react";
 import useAnnonce from "./useAnnonce";
 import useStudent from "./useStudent";

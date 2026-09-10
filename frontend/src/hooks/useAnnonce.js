@@ -1,4 +1,4 @@
-import { annonceData } from "@/fake/annonce";
+import { annonceData } from "@/mocks/annonce";
 import { useState } from "react";
 
 export default function useAnnonce() {

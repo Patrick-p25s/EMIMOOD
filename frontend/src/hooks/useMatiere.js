@@ -1,4 +1,4 @@
-import { subjectData } from "@/fake/matiere";
+import { subjectData } from "@/mocks/matiere";
 import { useState } from "react";
 
 export default function useMatiere() {
