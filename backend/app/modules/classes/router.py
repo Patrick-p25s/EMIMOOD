@@ -106,11 +106,10 @@ async def delete_one_classe(
     return await service.delete_classe(id)
 
 
-@router.get("/{classe_id}/students", response_model=Page[UserRead])
+@router.get("/students", response_model=Page[UserRead])
 async def list_all_student(
-    classe_id: str,
     params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
 ) -> Page[UserRead]:
-    return await service.get_all_student(classe_id, params)
+    return await service.get_all_student(params, user.classe_id)

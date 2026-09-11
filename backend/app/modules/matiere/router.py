@@ -19,48 +19,32 @@ router = APIRouter(prefix="/subjects", tags=["Gestion des Matières"])
 
 
 @router.post(
-    "/classe/{classe_id}",
+    "",
     response_model=SubjectOut,
     status_code=status.HTTP_201_CREATED,
     summary="Créer une nouvelle matière",
     description="Ajoute une nouvelle matière rattachée à une classe spécifique (Réservé aux administrateurs).",
 )
 async def create_subject(
-    classe_id: UUID,
     request: SubjectCreate,
     service: SubjectService = Depends(get_subject_service),
     user: Users = Depends(require_admin),
 ) -> SubjectOut:
-    return await service.create_new_subject(classe_id=classe_id, request=request)
+    return await service.create_new_subject(classe_id=user.classe_id, request=request)
 
 
 @router.get(
     "",
     response_model=Page[SubjectOut],
-    summary="Lister toutes les matières",
-    description="Récupère la liste complète des matières enregistrées dans le système.",
-)
-async def get_all_subjects(
-    params: PaginationParams = Depends(),
-    service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(get_current_user),
-) -> Page[SubjectOut]:
-    return await service.get_all_subject(params)
-
-
-@router.get(
-    "/classe/{classe_id}",
-    response_model=Page[SubjectOut],
     summary="Lister les matières par classe",
     description="Récupère l'ensemble des matières associées à une classe spécifique.",
 )
 async def get_subjects_by_classe(
-    classe_id: UUID,
     params: PaginationParams = Depends(),
     service: SubjectService = Depends(get_subject_service),
     user: Users = Depends(get_current_user),
 ) -> Page[SubjectOut]:
-    return await service.get_by_class(classe_id, params)
+    return await service.get_by_class(user.classe_id, params)
 
 
 @router.get(

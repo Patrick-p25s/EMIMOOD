@@ -61,12 +61,14 @@ class ClasseRepository:
         )
         return stmt.scalars().all(), total
 
-    async def get_all_student(self, classe_id: UUID | str, offset: int, limit: int):
+    async def get_all_student(
+        self, offset: int, limit: int, classe_id: UUID | str | None = None
+    ):
+        query = select(Users).where(Users.role == UserRole.student)
+        if classe_id is not None:
+            query = query.where(Users.classe_id == normalized_id(classe_id))
         result = await self.db.execute(
-            select(Users)
-            .where(Users.classe_id == normalized_id(classe_id))
-            .where(Users.role == UserRole.student)
-            .order_by(Users.last_name, Users.first_name)
+            query.order_by(Users.last_name, Users.first_name)
             .offset(offset)
             .limit(limit)
         )

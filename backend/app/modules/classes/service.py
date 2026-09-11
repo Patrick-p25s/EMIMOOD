@@ -18,14 +18,6 @@ class ClasseService:
         self.year_repo = year_repo
         self.classe_repo = classe_repo
 
-    async def get_by_id(self, id: UUID | str) -> Classe:
-        classe = await self.classe_repo.get_by_id(id)
-        if classe is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Classe not found"
-            )
-        return classe
-
     async def create_classe(self, request: ClasseCreate) -> ClasseOut:
         year = await self.year_repo.get_activate_year()
         if year is None:
@@ -59,6 +51,14 @@ class ClasseService:
         update_data = {"mention": request.mention, "niveau": request.niveau}
         return await self.classe_repo.update(classe, update_data)
 
+    async def get_by_id(self, id: UUID | str) -> Classe:
+        classe = await self.classe_repo.get_by_id(id)
+        if classe is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Classe not found"
+            )
+        return classe
+
     async def get_all_classes(self, params: PaginationParams) -> Page[ClasseOut]:
         classes, total = await self.classe_repo.list_all_classe(
             params.offset, params.limit
@@ -75,7 +75,7 @@ class ClasseService:
             detail="Impossible de générer un code d'invitation unique. Réessayez.",
         )
 
-    async def regenerate_invitation_code(self, classe_id: UUID) -> Classe:
+    async def regenerate_invitation_code(self, classe_id: UUID | str) -> Classe:
         classe = await self.classe_repo.get_by_id(classe_id)
         if classe is None:
             raise HTTPException(404, "Classe introuvable")
@@ -83,9 +83,11 @@ class ClasseService:
         new_code = await self._generate_invitation_code()
         return await self.classe_repo.update(classe, {"code_invitation": new_code})
 
-    async def get_all_student(self, classe_id: UUID, params: PaginationParams):
+    async def get_all_student(
+        self, params: PaginationParams, classe_id: UUID | str | None = None
+    ):
         await self.get_by_id(classe_id)
         students, total = await self.classe_repo.get_all_student(
-            classe_id, params.offset, params.limit
+            params.offset, params.limit, classe_id
         )
         return make_page(students, total, params)
