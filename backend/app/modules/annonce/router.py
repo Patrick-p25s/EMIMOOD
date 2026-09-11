@@ -5,6 +5,7 @@ from app.modules.annonce.schema import AnnonceCreate, AnnonceOut, LecteurStats
 from app.modules.annonce.service import AnnonceService
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
+from app.core.pagination import Page, PaginationParams
 from app.modules.users.model import Users
 from app.modules.users.repository import UserRepository
 from fastapi import APIRouter, Depends
@@ -32,20 +33,22 @@ async def create_annonce(
     return await service.create_annonce(request, current_user, classe_id)
 
 
-@router.get("/actives", response_model=list[AnnonceOut])
+@router.get("/actives", response_model=Page[AnnonceOut])
 async def get_active_annonces(
+    params: PaginationParams = Depends(),
     current_user: Users = Depends(get_current_user),
     service: AnnonceService = Depends(get_annonce_service),
-) -> list[AnnonceOut]:
-    return await service.get_active_for_user(current_user)
+) -> Page[AnnonceOut]:
+    return await service.list_active_for_user(current_user, params)
 
 
-@router.get("/archivees", response_model=list[AnnonceOut])
+@router.get("/archivees", response_model=Page[AnnonceOut])
 async def get_archived_annonces(
+    params: PaginationParams = Depends(),
     current_user: Users = Depends(get_current_user),
     service: AnnonceService = Depends(get_annonce_service),
-) -> list[AnnonceOut]:
-    return await service.all_archive(current_user)
+) -> Page[AnnonceOut]:
+    return await service.list_archived(current_user, params)
 
 
 @router.get("/{id}", response_model=AnnonceOut)

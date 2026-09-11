@@ -15,5 +15,5 @@ class ClasseOut(ClasseCreate):
     id: UUID
     year_id: UUID
     code_invitation: str
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime

@@ -117,8 +117,9 @@ class DocumentSauvegarde(UuidStamp):
     is_favorite: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
+        default=False,
     )
-    is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     folder: Mapped["Folder | None"] = relationship(
         "Folder", back_populates="documents_sauvegardes"
     )

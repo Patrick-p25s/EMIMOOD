@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     phone_number: str
+    matricule: str
     email: EmailStr
     password: str
     code_invitation: str
@@ -25,11 +26,16 @@ class UpdatePassword(BaseModel):
     new_password: str
 
 
-class UserOut(UserCreate):
+class UserOut(BaseModel):
     id: UUID
+    first_name: str | None
+    last_name: str | None
+    phone_number: str | None
+    matricule: str | None
+    email: EmailStr
     role: str
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -37,7 +43,7 @@ class UserOut(UserCreate):
 class UserRead(BaseModel):
     first_name: str
     last_name: str
-    phone_number: str | str = None
+    phone_number: str | None = None
     email: EmailStr
     role: str
     model_config = {"from_attributes": True}

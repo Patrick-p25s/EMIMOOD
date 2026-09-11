@@ -12,7 +12,7 @@ class YearCreate(BaseModel):
 
 class YearOut(YearCreate):
     id: UUID | str
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime
     is_active: bool
     model_config = {"from_attributes": True, "extra": "ignore"}

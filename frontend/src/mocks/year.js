@@ -5,8 +5,8 @@ export const anneeUniv = [
     start_at: "2026-06-21T00:00:00Z",
     end_at: "2027-03-12T23:59:59Z",
     is_active: true,
-    create_at: "2026-05-15T09:00:00Z",
-    update_at: "2026-06-01T10:30:00Z",
+    created_at: "2026-05-15T09:00:00Z",
+    updated_at: "2026-06-01T10:30:00Z",
   },
   {
     id: "10000000-0000-4000-8000-000000000002",
@@ -14,8 +14,8 @@ export const anneeUniv = [
     start_at: "2027-06-21T00:00:00Z",
     end_at: "2028-03-12T23:59:59Z",
     is_active: false,
-    create_at: "2027-05-15T09:00:00Z",
-    update_at: "2027-05-15T09:00:00Z",
+    created_at: "2027-05-15T09:00:00Z",
+    updated_at: "2027-05-15T09:00:00Z",
   },
   {
     id: "10000000-0000-4000-8000-000000000003",
@@ -23,7 +23,7 @@ export const anneeUniv = [
     start_at: "2028-06-21T00:00:00Z",
     end_at: "2029-03-12T23:59:59Z",
     is_active: false,
-    create_at: "2028-05-15T09:00:00Z",
-    update_at: "2028-05-15T09:00:00Z",
+    created_at: "2028-05-15T09:00:00Z",
+    updated_at: "2028-05-15T09:00:00Z",
   },
 ];

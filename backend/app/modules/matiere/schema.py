@@ -13,8 +13,9 @@ class SubjectCreate(BaseModel):
 class SubjectOut(BaseModel):
     id: UUID
     name: str
-    desciption: str
+    description: str | None
+    coefficient: int
     semester: str
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime
     model_config = {"from_attributes": True}

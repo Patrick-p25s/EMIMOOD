@@ -19,8 +19,8 @@ class AnnonceOut(BaseModel):
     statut: AnnonceStatut
     classe_id: UUID | None
     auteur_id: UUID
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
 

@@ -2,7 +2,7 @@ from uuid import UUID
 
 from app.modules.classes.model import Classe
 from app.modules.classes.schema import ClasseOut
-from sqlalchemy import select
+from sqlalchemy import func, select
 from app.modules.users.model import Users, UserRole
 from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document
@@ -46,9 +46,15 @@ class ClasseRepository:
         await self.db.delete(classe)
         await self.db.commit()
 
-    async def list_all_classe(self, offset: int, limit: int) -> list[ClasseOut]:
-        stmt = await self.db.execute(select(Classe).offset(offset).limit(limit))
-        return stmt.scalars().all()
+    async def list_all_classe(
+        self, offset: int, limit: int
+    ) -> tuple[list[Classe], int]:
+        total_result = await self.db.execute(select(func.count()).select_from(Classe))
+        total = total_result.scalar_one()
+        stmt = await self.db.execute(
+            select(Classe).order_by(Classe.created_at.desc()).offset(offset).limit(limit)
+        )
+        return stmt.scalars().all(), total
 
     async def get_all_student(self, classe_id: UUID | str, offset: int, limit: int):
         normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
@@ -56,8 +62,17 @@ class ClasseRepository:
             select(Users)
             .where(Users.classe_id == normalized)
             .where(Users.role == UserRole.student)
+            .order_by(Users.last_name, Users.first_name)
+            .offset(offset)
+            .limit(limit)
         )
-        return result.scalars().all()
+        students = result.scalars().all()
+        total_result = await self.db.execute(
+            select(func.count())
+            .select_from(Users)
+            .where(Users.classe_id == normalized, Users.role == UserRole.student)
+        )
+        return students, total_result.scalar_one()
 
     async def has_documents(self, classe_id: UUID | str) -> bool:
         result = await self.db.execute(

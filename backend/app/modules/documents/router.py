@@ -1,195 +1,104 @@
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
 
-from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_moderator
-from app.modules.documents.repository import DocumentRepository
-from app.modules.documents.schema import (
-    DocumentCreate,
-    DocumentOut,
-    DocumentType,
-    DocumentUpdate,
-)
-from app.modules.documents.service import DocumentService
-from app.modules.matiere.repository import SubjectRepository
-from app.modules.users.model import Users
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import get_db
+from app.core.dependencies import get_current_user, require_moderator
+from app.core.pagination import Page, PaginationParams
+from app.modules.documents.model import DocumentType
+from app.modules.documents.repository import DocumentRepository, DocumentSaveRepository
+from app.modules.documents.schema import DocumentCreate, DocumentOut, DocumentUpdate
+from app.modules.documents.service import DocumentService
+from app.modules.matiere.repository import SubjectRepository
+from app.modules.users.model import Users
+
 
 def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
-    return DocumentService(DocumentRepository(db), SubjectRepository(db))
+    return DocumentService(
+        DocumentRepository(db), SubjectRepository(db), DocumentSaveRepository(db)
+    )
 
 
 router = APIRouter(prefix="/documents", tags=["Gestion des Documents"])
 
 
-@router.post(
-    "/create/{matiere_id}",
-    response_model=DocumentOut,
-    status_code=status.HTTP_201_CREATED,
-    summary="Créer et téléverser un document",
-    description="Permet à un utilisateur authentifié d'ajouter un document associé à une matière.",
-)
+@router.get("/public", response_model=Page[DocumentOut])
+async def list_public_documents(
+    params: PaginationParams = Depends(),
+    matiere_id: UUID | None = None,
+    type_document: DocumentType | None = None,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> Page[DocumentOut]:
+    return await service.list_public_documents(
+        current_user, params, matiere_id, type_document
+    )
+
+
+@router.post("", response_model=DocumentOut, status_code=status.HTTP_201_CREATED)
 async def create_document(
-    matiere_id: UUID | str | None,
-    titre: str = Form(..., description="Titre du document"),
-    type_document: DocumentType = Form(
-        ..., description="Type de document (ex: Cours, TP, Examen)"
-    ),
-    proposer_publiquement: bool = Form(
-        False, description="Rendre le document visible par tous après validation"
-    ),
-    file: UploadFile = File(..., description="Fichier binaire à téléverser"),
-    date_limite: datetime = Form(..., description="Date de limite pour les dévoirs "),
+    titre: str = Form(...),
+    type_document: DocumentType = Form(...),
+    file: UploadFile = File(...),
+    matiere_id: UUID | None = Form(None),
+    description: str | None = Form(None),
+    date_limite: datetime | None = Form(None),
+    proposer_publiquement: bool = Form(False),
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentOut:
     request = DocumentCreate(
-        date_limite=date_limite,
         titre=titre,
+        description=description,
         type_document=type_document,
+        date_limite=date_limite,
         proposer_publiquement=proposer_publiquement,
     )
     return await service.create_document(matiere_id, current_user, request, file)
 
 
-@router.get(
-    "/public",
-    response_model=list[DocumentOut],
-    summary="Lister tous les documents publics",
-    description="Récupère l'ensemble des documents validés et publics.",
-)
-async def list_all_public_docs(
-    service: DocumentService = Depends(get_document_service),
+@router.get("/mine", response_model=Page[DocumentOut])
+async def list_my_documents(
+    params: PaginationParams = Depends(),
     current_user: Users = Depends(get_current_user),
-) -> list[DocumentOut]:
-    return await service.get_public_docs(current_user)
+    service: DocumentService = Depends(get_document_service),
+) -> Page[DocumentOut]:
+    return await service.list_my_documents(current_user, params)
 
 
-# Moderation des documents
-@router.get(
-    "/pending",
-    response_model=list[DocumentOut],
-    summary="Lister les documents en attente",
-    description="Récupère la liste des documents en attente de modération (Réservé aux modérateurs).",
-)
-async def get_pending_documents(
+@router.get("/moderation/pending", response_model=Page[DocumentOut])
+async def list_pending_documents(
+    params: PaginationParams = Depends(),
+    matiere_id: UUID | None = None,
     current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
-) -> list[DocumentOut]:
-    return await service.get_all_pending_docs(current_user)
+) -> Page[DocumentOut]:
+    return await service.list_pending_documents(current_user, params, matiere_id)
 
 
-@router.get(
-    "/public/{matiere_id}",
-    response_model=list[DocumentOut],
-    summary="Lister les documents par matière",
-    description="Récupère les documents publics associés à une matière spécifique.",
-)
-async def list_documents_by_matiere(
-    matiere_id: UUID,
-    user: Users = Depends(get_current_user),
-    service: DocumentService = Depends(get_document_service),
-) -> list[DocumentOut]:
-    return await service.list_by_matiere_public(matiere_id)
-
-
-@router.patch(
-    "/{document_id}/valide",
-    response_model=DocumentOut,
-    summary="Valider un document",
-    description="Approuve un document en attente (Réservé aux modérateurs).",
-)
-async def valider_document(
+@router.patch("/moderation/{document_id}/approve", response_model=DocumentOut)
+async def approve_document(
     document_id: UUID,
-    service: DocumentService = Depends(get_document_service),
-    user: Users = Depends(require_moderator),
-) -> DocumentOut:
-    return await service.valide_document(document_id=document_id, validator_id=user.id)
-
-
-@router.patch(
-    "/{document_id}/rejete",
-    response_model=DocumentOut,
-    summary="Rejeter un document",
-    description="Refuse un document en attente (Réservé aux modérateurs).",
-)
-async def rejeter_document(
-    document_id: UUID,
-    service: DocumentService = Depends(get_document_service),
-    user: Users = Depends(require_moderator),
-) -> DocumentOut:
-    return await service.rejeter_document(document_id=document_id, rejector_id=user.id)
-
-
-@router.get(
-    "/{id}/telecharger",
-    response_class=FileResponse,
-    summary="Télécharger le fichier d'un document",
-    description="Renvoie le fichier binaire correspondant au document spécifié.",
-    responses={
-        200: {
-            "content": {"application/octet-stream": {}},
-            "description": "Fichier téléchargé avec succès.",
-        }
-    },
-)
-async def telecharger_document_file(
-    id: UUID,
-    current_user: Users = Depends(get_current_user),
-    service: DocumentService = Depends(get_document_service),
-):
-    document = await service.telecharger_document(id, current_user)
-    return FileResponse(
-        path=document.fichier_path,
-        filename=document.titre,
-        media_type=document.mime_type,
-    )
-
-
-@router.delete("/{document_id}/delete")
-async def delete_document(
-    document_id: UUID,
-    current_user: Users = Depends(get_current_user),
-    service: DocumentService = Depends(get_document_service),
-):
-    return await service.delete_document(document_id, current_user)
-
-
-@router.patch("/{id}", response_model=DocumentOut)
-async def update_document(
-    id: UUID,
-    request: DocumentUpdate,
-    current_user: Users = Depends(get_current_user),
+    current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
 ) -> DocumentOut:
-    return await service.update_document(id, current_user, request)
+    return await service.valide_document(document_id, current_user)
 
 
-"""operation pas trop utilisé """
-
-
-@router.get(
-    "/type/{type}",
-    response_model=list[DocumentOut],
-    summary="Filtrer les documents par type",
-    description="Récupère les documents correspondant au type spécifié (ex: TP, cours).",
-)
-async def get_documents_by_type(
-    type: DocumentType,
-    current_user: Users = Depends(get_current_user),
+@router.patch("/moderation/{document_id}/reject", response_model=DocumentOut)
+async def reject_document(
+    document_id: UUID,
+    current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
-) -> list[DocumentOut]:
-    return await service.get_document_by_type(type)
+) -> DocumentOut:
+    return await service.rejeter_document(document_id, current_user)
 
 
-"""Action pour les sauvegarde """
-
-
-@router.post("/{document_id}/save")
-async def save_new_document(
+@router.post("/{document_id}/saves", status_code=status.HTTP_201_CREATED)
+async def save_document(
     document_id: UUID,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
@@ -197,27 +106,52 @@ async def save_new_document(
     return await service.sauvegarde_document(document_id, current_user)
 
 
-@router.delete("/delete/{document_id}")
-async def delete_document(
+@router.delete("/saves/{save_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_saved_document(
+    save_id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> None:
+    await service.delete_save_document(save_id, current_user)
+
+
+@router.get("/{document_id}", response_model=DocumentOut)
+async def get_document(
+    document_id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> DocumentOut:
+    return await service.get_document_by_id(document_id, current_user)
+
+
+@router.get("/{document_id}/download", response_class=FileResponse)
+async def download_document(
     document_id: UUID,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ):
-    return await service.delete_save_document(document_id, current_user)
+    document = await service.telecharger_document(document_id, current_user)
+    return FileResponse(
+        path=document.storage_key,
+        filename=document.original_filename,
+        media_type=document.mime_type,
+    )
 
 
-@router.get("/save/{document_id}")
-async def get_save_by_id(
-    document_id: str,
+@router.patch("/{document_id}", response_model=DocumentOut)
+async def update_document(
+    document_id: UUID,
+    request: DocumentUpdate,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
-):
-    return await service.get_save_by_id(document_id, current_user)
+) -> DocumentOut:
+    return await service.update_document(document_id, current_user, request)
 
 
-@router.get("/save")
-async def get_my_documents(
+@router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document(
+    document_id: UUID,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
-):
-    return await service.get_my_documents(current_user)
+) -> None:
+    await service.delete_document(document_id, current_user)

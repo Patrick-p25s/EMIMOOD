@@ -23,7 +23,7 @@ class SubjectService:
     async def create_new_subject(
         self, classe_id: str, request: SubjectCreate
     ) -> SubjectOut:
-        if await self.repo.get_by_name(request.name) is not None:
+        if await self.repo.get_by_name(request.name, classe_id) is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Subject already existed",

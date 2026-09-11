@@ -33,24 +33,18 @@ class YearService:
         return await self.repo.create(data=data)
 
     async def delete_year(self, id: UUID | str):
-        year = self.get_year_by_id(id)
-        await self.repo.delete(year=year)
-        return True
+        year = await self.get_year_by_id(id)
+        await self.repo.delete(year)
 
-    async def activate_year(self, id: UUID | str) -> bool:
-        years = await self.get_all_year()
+    async def activate_year(self, id: UUID | str) -> YearOut:
+        year = await self.get_year_by_id(id)
+        return await self.repo.activate(year.id)
 
-        target_found = False
-        for year in years:
-            if str(year.id) != str(id):
-                print("active", year.id)
-                await self.repo.update(year, {"is_active": False})
-
-            else:
-                print("Desactive", year.id)
-                await self.repo.update(year, {"is_active": True})
-                target_found = True
-        return target_found
-
-    async def get_all_classe(self, year_id: UUID):
-        return await self.repo.get_all_classe(year_id)
+    async def get_all_classes(
+        self, year_id: UUID, params: PaginationParams
+    ) -> Page:
+        await self.get_year_by_id(year_id)
+        classes, total = await self.repo.list_classes(
+            year_id, params.offset, params.limit
+        )
+        return make_page(classes, total, params)
