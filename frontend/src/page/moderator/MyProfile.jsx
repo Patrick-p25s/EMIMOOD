@@ -68,7 +68,7 @@ export default function StudentLayout({
             stats={{
               documentsCount: myDocuments.length,
               savedCount: documents.filter((d) => d.isSaved).length,
-              pendingCount: myDocuments.filter((d) => d.statut === "pending")
+              pendingCount: myDocuments.filter((d) => d.statut === "en_attente")
                 .length,
             }}
           />

@@ -95,8 +95,8 @@ export default function Annonces() {
           Actif
         </ButtonStyled>
         <ButtonStyled
-          onClick={() => setFilter("archive")}
-          variant={filter === "archive" ? "default" : "secondary"}
+          onClick={() => setFilter("archivee")}
+          variant={filter === "archivee" ? "default" : "secondary"}
         >
           Archive
         </ButtonStyled>

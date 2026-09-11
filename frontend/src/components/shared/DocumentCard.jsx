@@ -46,7 +46,7 @@ export default function DocumentCard({
     date_limite,
     type_document,
     statut,
-    fichier_path,
+    storage_key: fichier_path,
     taille_octets,
   } = document;
 
@@ -86,7 +86,7 @@ export default function DocumentCard({
             <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Public
           </Badge>
         );
-      case "pending":
+      case "en_attente":
         return (
           <Badge
             variant="secondary"
@@ -95,7 +95,7 @@ export default function DocumentCard({
             <Clock className="h-3 w-3 text-amber-600" /> En attente
           </Badge>
         );
-      case "rejected":
+      case "rejete":
         return (
           <Badge
             variant="outline"
@@ -104,7 +104,7 @@ export default function DocumentCard({
             <XCircle className="h-3 w-3 text-rose-600" /> Rejeté (Privé)
           </Badge>
         );
-      case "private":
+      case "prive":
       default:
         return (
           <Badge
@@ -168,7 +168,7 @@ export default function DocumentCard({
             {/* Actions Administrateur / Modérateur */}
             <div className="flex items-center gap-1 shrink-0">
               {/* Boutons d'approbation (visibles si en attente ou si fonctions fournies) */}
-              {onValide && statut === "pending" && (
+              {onValide && statut === "en_attente" && (
                 <ButtonStyled
                   variant="ghost"
                   size="icon"
@@ -178,7 +178,7 @@ export default function DocumentCard({
                   icon={<Check className="h-3.5 w-3.5" />}
                 />
               )}
-              {onRejete && statut === "pending" && (
+              {onRejete && statut === "en_attente" && (
                 <ButtonStyled
                   variant="ghost"
                   size="icon"

@@ -6,6 +6,8 @@ export const subjectData = [
     coefficient: 4,
     semester: "S1",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-21T08:00:00Z",
+    updated_at: "2026-06-21T08:00:00Z",
   },
   {
     id: "30000000-0000-4000-8000-000000000002",
@@ -14,6 +16,8 @@ export const subjectData = [
     coefficient: 4,
     semester: "S1",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-21T08:10:00Z",
+    updated_at: "2026-06-21T08:10:00Z",
   },
   {
     id: "30000000-0000-4000-8000-000000000003",
@@ -22,6 +26,8 @@ export const subjectData = [
     coefficient: 3,
     semester: "S1",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-21T08:20:00Z",
+    updated_at: "2026-06-21T08:20:00Z",
   },
   {
     id: "30000000-0000-4000-8000-000000000004",
@@ -30,6 +36,8 @@ export const subjectData = [
     coefficient: 4,
     semester: "S2",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-21T08:30:00Z",
+    updated_at: "2026-06-21T08:30:00Z",
   },
 
   {
@@ -39,6 +47,8 @@ export const subjectData = [
     coefficient: 4,
     semester: "S1",
     classe_id: "20000000-0000-4000-8000-000000000002",
+    created_at: "2026-06-21T08:40:00Z",
+    updated_at: "2026-06-21T08:40:00Z",
   },
   {
     id: "30000000-0000-4000-8000-000000000006",
@@ -47,5 +57,7 @@ export const subjectData = [
     coefficient: 3,
     semester: "S2",
     classe_id: "20000000-0000-4000-8000-000000000002",
+    created_at: "2026-06-21T08:50:00Z",
+    updated_at: "2026-06-21T08:50:00Z",
   },
 ];

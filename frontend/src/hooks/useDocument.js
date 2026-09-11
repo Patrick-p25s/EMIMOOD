@@ -12,14 +12,18 @@ export default function useDocument() {
       description: newDocument.description || "",
       type_document: newDocument.type_document || "cours",
       date_limite: newDocument.date_limite || null,
-      proposer_publique: Boolean(newDocument.proposer_publique),
-      statut: newDocument.proposer_publique ? "validated" : "pending",
-      fichier_path: newDocument.fichier_path || "/documents/sample.pdf",
+      statut: newDocument.proposer_publiquement ? "en_attente" : "prive",
+      original_filename: newDocument.file?.name || "sample.pdf",
+      storage_key: newDocument.storage_key || "/documents/sample.pdf",
       mime_type: newDocument.file?.type || "application/pdf",
       taille_octets: newDocument.taille_octets || 0,
       matiere_id: matiereId,
       owner_id: ownerId,
+      classe_id: newDocument.classe_id || null,
+      validated_by_id: null,
+      motif_rejet: null,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
     setDocuments((prev) => [...prev, document]);
@@ -34,12 +38,12 @@ export default function useDocument() {
   };
 
   const getPublicDocument = async () => {
-    const docs = documents.filter((doc) => doc.statut === "publique");
+    const docs = documents.filter((doc) => doc.statut === "public");
     return docs;
   };
 
   const getPendingDocument = async () => {
-    const docs = documents.filter((doc) => doc.statut === "pending");
+    const docs = documents.filter((doc) => doc.statut === "en_attente");
     return docs;
   };
 
@@ -58,7 +62,7 @@ export default function useDocument() {
       const document = await getDocumentById(documentId);
 
       // 2. Vérification sur le statut (et non sur l'id)
-      if (document.statut !== "pending") {
+      if (document.statut !== "en_attente") {
         throw new Error("Ce document n'est plus en attente");
       }
 
@@ -82,7 +86,7 @@ export default function useDocument() {
       const document = await getDocumentById(documentId);
 
       // 2. Vérification sur le statut (et non sur l'id)
-      if (document.statut !== "pending") {
+      if (document.statut !== "en_attente") {
         throw new Error("Ce document n'est plus en attente");
       }
 

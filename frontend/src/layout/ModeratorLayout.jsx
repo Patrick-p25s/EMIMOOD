@@ -112,7 +112,7 @@ export default function ModeratorLayout() {
   }, [documents, classMatiereIds]);
 
   const pendingDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "pending"),
+    () => classDocuments.filter((d) => d.statut === "en_attente"),
     [classDocuments],
   );
   const publicDocs = useMemo(
