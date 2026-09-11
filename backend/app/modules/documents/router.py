@@ -33,7 +33,7 @@ router = APIRouter(prefix="/documents", tags=["Gestion des Documents"])
     description="Permet à un utilisateur authentifié d'ajouter un document associé à une matière.",
 )
 async def create_document(
-    matiere_id: UUID,
+    matiere_id: UUID | str | None,
     titre: str = Form(..., description="Titre du document"),
     type_document: DocumentType = Form(
         ..., description="Type de document (ex: Cours, TP, Examen)"
@@ -56,19 +56,6 @@ async def create_document(
 
 
 @router.get(
-    "/pending",
-    response_model=list[DocumentOut],
-    summary="Lister les documents en attente",
-    description="Récupère la liste des documents en attente de modération (Réservé aux modérateurs).",
-)
-async def get_pending_documents(
-    current_user: Users = Depends(require_moderator),
-    service: DocumentService = Depends(get_document_service),
-) -> list[DocumentOut]:
-    return await service.get_all_pending_docs()
-
-
-@router.get(
     "/public",
     response_model=list[DocumentOut],
     summary="Lister tous les documents publics",
@@ -78,7 +65,21 @@ async def list_all_public_docs(
     service: DocumentService = Depends(get_document_service),
     current_user: Users = Depends(get_current_user),
 ) -> list[DocumentOut]:
-    return await service.get_all_public_docs()
+    return await service.get_public_docs(current_user)
+
+
+# Moderation des documents
+@router.get(
+    "/pending",
+    response_model=list[DocumentOut],
+    summary="Lister les documents en attente",
+    description="Récupère la liste des documents en attente de modération (Réservé aux modérateurs).",
+)
+async def get_pending_documents(
+    current_user: Users = Depends(require_moderator),
+    service: DocumentService = Depends(get_document_service),
+) -> list[DocumentOut]:
+    return await service.get_all_pending_docs(current_user)
 
 
 @router.get(
@@ -148,6 +149,28 @@ async def telecharger_document_file(
     )
 
 
+@router.delete("/{document_id}/delete")
+async def delete_document(
+    document_id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.delete_document(document_id, current_user)
+
+
+@router.patch("/{id}", response_model=DocumentOut)
+async def update_document(
+    id: UUID,
+    request: DocumentUpdate,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> DocumentOut:
+    return await service.update_document(id, current_user, request)
+
+
+"""operation pas trop utilisé """
+
+
 @router.get(
     "/type/{type}",
     response_model=list[DocumentOut],
@@ -162,20 +185,39 @@ async def get_documents_by_type(
     return await service.get_document_by_type(type)
 
 
-@router.delete("/{document_id}/delete")
-async def delete_document(
+"""Action pour les sauvegarde """
+
+
+@router.post("/{document_id}/save")
+async def save_new_document(
     document_id: UUID,
-    user: Users = Depends(get_current_user),
-    service: DocumentService = Depends(get_document_service),
-):
-    return await service.delete_document(document_id, user)
-
-
-@router.patch("/{id}", response_model=DocumentOut)
-async def update_document(
-    id: UUID,
-    request: DocumentUpdate,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
-) -> DocumentOut:
-    return await service.update_document(id, current_user, request)
+):
+    return await service.sauvegarde_document(document_id, current_user)
+
+
+@router.delete("/delete/{document_id}")
+async def delete_document(
+    document_id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.delete_save_document(document_id, current_user)
+
+
+@router.get("/save/{document_id}")
+async def get_save_by_id(
+    document_id: str,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_save_by_id(document_id, current_user)
+
+
+@router.get("/save")
+async def get_my_documents(
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_my_documents(current_user)

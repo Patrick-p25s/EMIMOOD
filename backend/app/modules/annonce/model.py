@@ -1,6 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -11,9 +12,13 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import UuidStamp
+
+if TYPE_CHECKING:
+    from app.modules.classes.model import Classe
+    from app.modules.users.model import Users
 
 
 class AnnonceStatut(str, enum.Enum):
@@ -42,6 +47,16 @@ class Annonce(UuidStamp):
         Uuid, ForeignKey("classe.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
+    auteur: Mapped["Users"] = relationship(
+        "Users", back_populates="authored_annonces", foreign_keys=[auteur_id]
+    )
+    classe: Mapped["Classe | None"] = relationship(
+        "Classe", back_populates="annonces"
+    )
+    lectures: Mapped[list["AnnonceLecture"]] = relationship(
+        "AnnonceLecture", back_populates="annonce", passive_deletes=True
+    )
+
 
 class AnnonceLecture(UuidStamp):
     __tablename__ = "annonce_lectures"
@@ -55,4 +70,9 @@ class AnnonceLecture(UuidStamp):
 
     __table_args__ = (
         UniqueConstraint("annonce_id", "user_id", name="uq_annonce_user_lecture"),
+    )
+
+    annonce: Mapped["Annonce"] = relationship("Annonce", back_populates="lectures")
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="annonce_lectures"
     )

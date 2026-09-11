@@ -18,7 +18,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
+    from app.modules.classes.model import Classe
     from app.modules.folder.model import Folder
+    from app.modules.matiere.model import Subject
+    from app.modules.users.model import Users
 
 from app.core.base_model import UuidStamp
 
@@ -79,6 +82,24 @@ class Document(UuidStamp):
 
     __table_args__ = (Index("ix_documents_matiere_statut", "matiere_id", "statut"),)
 
+    owner: Mapped["Users"] = relationship(
+        "Users", back_populates="owned_documents", foreign_keys=[owner_id]
+    )
+    validated_by: Mapped["Users | None"] = relationship(
+        "Users",
+        back_populates="validated_documents",
+        foreign_keys=[validated_by_id],
+    )
+    matiere: Mapped["Subject | None"] = relationship(
+        "Subject", back_populates="documents"
+    )
+    classe: Mapped["Classe | None"] = relationship(
+        "Classe", back_populates="documents"
+    )
+    sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
+        "DocumentSauvegarde", back_populates="document", passive_deletes=True
+    )
+
 
 class DocumentSauvegarde(UuidStamp):
     __tablename__ = "document_sauvegardes"
@@ -98,9 +119,16 @@ class DocumentSauvegarde(UuidStamp):
         nullable=False,
     )
     is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    folder: Mapped["Folder"] = relationship(
+    folder: Mapped["Folder | None"] = relationship(
         "Folder", back_populates="documents_sauvegardes"
     )
     __table_args__ = (
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),
+    )
+
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="document_sauvegardes"
+    )
+    document: Mapped["Document"] = relationship(
+        "Document", back_populates="sauvegardes"
     )

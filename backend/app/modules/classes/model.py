@@ -7,6 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.base_model import UuidStamp
 
 if TYPE_CHECKING:
+    from app.modules.annonce.model import Annonce
+    from app.modules.documents.model import Document
     from app.modules.users.model import Users
     from app.modules.years.model import YearUniv
     from app.modules.matiere.model import Subject
@@ -50,6 +52,15 @@ class Classe(UuidStamp):
     subjects: Mapped[List["Subject"]] = relationship(
         "Subject", back_populates="classe", cascade="all, delete-orphan"
     )
+    annonces: Mapped[List["Annonce"]] = relationship(
+        "Annonce", back_populates="classe"
+    )
+    documents: Mapped[List["Document"]] = relationship(
+        "Document", back_populates="classe"
+    )
+    moderateurs: Mapped[List["ClasseModerateur"]] = relationship(
+        "ClasseModerateur", back_populates="classe", passive_deletes=True
+    )
 
 
 class ClasseModerateur(UuidStamp):
@@ -64,4 +75,9 @@ class ClasseModerateur(UuidStamp):
 
     __table_args__ = (
         UniqueConstraint("classe_id", "user_id", name="uq_classe_user_moderateur"),
+    )
+
+    classe: Mapped["Classe"] = relationship("Classe", back_populates="moderateurs")
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="moderated_classes"
     )

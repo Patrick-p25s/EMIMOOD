@@ -7,6 +7,7 @@ from app.core.base_model import UuidStamp
 
 if TYPE_CHECKING:
     from app.modules.classes.model import Classe
+    from app.modules.documents.model import Document
 
 
 class Subject(UuidStamp):
@@ -22,6 +23,9 @@ class Subject(UuidStamp):
     )
 
     classe: Mapped["Classe"] = relationship("Classe", back_populates="subjects")
+    documents: Mapped[list["Document"]] = relationship(
+        "Document", back_populates="matiere"
+    )
 
     __table_args__ = (
         UniqueConstraint("classe_id", "name", name="uq_classe_subject_name"),
