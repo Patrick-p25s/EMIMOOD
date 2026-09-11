@@ -76,14 +76,14 @@ function YearForm({ onCreate, open, onOpen }) {
         name="label"
       />
       <InputLabeled
-        type="datetime"
+        type="datetime-local"
         label="Date de début"
         value={yearData.start_at}
         name="start_at"
         setValue={setYearData}
       />
       <InputLabeled
-        type="datetime"
+        type="datetime-local"
         label="Date de fini"
         value={yearData.end_at}
         name="end_at"

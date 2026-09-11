@@ -45,12 +45,26 @@ class UserRepository:
         await self.db.delete(user)
         await self.db.commit()
 
-    async def list_all(self, offset: int, limit: int) -> list[UserOut]:
-        total = self.count()
+    async def list_all(self, offset: int, limit: int) -> tuple[list[Users], int]:
+        total_result = await self.db.execute(
+            select(func.count()).select_from(Users).where(Users.role != "admin")
+        )
+        total = total_result.scalar_one()
         stmt = await self.db.execute(
-            select(Users).where(Users.role != "admin").offset(offset).limit(limit)
+            select(Users)
+            .where(Users.role != "admin")
+            .order_by(Users.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return stmt.scalars().all(), total
+
+    async def list_student_ids(self, classe_id: UUID | None = None) -> list[UUID]:
+        statement = select(Users.id).where(Users.role == "student")
+        if classe_id is not None:
+            statement = statement.where(Users.classe_id == classe_id)
+        result = await self.db.execute(statement)
+        return list(result.scalars().all())
 
     async def count(self) -> int:
         result = await self.db.execute(select(func.count()).select_from(Users))

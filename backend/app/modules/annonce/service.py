@@ -5,6 +5,7 @@ from app.modules.annonce.repository import AnnonceLectureRepository, AnnonceRepo
 from app.modules.annonce.schema import AnnonceCreate, LecteurStats
 from app.modules.users.model import UserRole, Users
 from app.modules.users.repository import UserRepository
+from app.core.pagination import Page, PaginationParams, make_page
 from fastapi import HTTPException, status
 
 
@@ -57,6 +58,19 @@ class AnnonceService:
     async def get_annonce_by_id(self, annonce_id: UUID, current_user: Users) -> Annonce:
         annonce = await self._get_annonce_or_404(annonce_id)
 
+        if (
+            current_user.role != UserRole.admin
+            and annonce.classe_id is not None
+            and annonce.classe_id != current_user.classe_id
+        ):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+
+        if (
+            annonce.statut == AnnonceStatut.archivee
+            and current_user.role not in (UserRole.admin, UserRole.moderator)
+        ):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+
         # Marque automatiquement l'annonce comme lue par l'utilisateur qui la consulte.
         if not await self.lecture_repo.exists(annonce_id, current_user.id):
             await self.lecture_repo.create(
@@ -65,17 +79,25 @@ class AnnonceService:
 
         return annonce
 
-    async def get_active_for_user(self, current_user: Users) -> list[Annonce]:
-        """Étudiant/modérateur : annonces actives de sa classe + globales.
-        Admin : toutes les annonces actives."""
-        if current_user.role == UserRole.admin:
-            return await self.repo.get_active()
-        return await self.repo.get_active_by_classe(current_user.classe_id)
+    async def list_active_for_user(
+        self, current_user: Users, params: PaginationParams
+    ) -> Page:
+        classe_id = None if current_user.role == UserRole.admin else current_user.classe_id
+        annonces, total = await self.repo.list_by_status(
+            AnnonceStatut.active, classe_id, params.offset, params.limit
+        )
+        return make_page(annonces, total, params)
 
-    async def all_archive(self, current_user: Users) -> list[Annonce]:
+    async def list_archived(
+        self, current_user: Users, params: PaginationParams
+    ) -> Page:
         if current_user.role not in (UserRole.moderator, UserRole.admin):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
-        return await self.repo.get_archive()
+        classe_id = None if current_user.role == UserRole.admin else current_user.classe_id
+        annonces, total = await self.repo.list_by_status(
+            AnnonceStatut.archivee, classe_id, params.offset, params.limit
+        )
+        return make_page(annonces, total, params)
 
     # Gestion des annonces
     async def archive_annonce(self, annonce_id: UUID, current_user: Users) -> Annonce:
@@ -100,15 +122,15 @@ class AnnonceService:
 
         # Le public visé : les étudiants de la classe ciblée (ou tout le monde si annonce globale).
         if annonce.classe_id is not None:
-            etudiants = await self.user_repo.get_all_student(annonce.classe_id)
+            etudiant_ids = await self.user_repo.list_student_ids(annonce.classe_id)
         else:
-            etudiants = await self.user_repo.list_all()
+            etudiant_ids = await self.user_repo.list_student_ids()
 
         lecteur_ids = set(await self.lecture_repo.get_lecteur_ids(annonce_id))
-        non_lecteurs = [u.id for u in etudiants if u.id not in lecteur_ids]
+        non_lecteurs = [user_id for user_id in etudiant_ids if user_id not in lecteur_ids]
 
         return LecteurStats(
-            total_etudiants=len(etudiants),
+            total_etudiants=len(etudiant_ids),
             total_lu=len(lecteur_ids),
             non_lecteurs_ids=non_lecteurs,
         )

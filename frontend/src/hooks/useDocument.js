@@ -1,4 +1,4 @@
-import { documentData } from "@/fake/document";
+import { documentData } from "@/mocks/document";
 import { useState } from "react";
 
 export default function useDocument() {

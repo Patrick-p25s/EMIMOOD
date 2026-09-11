@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_admin, require_moderator
-from app.core.pagination import PaginationParams
+from app.core.pagination import Page, PaginationParams
 from app.modules.classes.repository import ClasseRepository
 from app.modules.users.model import Users
 from app.modules.users.repository import UserRepository
@@ -83,6 +83,7 @@ async def update_my_password(
 
 @router.get(
     "",
+    response_model=Page[UserRead],
     summary="Lister tous les utilisateurs",
     description="Récupère la liste globale de tous les utilisateurs inscrits (Réservé aux administrateurs).",
 )
@@ -90,7 +91,7 @@ async def get_all_users(
     params: PaginationParams = Depends(),
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
-):
+) -> Page[UserRead]:
     return await service.get_all_users(params)
 
 
@@ -118,7 +119,7 @@ async def create_moderator(
 )
 async def delete_one_user(
     user_id: UUID,
-    user: Users = Depends(require_moderator),
+    user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ) -> None:
     return await service.delete_user(id=user_id, requester_id=user.id)

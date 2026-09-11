@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { anneeUniv } from "@/fake/year";
+import { anneeUniv } from "@/mocks/year";
 // 1. On crée le "contenant" du contexte
 const AnneeContext = createContext(null);
 

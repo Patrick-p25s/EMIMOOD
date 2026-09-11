@@ -1,4 +1,4 @@
-import { subjectData } from "@/fake/matiere";
+import { subjectData } from "@/mocks/matiere";
 import { useState } from "react";
 
 export default function useMatiere() {
@@ -51,6 +51,4 @@ export default function useMatiere() {
     updateSubject,
     deleteSubject,
   };
-
-  return { matieres, createSubject, updateSubject, deleteSubject };
 }

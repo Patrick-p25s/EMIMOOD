@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.classes.model import Classe
@@ -35,6 +35,18 @@ class YearRepository:
         await self.db.refresh(year)
         return year
 
+    async def activate(self, year_id: UUID) -> YearUniv | None:
+        await self.db.execute(update(YearUniv).values(is_active=False))
+        result = await self.db.execute(
+            update(YearUniv)
+            .where(YearUniv.id == year_id)
+            .values(is_active=True)
+            .returning(YearUniv)
+        )
+        year = result.scalar_one_or_none()
+        await self.db.commit()
+        return year
+
     async def delete(self, year: YearUniv) -> None:
         await self.db.delete(year)
         await self.db.commit()
@@ -43,11 +55,27 @@ class YearRepository:
         result = await self.db.execute(select(func.count()).select_from(YearUniv))
         return result.scalar_one()
 
-    async def list_all_year(self, offset: int, limit: int):
-        total = self.count()
-        stmt = await self.db.execute(select(YearUniv).offset(offset).limit(limit))
+    async def list_all_year(self, offset: int, limit: int) -> tuple[list[YearUniv], int]:
+        total = await self.count()
+        stmt = await self.db.execute(
+            select(YearUniv)
+            .order_by(YearUniv.start_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
         return stmt.scalars().all(), total
 
-    async def get_all_classe(self, year_id: UUID):
-        stmt = await self.db.execute(select(Classe).where(Classe.year_id == year_id))
-        return stmt.scalars().all()
+    async def list_classes(
+        self, year_id: UUID, offset: int, limit: int
+    ) -> tuple[list[Classe], int]:
+        total_result = await self.db.execute(
+            select(func.count()).select_from(Classe).where(Classe.year_id == year_id)
+        )
+        result = await self.db.execute(
+            select(Classe)
+            .where(Classe.year_id == year_id)
+            .order_by(Classe.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        return result.scalars().all(), total_result.scalar_one()

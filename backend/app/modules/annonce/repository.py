@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.modules.annonce.model import Annonce, AnnonceLecture, AnnonceStatut
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -27,27 +27,25 @@ class AnnonceRepository:
         await self.db.refresh(annonce)
         return annonce
 
-    async def get_active(self) -> list[Annonce]:
-        result = await self.db.execute(
-            select(Annonce).where(Annonce.statut == AnnonceStatut.active)
-        )
-        return result.scalars().all()
-
-    async def get_archive(self) -> list[Annonce]:
-        result = await self.db.execute(
-            select(Annonce).where(Annonce.statut == AnnonceStatut.archivee)
-        )
-        return result.scalars().all()
-
-    async def get_active_by_classe(self, classe_id: UUID) -> list[Annonce]:
-        """Annonces actives visibles par un étudiant : celles de sa classe + les globales."""
-        result = await self.db.execute(
-            select(Annonce).where(
-                Annonce.statut == AnnonceStatut.active,
-                (Annonce.classe_id == classe_id) | (Annonce.classe_id.is_(None)),
+    async def list_by_status(
+        self,
+        statut: AnnonceStatut,
+        classe_id: UUID | None,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[Annonce], int]:
+        statement = select(Annonce).where(Annonce.statut == statut)
+        if classe_id is not None:
+            statement = statement.where(
+                or_(Annonce.classe_id == classe_id, Annonce.classe_id.is_(None))
             )
+        total_result = await self.db.execute(
+            select(func.count()).select_from(statement.subquery())
         )
-        return result.scalars().all()
+        result = await self.db.execute(
+            statement.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
+        )
+        return result.scalars().all(), total_result.scalar_one()
 
 
 class AnnonceLectureRepository:

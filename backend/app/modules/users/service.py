@@ -46,6 +46,7 @@ class UserService:
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Matricule déjà inscrit"
             )
         data = {
+            "matricule": request.matricule,
             "first_name": request.first_name,
             "last_name": request.last_name,
             "email": request.email,
@@ -89,6 +90,13 @@ class UserService:
     async def update_profile(self, id: UUID | str, request: UpdateProfile) -> UserOut:
         user = await self._get_user_by_id(id)
 
+        existing_user = await self.user_repo.get_by_email(request.email)
+        if existing_user is not None and existing_user.id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered",
+            )
+
         data = {
             "first_name": request.first_name,
             "last_name": request.last_name,
@@ -99,7 +107,7 @@ class UserService:
 
     async def update_password(self, id: UUID | str, request: UpdatePassword) -> UserOut:
         user = await self._get_user_by_id(id)
-        if not verify_password(request.password, user.password):
+        if not verify_password(request.password, user.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Mot de passe incorrecte"
             )
@@ -108,7 +116,7 @@ class UserService:
 
     async def get_all_users(self, params: PaginationParams) -> Page[UserOut]:
         users, total = await self.user_repo.list_all(
-            limit=params.limit, offset=params.limit
+            limit=params.limit, offset=params.offset
         )
         return make_page([UserOut.model_validate(u) for u in users], total, params)
 

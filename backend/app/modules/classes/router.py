@@ -2,14 +2,15 @@ from uuid import UUID
 
 from app.modules.classes.repository import ClasseRepository
 from app.modules.classes.schema import ClasseCreate, ClasseOut
+from app.modules.users.schema import UserRead
 from app.modules.classes.service import ClasseService
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_admin, require_moderator
+from app.core.dependencies import get_current_user, require_admin
 from app.modules.users.model import Users
 from app.modules.years.repository import YearRepository
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.pagination import PaginationParams
+from app.core.pagination import Page, PaginationParams
 
 
 def get_classe_service(db: AsyncSession = Depends(get_db)) -> ClasseService:
@@ -36,7 +37,7 @@ async def create_classe(
 
 @router.get(
     "/all",
-    response_model=list[ClasseOut],
+    response_model=Page[ClasseOut],
     summary="Lister toutes les classes",
     description="Récupère la liste complète de toutes les classes enregistrées.",
 )
@@ -44,7 +45,7 @@ async def get_all_classe(
     params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(require_admin),
-) -> list[ClasseOut]:
+) -> Page[ClasseOut]:
     return await service.get_all_classes(params)
 
 
@@ -56,7 +57,7 @@ async def get_all_classe(
 )
 async def regenerate_code(
     id: str,
-    current_user: Users = Depends(require_moderator),
+    current_user: Users = Depends(require_admin),
     service: ClasseService = Depends(get_classe_service),
 ) -> ClasseOut:
     return await service.regenerate_invitation_code(id)
@@ -86,7 +87,7 @@ async def update_classe_by_id(
     id: str,
     request: ClasseCreate,
     service: ClasseService = Depends(get_classe_service),
-    user: Users = Depends(require_moderator),
+    user: Users = Depends(require_admin),
 ) -> ClasseOut:
     return await service.update_classe(id, request)
 
@@ -105,11 +106,11 @@ async def delete_one_classe(
     return await service.delete_classe(id)
 
 
-@router.get("/students/{classe_id}")
+@router.get("/{classe_id}/students", response_model=Page[UserRead])
 async def list_all_student(
     classe_id: str,
     params: PaginationParams = Depends(),
     service: ClasseService = Depends(get_classe_service),
     user: Users = Depends(get_current_user),
-):
+) -> Page[UserRead]:
     return await service.get_all_student(classe_id, params)

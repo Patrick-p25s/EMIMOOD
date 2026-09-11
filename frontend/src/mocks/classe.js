@@ -5,8 +5,8 @@ export const classeData = [
     mention: "DAII",
     niveau: "L1",
     code_invitation: "DAII-L1-2026",
-    create_at: "2026-06-20T08:00:00Z",
-    update_at: "2026-06-20T08:00:00Z",
+    created_at: "2026-06-20T08:00:00Z",
+    updated_at: "2026-06-20T08:00:00Z",
   },
   {
     id: "20000000-0000-4000-8000-000000000002",
@@ -14,8 +14,8 @@ export const classeData = [
     mention: "DAII",
     niveau: "L2",
     code_invitation: "DAII-L2-2026",
-    create_at: "2026-06-20T08:10:00Z",
-    update_at: "2026-06-20T08:10:00Z",
+    created_at: "2026-06-20T08:10:00Z",
+    updated_at: "2026-06-20T08:10:00Z",
   },
   {
     id: "20000000-0000-4000-8000-000000000003",
@@ -23,8 +23,8 @@ export const classeData = [
     mention: "DAII",
     niveau: "L3",
     code_invitation: "DAII-L3-2026",
-    create_at: "2026-06-20T08:20:00Z",
-    update_at: "2026-06-20T08:20:00Z",
+    created_at: "2026-06-20T08:20:00Z",
+    updated_at: "2026-06-20T08:20:00Z",
   },
   {
     id: "20000000-0000-4000-8000-000000000004",
@@ -32,8 +32,8 @@ export const classeData = [
     mention: "DAII",
     niveau: "L1",
     code_invitation: "DAII-L1-2027",
-    create_at: "2027-06-20T08:00:00Z",
-    update_at: "2027-06-20T08:00:00Z",
+    created_at: "2027-06-20T08:00:00Z",
+    updated_at: "2027-06-20T08:00:00Z",
   },
   {
     id: "20000000-0000-4000-8000-000000000005",
@@ -41,7 +41,7 @@ export const classeData = [
     mention: "DAII",
     niveau: "L2",
     code_invitation: "DAII-L2-2027",
-    create_at: "2027-06-20T08:10:00Z",
-    update_at: "2027-06-20T08:10:00Z",
+    created_at: "2027-06-20T08:10:00Z",
+    updated_at: "2027-06-20T08:10:00Z",
   },
 ];

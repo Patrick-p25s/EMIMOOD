@@ -1,15 +1,17 @@
 import enum as PyEnum
 import uuid
-from typing import TYPE_CHECKING
-
-from app.core.base_model import UuidStamp
-from app.core.database import Base
-from app.modules.years.model import YearUniv
-from sqlalchemy import Enum, ForeignKey, String, Uuid
+from typing import TYPE_CHECKING, List, Optional
+from sqlalchemy import Enum, ForeignKey, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.base_model import UuidStamp
+
 if TYPE_CHECKING:
+    from app.modules.annonce.model import Annonce
+    from app.modules.documents.model import Document
     from app.modules.users.model import Users
+    from app.modules.years.model import YearUniv
+    from app.modules.matiere.model import Subject
 
 
 class Mention(str, PyEnum.Enum):
@@ -28,7 +30,7 @@ class Niveau(str, PyEnum.Enum):
     AUTRE = "AUTRE"
 
 
-class Classe(Base, UuidStamp):
+class Classe(UuidStamp):
     __tablename__ = "classe"
 
     mention: Mapped[Mention] = mapped_column(
@@ -46,4 +48,36 @@ class Classe(Base, UuidStamp):
     )
 
     anne_univ: Mapped["YearUniv"] = relationship("YearUniv", back_populates="classes")
-    students: Mapped[list["Users"]] = relationship("Users", back_populates="classe")
+    students: Mapped[List["Users"]] = relationship("Users", back_populates="classe")
+    subjects: Mapped[List["Subject"]] = relationship(
+        "Subject", back_populates="classe", cascade="all, delete-orphan"
+    )
+    annonces: Mapped[List["Annonce"]] = relationship(
+        "Annonce", back_populates="classe"
+    )
+    documents: Mapped[List["Document"]] = relationship(
+        "Document", back_populates="classe"
+    )
+    moderateurs: Mapped[List["ClasseModerateur"]] = relationship(
+        "ClasseModerateur", back_populates="classe", passive_deletes=True
+    )
+
+
+class ClasseModerateur(UuidStamp):
+    __tablename__ = "classe_moderateurs"
+
+    classe_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("classe.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+
+    __table_args__ = (
+        UniqueConstraint("classe_id", "user_id", name="uq_classe_user_moderateur"),
+    )
+
+    classe: Mapped["Classe"] = relationship("Classe", back_populates="moderateurs")
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="moderated_classes"
+    )

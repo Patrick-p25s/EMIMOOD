@@ -9,6 +9,7 @@ from app.core.pagination import Page, PaginationParams
 from app.modules.users.model import Users
 from app.modules.years.repository import YearRepository
 from app.modules.years.schema import YearCreate, YearOut
+from app.modules.classes.schema import ClasseOut
 from app.modules.years.service import YearService
 
 
@@ -93,9 +94,10 @@ async def delete_year(
     await service.delete_year(id)
 
 
-@router.get("/{year_id}/classes")
+@router.get("/{year_id}/classes", response_model=Page[ClasseOut])
 async def get_all_classes(
     year_id: UUID,
+    params: PaginationParams = Depends(),
     service: YearService = Depends(get_year_service),
-):
-    return await service.get_all_classe(year_id)
+) -> Page[ClasseOut]:
+    return await service.get_all_classes(year_id, params)
