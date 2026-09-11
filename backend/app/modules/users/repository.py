@@ -7,14 +7,17 @@ from app.modules.classes.model import Classe
 from app.modules.users.model import Users
 from app.modules.users.schema import UserOut
 
+from app.core.normalised_id import normalized_id
+
 
 class UserRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_by_id(self, user_id: str | UUID) -> UserOut:
-        normalized = user_id if isinstance(user_id, UUID) else UUID(user_id)
-        stmt = await self.db.execute(select(Users).where(Users.id == normalized))
+        stmt = await self.db.execute(
+            select(Users).where(Users.id == normalized_id(user_id))
+        )
         return stmt.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> UserOut | None:
@@ -62,7 +65,7 @@ class UserRepository:
     async def list_student_ids(self, classe_id: UUID | None = None) -> list[UUID]:
         statement = select(Users.id).where(Users.role == "student")
         if classe_id is not None:
-            statement = statement.where(Users.classe_id == classe_id)
+            statement = statement.where(Users.classe_id == normalized_id(classe_id))
         result = await self.db.execute(statement)
         return list(result.scalars().all())
 
@@ -74,7 +77,7 @@ class UserRepository:
         stmt = (
             select(Classe)
             .join(Users, Users.classe_id == Classe.id)
-            .where(Users.id == user_id)
+            .where(Users.id == normalized_id(user_id))
         )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()

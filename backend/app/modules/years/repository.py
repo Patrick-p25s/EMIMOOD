@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.classes.model import Classe
 from app.modules.years.model import YearUniv
 from app.modules.years.schema import YearOut
+from app.core.normalised_id import normalized_id
 
 
 class YearRepository:
@@ -13,8 +14,9 @@ class YearRepository:
         self.db = db
 
     async def get_by_id(self, year_id: str | UUID) -> YearOut:
-        normalized = year_id if isinstance(year_id, UUID) else UUID(year_id)
-        stmt = await self.db.execute(select(YearUniv).where(YearUniv.id == normalized))
+        stmt = await self.db.execute(
+            select(YearUniv).where(YearUniv.id == normalized_id(year_id))
+        )
         return stmt.scalar_one_or_none()
 
     async def get_activate_year(self):
@@ -39,7 +41,7 @@ class YearRepository:
         await self.db.execute(update(YearUniv).values(is_active=False))
         result = await self.db.execute(
             update(YearUniv)
-            .where(YearUniv.id == year_id)
+            .where(YearUniv.id == normalized_id(year_id))
             .values(is_active=True)
             .returning(YearUniv)
         )
@@ -55,7 +57,9 @@ class YearRepository:
         result = await self.db.execute(select(func.count()).select_from(YearUniv))
         return result.scalar_one()
 
-    async def list_all_year(self, offset: int, limit: int) -> tuple[list[YearUniv], int]:
+    async def list_all_year(
+        self, offset: int, limit: int
+    ) -> tuple[list[YearUniv], int]:
         total = await self.count()
         stmt = await self.db.execute(
             select(YearUniv)
@@ -69,11 +73,13 @@ class YearRepository:
         self, year_id: UUID, offset: int, limit: int
     ) -> tuple[list[Classe], int]:
         total_result = await self.db.execute(
-            select(func.count()).select_from(Classe).where(Classe.year_id == year_id)
+            select(func.count())
+            .select_from(Classe)
+            .where(Classe.year_id == normalized_id(year_id))
         )
         result = await self.db.execute(
             select(Classe)
-            .where(Classe.year_id == year_id)
+            .where(Classe.year_id == normalized_id(year_id))
             .order_by(Classe.created_at.desc())
             .offset(offset)
             .limit(limit)
