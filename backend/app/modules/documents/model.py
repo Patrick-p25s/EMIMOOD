@@ -1,6 +1,8 @@
 import enum
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     DateTime,
     Enum,
@@ -11,8 +13,12 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     Uuid,
+    Boolean,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from app.modules.folder.model import Folder
 
 from app.core.base_model import UuidStamp
 
@@ -81,7 +87,18 @@ class DocumentSauvegarde(UuidStamp):
     document_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
+    folder_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("folders.id"), nullable=True
+    )
 
+    is_favorite: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+    )
+    is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    folder: Mapped["Folder"] = relationship(
+        "Folder", back_populates="documents_sauvegardes"
+    )
     __table_args__ = (
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),
     )

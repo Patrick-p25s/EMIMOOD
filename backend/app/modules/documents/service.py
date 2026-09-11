@@ -65,12 +65,6 @@ class DocumentService:
         request: DocumentCreate,
         file: UploadFile,
     ) -> Document:
-        matiere = await self.subject_repo.get_by_id(matiere_id)
-        if matiere is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Matière introuvable",
-            )
 
         if request.date_limite and request.type_document not in (
             DocumentType.td,

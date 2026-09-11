@@ -1,6 +1,11 @@
 from uuid import UUID
 
-from app.modules.documents.model import Document, DocumentStatus, DocumentType
+from app.modules.documents.model import (
+    Document,
+    DocumentStatus,
+    DocumentType,
+    DocumentSauvegarde,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.matiere.model import Subject
@@ -89,3 +94,33 @@ class DocumentRepository:
 class DocumentSaveRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def create(self, data: dict) -> DocumentSauvegarde:
+        new_saved = DocumentSauvegarde(**data)
+        self.db.add(new_saved)
+        await self.db.commit()
+        await self.db.refresh(new_saved)
+        return new_saved
+
+    async def delete(self, data: DocumentSauvegarde):
+        await self.db.delete(data)
+        await self.db.commit()
+        return True
+
+    async def update(self, document: DocumentSauvegarde, data: dict):
+        for key, value in data.items():
+            setattr(document, key, value)
+        await self.db.commit()
+        await self.db.refresh(document)
+        return document
+
+    async def list_by_owner(self, owner_id: UUID | str):
+        result = await self.db.execute(
+            select(DocumentSauvegarde).where(DocumentSauvegarde.user_id == owner_id)
+        )
+        return result.scalars().all()
+
+    async def list_by_matiere(self, folder_id: UUID | str):
+        result = await self.db.execute(
+            select(DocumentSauvegarde).where(DocumentSauvegarde.folder_id == folder_id)
+        )

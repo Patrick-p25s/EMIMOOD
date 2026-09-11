@@ -10,6 +10,7 @@ from app.modules.years.model import YearUniv
 from app.modules.classes.model import Classe
 from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document, DocumentSauvegarde
+from app.modules.folder.model import Folder
 from sqlalchemy import pool
 from app.modules.annonce.model import Annonce, AnnonceLecture
 

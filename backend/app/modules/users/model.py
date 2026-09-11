@@ -1,6 +1,6 @@
 import enum as PyEnum
 import uuid
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 from sqlalchemy import Enum, ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -8,6 +8,7 @@ from app.core.base_model import UuidStamp
 
 if TYPE_CHECKING:
     from app.modules.classes.model import Classe
+    from app.modules.folder.model import Folder
 
 
 class UserRole(str, PyEnum.Enum):
@@ -37,6 +38,8 @@ class Users(UuidStamp):
     classe_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("classe.id", ondelete="SET NULL"), nullable=True, index=True
     )
+
+    folder : Mapped[List['Folder']] = relationship('Folder', back_populates="users")
 
     classe: Mapped[Optional["Classe"]] = relationship(
         "Classe", back_populates="students"

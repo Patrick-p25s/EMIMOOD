@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9ab4177-0e1d-4231-b702-7972052b2d05" name="Changes" comment="" />
+    <list default="true" id="b9ab4177-0e1d-4231-b702-7972052b2d05" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/app/modules/folder/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/modules/documents/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/modules/documents/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/modules/documents/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/modules/documents/repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/modules/users/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/modules/users/model.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,7 +42,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "a7a5b2c3",
+    "git-widget-placeholder": "6a3baac3",
     "last_opened_file_path": "/home/patrick/Documents/Project/EMIMOOD",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.jshint": "true",
@@ -46,7 +52,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
-    "settings.editor.selected.configurable": "Errors"
+    "settings.editor.selected.configurable": "actions.on.save"
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -68,6 +74,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
