@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from app.core.normalised_id import normalized_id
 from app.modules.documents.model import (
     Document,
     DocumentStatus,
@@ -23,9 +23,8 @@ class DocumentRepository:
         return document
 
     async def get_by_id(self, document_id: UUID) -> Document | None:
-        normalized = document_id if isinstance(document_id, UUID) else UUID(document_id)
         result = await self.db.execute(
-            select(Document).where(Document.id == normalized)
+            select(Document).where(Document.id == normalized_id(document_id))
         )
         return result.scalar_one_or_none()
 
@@ -38,39 +37,58 @@ class DocumentRepository:
 
     async def list_by_owner(self, owner_id: UUID | str):
         result = await self.db.execute(
-            select(Document).where(Document.owner_id == owner_id)
+            select(Document).where(Document.owner_id == normalized_id(owner_id))
         )
         return result.scalars().all()
 
-    async def get_pending_by_classe(self, classe_id: UUID) -> list[Document]:
-        """Documents en attente, restreints à une classe précise (usage modérateur)."""
-        result = await self.db.execute(
-            select(Document)
-            .join(Subject, Subject.id == Document.matiere_id)
-            .where(
-                Document.statut == DocumentStatus.en_attente,
-                Subject.classe_id == classe_id,
-            )
+    async def get_pending_docs(
+        self, classe_id: UUID | str | None = None, matiere_id: str | UUID | None = None
+    ) -> list[Document]:
+        query = select(Document).where(
+            Document.statut == DocumentStatus.en_attente.value
         )
+        if classe_id is not None:
+            query = query.where(Document.classe_id == classe_id)
+
+        if matiere_id is not None:
+            query = query.where(Document.matiere_id == matiere_id)
+
+        result = await self.db.execute(query)
+        return result.scalars().all()
+
+    async def get_all_public(
+        self, classe_id: UUID | str | None = None, matiere_id: UUID | str | None = None
+    ):
+        query = (
+            select(Document)
+            .where(Document.statut == DocumentStatus.public.value)
+            .where(Document.classe_id == None)
+        )
+        if classe_id is not None:
+            query = query.where(Document.classe_id == normalized_id(classe_id))
+
+        if matiere_id is not None:
+            query = query.where(Document.matiere_id == matiere_id)
+
+        result = await self.db.execute(query)
+        return result.scalars().all()
+
+    async def get_all_rejected(
+        self, classe_id: str | UUID | None = None, matiere_id: str | UUID | None = None
+    ):
+        query = select(Document).where(Document.statut == DocumentStatus.rejete.value)
+        if classe_id is not None:
+            query = query.where(Document.classe_id == classe_id)
+
+        if matiere_id is not None:
+            query = query.where(Document.matiere_id == matiere_id)
+
+        result = await self.db.execute(query)
         return result.scalars().all()
 
     async def delete(self, matiere: Document) -> None:
         await self.db.delete(matiere)
         await self.db.commit()
-
-    async def get_all_public(self):
-        result = await self.db.execute(
-            select(Document).where(Document.statut == DocumentStatus.public.value)
-        )
-        return result.scalars().all()
-
-    async def list_public_by_matiere(self, matiere_id: UUID) -> list[Document]:
-        result = await self.db.execute(
-            select(Document)
-            .where(Document.matiere_id == matiere_id)
-            .where(Document.statut == DocumentStatus.public.value)
-        )
-        return result.scalars().all()
 
     async def get_all_my_docs(self, owner_id: str | UUID):
         result = await self.db.execute(
@@ -81,12 +99,6 @@ class DocumentRepository:
     async def get_by_type(self, type: DocumentType):
         result = await self.db.execute(
             select(Document).where(Document.type_document == type)
-        )
-        return result.scalars().all()
-
-    async def get_pending(self):
-        result = await self.db.execute(
-            select(Document).where(Document.statut == DocumentStatus.en_attente.value)
         )
         return result.scalars().all()
 
@@ -116,11 +128,22 @@ class DocumentSaveRepository:
 
     async def list_by_owner(self, owner_id: UUID | str):
         result = await self.db.execute(
-            select(DocumentSauvegarde).where(DocumentSauvegarde.user_id == owner_id)
+            select(DocumentSauvegarde).where(
+                DocumentSauvegarde.user_id == normalized_id(owner_id)
+            )
         )
         return result.scalars().all()
 
     async def list_by_matiere(self, folder_id: UUID | str):
         result = await self.db.execute(
-            select(DocumentSauvegarde).where(DocumentSauvegarde.folder_id == folder_id)
+            select(DocumentSauvegarde).where(
+                DocumentSauvegarde.folder_id == normalized_id(folder_id)
+            )
         )
+        return result.scalars().all()
+
+    async def get_by_id(self, id: UUID | str):
+        result = await self.db.execute(
+            select(DocumentSauvegarde).where(DocumentSauvegarde.id == normalized_id(id))
+        )
+        return result.scalar_one_or_none()

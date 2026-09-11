@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.modules.documents.model import Document, DocumentStatus, DocumentType
-from app.modules.documents.repository import DocumentRepository
+from app.modules.documents.repository import DocumentRepository, DocumentSaveRepository
 from app.modules.documents.schema import DocumentCreate, DocumentUpdate
 from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
@@ -15,11 +15,11 @@ class DocumentService:
         self,
         document_repo: DocumentRepository,
         subject_repo: SubjectRepository,
-        # save_repo: SauvegardeRepository,
+        save_repo: DocumentSaveRepository,
     ):
         self.document_repo = document_repo
         self.subject_repo = subject_repo
-        # self.save_repo = save_repo
+        self.save_repo = save_repo
 
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
@@ -35,20 +35,6 @@ class DocumentService:
         if document is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Document introuvable")
         return document
-
-    async def _moderateur_gere_ce_document(
-        self, document: Document, current_user: Users
-    ) -> bool:
-        matiere = await self.subject_repo.get_by_id(document.matiere_id)
-        return matiere.classe_id == current_user.classe_id
-
-    def _est_moderateur_de_ce_document(
-        self, document: Document, current_user: Users, matiere
-    ) -> bool:
-        return (
-            current_user.role == UserRole.moderator
-            and matiere.classe_id == current_user.classe_id
-        )
 
     async def get_document_by_id(
         self, document_id: UUID, current_user: Users
@@ -113,41 +99,44 @@ class DocumentService:
     async def list_by_matiere_public(self, matiere_id: UUID) -> list[Document]:
         return await self.document_repo.list_public_by_matiere(matiere_id)
 
+    async def get_public_docs(self, current_user: Users):
+        docs = await self.document_repo.get_all_public(current_user.classe_id)
+
+        return docs
+
+    """
+    ACTION DE MODERATEUR DE L'APPLICATION
+    """
+
+    def _is_admin(self, current_user: Users):
+        if current_user.role != "student":
+            return True
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès réfusé")
+
     async def get_document_by_type(self, doc_type: DocumentType) -> list[Document]:
         return await self.document_repo.get_by_type(doc_type)
 
-    async def get_mes_documents(self, current_user: Users) -> list[Document]:
-        """Liste tous les documents de l'utilisateur connecté, peu importe leur statut."""
-        return await self.document_repo.list_by_owner(current_user.id)
-
-    async def get_all_pending_docs(self, current_user: Users) -> list[Document]:
-        if current_user.role == UserRole.admin:
-            return await self.document_repo.get_pending()
-        if current_user.role == UserRole.moderator:
-            return await self.document_repo.get_pending_by_classe(
-                current_user.classe_id
-            )
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN, "Action réservée aux modérateurs"
+    async def get_all_pending_docs(
+        self, current_user: Users, matiere_id: str | None = None
+    ) -> list[Document]:
+        docs = await self.document_repo.get_pending_docs(
+            current_user.classe_id, matiere_id
         )
+        return docs
 
-    async def _verifier_droit_moderation(
-        self, document: Document, current_user: Users
-    ) -> None:
-        if current_user.role == UserRole.admin:
-            return
-        if (
-            current_user.role == UserRole.moderator
-            and await self._moderateur_gere_ce_document(document, current_user)
-        ):
-            return
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN, "Action réservée au modérateur de cette classe"
+    async def get_rejected_docs(
+        self, current_user: Users, matiere_id: str | None = None
+    ):
+        self._is_admin(current_user)
+
+        return await self.document_repo.get_all_rejected(
+            current_user.classe_id, matiere_id
         )
 
     async def valide_document(self, document_id: UUID, current_user: Users) -> Document:
         document = await self._get_document_or_404(document_id)
-        await self._verifier_droit_moderation(document, current_user)
+
+        self._is_admin(current_user)
 
         if document.statut != DocumentStatus.en_attente:
             raise HTTPException(
@@ -163,7 +152,8 @@ class DocumentService:
         self, document_id: UUID, current_user: Users
     ) -> Document:
         document = await self._get_document_or_404(document_id)
-        await self._verifier_droit_moderation(document, current_user)
+
+        self._is_admin(current_user)
 
         if document.statut != DocumentStatus.en_attente:
             raise HTTPException(
@@ -179,13 +169,9 @@ class DocumentService:
         document = await self._get_document_or_404(document_id)
 
         est_proprietaire = document.owner_id == current_user.id
-        est_admin = current_user.role == UserRole.admin
-        est_moderateur_autorise = (
-            current_user.role == UserRole.moderator
-            and await self._moderateur_gere_ce_document(document, current_user)
-        )
+        est_admin = self._is_admin(current_user)
 
-        if est_admin or est_moderateur_autorise:
+        if est_admin and document.statut != "prive":
             await self.document_repo.delete(document)
             return
 
@@ -200,22 +186,46 @@ class DocumentService:
     ) -> Document:
         document = await self._get_document_or_404(document_id)
 
-        est_proprietaire = document.owner_id == current_user.id
-        est_admin = current_user.role == UserRole.admin
-        est_moderateur_autorise = (
-            current_user.role == UserRole.moderator
-            and await self._moderateur_gere_ce_document(document, current_user)
+        est_proprietaire = (
+            document.owner_id == current_user.id and document.statut != "public"
         )
+        est_admin = self._is_admin(current_user)
 
-        if not (est_proprietaire or est_admin or est_moderateur_autorise):
+        if not (est_proprietaire or est_admin):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Modification non autorisée")
 
         data = request.model_dump(exclude_unset=True)
 
-        # Un propriétaire qui modifie un document déjà tranché doit repasser par la modération
-        if est_proprietaire and not (est_admin or est_moderateur_autorise):
-            if document.statut in (DocumentStatus.public, DocumentStatus.rejete):
-                data["statut"] = DocumentStatus.en_attente
-                data["validated_by_id"] = None
-
         return await self.document_repo.update(document, data)
+
+    """
+    SERVICE POUR TOUS LES SAUVEGARDE DEPUIS ICI
+    """
+
+    async def sauvegarde_document(self, document_id: str | UUID, current_user: Users):
+        document = await self._get_document_or_404(document_id)
+        if document.statut != "public":
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Erreur lors de sauvegarde")
+
+        new_save = {"user_id": current_user.id, "document_id": document_id}
+        return await self.save_repo.create(new_save)
+
+    async def get_save_by_id(self, id: str, current_user: Users):
+        saved = await self.save_repo.get_by_id(id)
+        if saved is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Document non trouvé")
+        if saved.user_id != current_user.id:
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, "Vous n'avez acces a cette document"
+            )
+
+        return saved
+
+    async def delete_save_document(self, id: str, current_user: Users):
+        saved = self.get_save_by_id(id, current_user)
+        return await self.save_repo.delete(saved)
+
+    async def get_my_documents(self, current_user: Users):
+        upload = await self.document_repo.get_all_my_docs(current_user.id)
+        saved = await self.save_repo.list_by_owner(current_user.id)
+        return upload + saved

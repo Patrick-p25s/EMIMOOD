@@ -69,7 +69,9 @@ class Document(UuidStamp):
         Uuid, ForeignKey("subject.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    classe_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("classe.id"))
+    classe_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("classe.id"), nullable=True
+    )
 
     validated_by_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
