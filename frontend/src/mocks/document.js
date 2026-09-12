@@ -76,3 +76,25 @@ export const documentData = [
     updated_at: "2026-09-08T08:00:00Z",
   },
 ];
+
+export const saveDocumentData = [
+  {
+    user_id: "550e8400-e29b-41d4-a716-446655440001",
+    document_id: "950e8400-e29b-41d4-a716-446655440001",
+    is_favorite: false,
+    is_hidden: false,
+  },
+  {
+    user_id: "550e8400-e29b-41d4-a716-446655440002",
+    document_id: "950e8400-e29b-41d4-a716-446655440001",
+    is_favorite: false,
+    is_hidden: false,
+  },
+  {
+    user_id: "550e8400-e29b-41d4-a716-446655440003",
+    document_id: "950e8400-e29b-41d4-a716-446655440001",
+    is_favorite: false,
+    is_hidden: false,
+  },
+  {},
+];

@@ -1,20 +1,11 @@
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormCard from "@/components/shared/FormCard";
+import useClasse from "@/hooks/useClasse";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
@@ -34,6 +25,7 @@ export default function LoginPage() {
       user?.role === "admin"
         ? navigate("/admin", { replace: true })
         : navigate("/dashboard", { replace: true });
+      console.log(user);
     } catch (e) {
       setErreur(e.message.toString());
     } finally {

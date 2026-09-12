@@ -35,7 +35,6 @@ export default function useClasse() {
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // ✅ On met à jour le state 'classes' du Context React
     setClasses((prevClasses) =>
       prevClasses.map((cl) =>
         cl.id === classId ? { ...cl, code_invitation: newCode } : cl,
@@ -43,6 +42,15 @@ export default function useClasse() {
     );
 
     return newCode;
+  };
+
+  const getClasseByCodeInvitation = async (code) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const found = classes.find((cl) => cl.code_invitation === code);
+    if (!found) {
+      throw new Error("Aucune classe trouvé");
+    }
+    return found;
   };
 
   const updateClasse = async (id, mention, niveau, code_invitation) => {
@@ -74,44 +82,36 @@ export default function useClasse() {
     setClasses((prevClasses) => prevClasses.filter((c) => c.id !== id));
   };
 
-  const getAnnonces = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return allAnnonces.filter((ann) => ann.classe_id === classeId);
-  };
-
-  const getActiveAnnonce = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return allAnnonces.filter(
-      (ann) => ann.statut === "active" && ann.classe_id === classeId,
-    );
-  };
-
   const studentByClasse = async (classeId) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return students.filter((stud) => stud.classe_id === classeId);
   };
 
   const getStudentClasse = async (studentId) => {
-    const student = students.find((s) => s.id === studentId);
-    if (!student) {
-      throw new Error("Aucun étudiant trouvé");
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const found = await classes.find((cl) => cl.id === studentId);
+    if (!found) {
+      throw new Error("Aucune classe trouvé");
     }
-    return classes.find((cl) => cl.id === student.classe_id);
+    return found;
   };
 
-  const getMatiere = (classeId) => {
+  const getMatiere = async (classeId) => {
+    if (classeId === null) {
+      return await classes;
+    }
     const matiere = matieres.filter((matier) => matier.classe_id === classeId);
     return matiere;
   };
+
   return {
     classes,
     regenerateCodeInvitation,
+    getClasseByCodeInvitation,
     createClasse,
     updateClasse,
     deleteClasse,
     studentByClasse,
-    getActiveAnnonce,
-    getAnnonces,
     getStudentClasse,
     getMatiere,
   };

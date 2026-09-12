@@ -1,30 +1,21 @@
-import {
-  getCurrentUser,
-  login as loginApi,
-  register as registerApi,
-  logout as logoutApi,
-} from "@/api/authService";
 import { tokenStorage } from "@/api/tokenStorage";
-import { userData } from "@/mocks/user";
 import useClasse from "@/hooks/useClasse";
 import { createContext, use, useEffect, useState } from "react";
+import useStudent from "@/hooks/useStudent";
 
 export const AuthContext = createContext(null);
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { classes } = useClasse();
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem("users");
-    return savedUsers ? JSON.parse(savedUsers) : userData;
-  });
+  const { students, createStudent, getMyProfile } = useStudent();
+  const { getClasseByCodeInvitation } = useClasse();
 
   useEffect(() => {
     const initAuth = async () => {
       const token = tokenStorage.get();
       if (token) {
         try {
-          const currentUser = await getCurrentUser();
+          const currentUser = await getMyProfile(token);
           setUser(currentUser);
         } catch (error) {
           tokenStorage.clear();
@@ -35,27 +26,31 @@ export default function AuthProvider({ children }) {
     initAuth();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
-
   const login = async (email, password) => {
-    const data = await loginApi(email, password);
-    tokenStorage.set(data.accessToken);
-
-    const foundUser = await getCurrentUser();
-    setUser(foundUser);
+    const user = students.find(
+      (user) => user.email === email && user.password_hash === password,
+    );
+    if (!user) {
+      throw new Error("Mot de passe incorrecte");
+    }
+    tokenStorage.set(user.id);
+    setUser(user);
   };
 
   const register = async (userData) => {
-    await registerApi(userData);
-    await loginApi(userData.email, userData.password_hash);
+    const classe = await getClasseByCodeInvitation(userData.codeInvitation);
+    const data = {
+      first_name: userData.firstName,
+      last_name: userData.lastName,
+      email: userData.email,
+      password: userData.password,
+    };
+    const user = await createStudent(data, classe.id, "student");
+    setUser(user);
+    tokenStorage.set(user.id);
   };
 
   const logout = async () => {
-    const token = tokenStorage.get();
-    console.log(token);
-    await logoutApi(token);
     setUser(null);
     tokenStorage.clear();
   };

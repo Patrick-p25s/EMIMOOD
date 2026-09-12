@@ -46,22 +46,12 @@ export default function useStudent() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setStudents((prev) => prev.filter((student) => student.id !== studentId));
   };
-
-  const getByClasse = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (!classeId) {
-      throw new Error("Aucune classe trouvée");
-    }
-    return students.filter((student) => student.classe_id === classeId);
-  };
-
   const getMyProfile = async (studentId) =>
     students.find((student) => student.id === studentId);
 
   return {
     students,
     updateProfile,
-    getByClasse,
     deleteStudent,
     getMyProfile,
     createStudent,
