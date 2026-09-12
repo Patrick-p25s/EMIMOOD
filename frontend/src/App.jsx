@@ -29,6 +29,7 @@ import DocumentAdmin from "./page/admin/Document";
 import OneDocument from "./page/admin/OneDocument";
 import StudentLayout from "./page/moderator/MyProfile";
 import MyDashboard from "./page/connected/Dashboard";
+import AdminDashboard from "./page/administration/AdminDashboard";
 export default function App() {
   return (
     <AuthProvider>
@@ -53,7 +54,7 @@ export default function App() {
 
             <Route element={<ModeratorLayout />}>
               <Route path="/admin" element={<AdminRoute />}>
-                <Route index element={<DashboardAdmin />} />
+                <Route index element={<AdminDashboard />} />
               </Route>
             </Route>
 

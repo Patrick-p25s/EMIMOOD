@@ -13,7 +13,7 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({
     page: initialPage,
-    pageSize: initialPageSize,
+    page_size: initialPageSize,
     total: 0,
     pages: 1,
   });
@@ -21,7 +21,7 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
   const [error, setError] = useState(null);
 
   const fetchUser = useCallback(
-    async (page = pagination.page, pageSize = pagination.pageSize) => {
+    async (page = pagination.page, pageSize = pagination.page_size) => {
       setLoading(true);
       setError(null);
       try {
@@ -39,15 +39,15 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
         setLoading(false);
       }
     },
-    [pagination.page, pagination.pageSize],
+    [pagination.page, pagination.page_size],
   );
 
   useEffect(() => {
-    fetchUser(pagination.initialPage, pagination.initialPageSize);
+    fetchUser(initialPage, initialPageSize);
   }, []);
 
   const goToPage = (newPage) => {
-    fetchUser(newPage, pagination.page);
+    fetchUser(newPage, pagination.page_size);
   };
 
   const register = async (newData) => {
@@ -64,7 +64,7 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     setError(null);
     try {
       const updated = await updateProfileApi(newData);
-      await fetchUser(pagination.page, pagination.pageSize);
+      await fetchUser(pagination.page, pagination.page_size);
       return updated;
     } catch (err) {
       setError(err);
@@ -121,6 +121,7 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     loading,
     error,
     goToPage,
+    pagination,
     refresh: () => fetchUser(pagination.page, pagination.pageSize),
     register,
     getProfile,

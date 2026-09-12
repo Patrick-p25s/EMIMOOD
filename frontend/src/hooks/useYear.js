@@ -6,7 +6,7 @@ import {
 } from "@/api/yearService";
 import { useCallback, useEffect, useState } from "react";
 
-export const userYear = (initialPage = 1, initialPageSize = 20) => {
+export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
   const [years, setYears] = useState([]);
   const [pagination, setPagination] = useState({
     page: initialPage,
@@ -22,8 +22,9 @@ export const userYear = (initialPage = 1, initialPageSize = 20) => {
       setLoading(true);
       setError(null);
       try {
-        const data = listYear({ page, pageSize });
+        const data = await listYear({ page, pageSize });
         setYears(data.items);
+        console.log(data);
         setPagination({
           page: data.page,
           pageSize: data.pageSize,
