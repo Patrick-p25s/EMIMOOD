@@ -9,11 +9,15 @@ import ProtectedRoute from "./route/ProtectedRoute";
 import RegisterPage from "./page/RegisterPage";
 import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
-
 import ModeratorLayout from "./layout/ModeratorLayout";
-
-import MyDashboard from "./page/connected/Dashboard";
 import AdminDashboard from "./page/administration/AdminDashboard";
+import ClasseAdministration from "./page/administration/ClasseAdministration";
+import MatiereAdministration from "./page/administration/MatiereAdministration";
+import DocumentAdministration from "./page/administration/DocumentAdministration";
+import YearAdministration from "./page/administration/YearAdministration";
+import AdminLayout from "./layout/AdminLayout";
+import Test from "./page/administration/Test";
+import MyDashboard from "./page/connected/Dashboard";
 export default function App() {
   return (
     <AuthProvider>
@@ -36,9 +40,15 @@ export default function App() {
               </Route>
             </Route>
 
-            <Route element={<ModeratorLayout />}>
+            <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminRoute />}>
                 <Route index element={<AdminDashboard />} />
+                <Route path="year" element={<YearAdministration />} />
+                <Route path="classe" element={<ClasseAdministration />} />
+                <Route path="matiere" element={<MatiereAdministration />} />
+                <Route path="document" element={<DocumentAdministration />} />
+                <Route path="annonces" element={<DocumentAdministration />} />
+                <Route path="etudiant" element={<DocumentAdministration />} />
               </Route>
             </Route>
 

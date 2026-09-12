@@ -4,6 +4,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.classes.model import Classe
+from app.modules.documents.model import Document, DocumentSauvegarde
 from app.modules.users.model import Users
 from app.modules.users.schema import UserOut
 

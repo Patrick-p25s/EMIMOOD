@@ -4,10 +4,10 @@ export const register = async (userData) => {
   const result = await apiClient.post("/users/register", {
     first_name: userData.firstName,
     last_name: userData.lastName,
-    email: userData.email,
-    password: userData.password,
     phone_number: userData.phoneNumber,
     matricule: userData.matricule,
+    email: userData.email,
+    password: userData.password,
     code_invitation: userData.codeInvitation,
   });
   return result.data;

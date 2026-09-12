@@ -6,7 +6,6 @@ import FormCard from "@/components/shared/FormCard";
 import FormModal from "@/components/shared/FormModal";
 import { useNavigate } from "react-router-dom";
 import { useClasse } from "@/hooks/useClasse";
-import { YearBlog } from "./YearAdministration";
 
 export function Classe() {
   const { loading, error, classes, add, remove, update } = useClasse();
@@ -28,7 +27,8 @@ export function Classe() {
     setErreur(null);
 
     try {
-      await remove(id);
+      const res = await remove(id);
+      console.log(res);
     } catch (error) {
       setErreur(error?.message?.toString() || "Erreur de suppression");
     }
@@ -88,7 +88,6 @@ export function Classe() {
           return (
             <div
               key={classe.id}
-              onClick={() => navigate(`${classe.id}`)}
               className="group relative flex flex-col justify-between p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
             >
               <div className="space-y-2">

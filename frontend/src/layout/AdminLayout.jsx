@@ -19,15 +19,15 @@ const menuGeneral = [
   { to: "/admin/annonces", label: "Annonces", icon: Megaphone },
 ];
 
-const menuAnnee = [{ to: "/admin/annees", label: "Années", icon: Calendar }];
+const menuAnnee = [{ to: "/admin/year", label: "Années", icon: Calendar }];
 
 const menuStructure = [
-  { to: "/admin/classes", label: "Classes", icon: School },
-  { to: "/admin/etudiants", label: "Étudiants", icon: User },
+  { to: "/admin/classe", label: "Classes", icon: School },
+  { to: "/admin/etudiant", label: "Étudiants", icon: User },
 ];
 
 const menuContenu = [
-  { to: "/admin/documents", label: "Documents", icon: FileText },
+  { to: "/admin/document", label: "Documents", icon: FileText },
 ];
 
 export default function AdminLayout() {
@@ -37,7 +37,7 @@ export default function AdminLayout() {
     try {
       await logout();
     } catch (err) {
-      console.log(err.message);
+      console.error(err.message);
     }
   };
   return (
@@ -50,22 +50,22 @@ export default function AdminLayout() {
         <MenuSection titre="Année universitaire" items={menuAnnee} />
         <MenuSection titre="Structure" items={menuStructure} />
         <MenuSection titre="Contenu" items={menuContenu} />
+        <div className="px-4 py-4 border-t border-orange-200">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Déconnexion
+          </Button>
+        </div>
       </aside>
 
       {/* CONTENU PRINCIPAL */}
       <div className="flex-1 flex flex-col">
         {/* HEADER */}
         <header className="flex justify-end items-center px-6 py-3 border-b">
-          <div className="px-4 py-4 border-t border-orange-200">
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-gray-600 hover:text-red-600"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              Déconnexion
-            </Button>
-          </div>
           <Badge
             variant="secondary"
             className="gap-1.5 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-100"

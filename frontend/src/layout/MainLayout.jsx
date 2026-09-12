@@ -1,75 +1,113 @@
+import React, { useState } from "react";
+import { Outlet, NavLink } from "react-router-dom";
+import {
+  GraduationCap,
+  Globe,
+  FolderHeart,
+  UserCircle,
+  Megaphone,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
-import { NavLink, Outlet } from "react-router-dom";
+
+const NAV_ITEMS = [
+  { to: "/app/documents", label: "Documents", icon: Globe },
+  { to: "/app/annonces", label: "Annonces", icon: Megaphone },
+  { to: "/app/profil", label: "Profil", icon: UserCircle },
+];
 
 export default function MainLayout() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <NavLink
-            to="/"
-            className="text-xl font-bold tracking-tight text-slate-900 hover:opacity-80 transition-opacity"
+    <div className="min-h-screen flex bg-background">
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r flex flex-col transition-transform lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex items-center gap-2 px-4 h-16 border-b">
+          <GraduationCap className="h-5 w-5 text-primary" />
+          <span className="font-semibold text-foreground">EMIMOOD</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto lg:hidden"
+            onClick={() => setSidebarOpen(false)}
           >
-            EmiMood
-          </NavLink>
-
-          {/* Navigation / User Section */}
-          <div className="flex items-center gap-4">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-slate-700">
-                  Bonjour{" "}
-                  <strong className="text-slate-900">{user?.first_name}</strong>
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={async () => await logout()}
-                >
-                  Déconnecter
-                </Button>
-              </div>
-            ) : (
-              <nav className="flex items-center gap-3">
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) =>
-                    `text-sm font-medium transition-colors px-3 py-2 rounded-md ${
-                      isActive
-                        ? "text-slate-900 bg-slate-100"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                    }`
-                  }
-                >
-                  Se connecter
-                </NavLink>
-                <NavLink to="/register">
-                  <Button size="sm">S'inscrire</Button>
-                </NavLink>
-              </nav>
-            )}
-          </div>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
-      </header>
 
-      {/* Main Content (Pousse le footer vers le bas grâce à flex-1) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
+        <nav className="flex-1 px-2 py-4 flex flex-col gap-1">
+          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                )
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
 
-      {/* Footer (Toujours en bas) */}
-      <footer className="w-full border-t border-slate-200 bg-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} EmiMood — Je suis le footer de la page
-          </p>
+        <Separator />
+
+        <div className="px-4 py-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
+            onClick={logout}
+          >
+            <LogOut className="h-4 w-4" />
+            Deconnexion
+          </Button>
         </div>
-      </footer>
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-16 bg-card border-b flex items-center justify-between px-4 lg:px-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div className="hidden lg:block" />
+          <span className="text-sm text-muted-foreground">
+            {user?.prenom} {user?.nom}
+          </span>
+        </header>
+
+        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

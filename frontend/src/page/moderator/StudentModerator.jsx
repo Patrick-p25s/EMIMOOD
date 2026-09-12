@@ -66,7 +66,6 @@ export default function StudentModerator() {
         if (updateProfile) await updateProfile(selectedStudent.id, newStudent);
       } else {
         const user = await createStudent(newStudent, userClasse.id, "student");
-        console.log(user);
       }
 
       // Fermeture et réinitialisation SEULEMENT si la requête réussit

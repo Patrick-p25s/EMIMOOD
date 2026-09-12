@@ -2,6 +2,7 @@ import { classeData } from "@/mocks/classe";
 import { useCallback, useEffect, useState } from "react";
 import {
   createClasse,
+  deleteClasse,
   listClasse,
   regenerateCode,
   updateClasse,

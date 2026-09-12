@@ -24,7 +24,6 @@ export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
       try {
         const data = await listYear({ page, pageSize });
         setYears(data.items);
-        console.log(data);
         setPagination({
           page: data.page,
           pageSize: data.pageSize,

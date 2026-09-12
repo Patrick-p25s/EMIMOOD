@@ -20,15 +20,15 @@ import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 
 const NAV_ITEMS = [
   {
-    to: "/moderator",
+    to: "/admin",
     label: "Tableau de bord",
     icon: LayoutDashboard,
   },
-  { to: "/moderator/matieres", label: "Matieres", icon: BookOpen },
-  { to: "/moderator/students", label: "Utilisateurs", icon: Users },
-  { to: "/moderator/annonces", label: "Annonces", icon: Megaphone },
-  { to: "/moderator/documents", label: "Documents", icon: Book },
-  { to: "/moderator/profile", label: "My Profile", icon: Users },
+  { to: "/admin/matiere", label: "Matieres", icon: BookOpen },
+  { to: "/admin/etudiant", label: "Utilisateurs", icon: Users },
+  { to: "/admin/annonces", label: "Annonces", icon: Megaphone },
+  { to: "/admin/document", label: "Documents", icon: Book },
+  { to: "/admin/etudiant", label: "My Profile", icon: Users },
 ];
 
 export default function ModeratorLayout() {
@@ -56,15 +56,14 @@ export default function ModeratorLayout() {
           <ShieldAlert className="h-6 w-6 text-orange-600" />
           <span className="font-semibold text-orange-900">Modération</span>
           <ButtonStyled
+            icon={<X className="h-5 w-5" />}
             variant="ghost"
             className={cn(
               buttonVariants({ size: "icon" }),
               "ml-auto lg:hidden",
             )}
             onClick={() => setSidebarOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </ButtonStyled>
+          ></ButtonStyled>
         </div>
 
         <nav className="flex-1 px-2 py-4 flex flex-col gap-1">
@@ -110,9 +109,8 @@ export default function ModeratorLayout() {
             size="icon"
             className={cn(buttonVariants({ size: "icon" }), "lg:hidden")}
             onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </ButtonStyled>
+            icon={<Menu className="h-5 w-5" />}
+          ></ButtonStyled>
 
           <div className="hidden lg:block" />
 
