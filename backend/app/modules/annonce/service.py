@@ -34,6 +34,12 @@ class AnnonceService:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Annonce not found")
         return annonce
 
+    async def get_all_announce(self, current_user: Users, params: PaginationParams):
+        annonces = await self.repo.get_all_annonces(
+            current_user.classe_id, params.offset, params.limit
+        )
+        return annonces
+
     # Creation
     async def create_annonce(
         self, request: AnnonceCreate, current_user: Users, classe_id: UUID | None = None
@@ -65,9 +71,9 @@ class AnnonceService:
         ):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
 
-        if (
-            annonce.statut == AnnonceStatut.archivee
-            and current_user.role not in (UserRole.admin, UserRole.moderator)
+        if annonce.statut == AnnonceStatut.archivee and current_user.role not in (
+            UserRole.admin,
+            UserRole.moderator,
         ):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
 
@@ -82,7 +88,9 @@ class AnnonceService:
     async def list_active_for_user(
         self, current_user: Users, params: PaginationParams
     ) -> Page:
-        classe_id = None if current_user.role == UserRole.admin else current_user.classe_id
+        classe_id = (
+            None if current_user.role == UserRole.admin else current_user.classe_id
+        )
         annonces, total = await self.repo.list_by_status(
             AnnonceStatut.active, classe_id, params.offset, params.limit
         )
@@ -93,7 +101,9 @@ class AnnonceService:
     ) -> Page:
         if current_user.role not in (UserRole.moderator, UserRole.admin):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
-        classe_id = None if current_user.role == UserRole.admin else current_user.classe_id
+        classe_id = (
+            None if current_user.role == UserRole.admin else current_user.classe_id
+        )
         annonces, total = await self.repo.list_by_status(
             AnnonceStatut.archivee, classe_id, params.offset, params.limit
         )
@@ -127,7 +137,9 @@ class AnnonceService:
             etudiant_ids = await self.user_repo.list_student_ids()
 
         lecteur_ids = set(await self.lecture_repo.get_lecteur_ids(annonce_id))
-        non_lecteurs = [user_id for user_id in etudiant_ids if user_id not in lecteur_ids]
+        non_lecteurs = [
+            user_id for user_id in etudiant_ids if user_id not in lecteur_ids
+        ]
 
         return LecteurStats(
             total_etudiants=len(etudiant_ids),

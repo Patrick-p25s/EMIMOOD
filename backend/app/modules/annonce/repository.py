@@ -17,6 +17,17 @@ class AnnonceRepository:
         await self.db.refresh(annonce)
         return annonce
 
+    async def get_all_annonces(
+        self, classe_id: UUID | str | None, offset: int, limit: int
+    ):
+        query = select(Annonce)
+        if classe_id is not None:
+            query = query.where(Annonce.classe_id == normalized_id(classe_id))
+        result = await self.db.execute(
+            query.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
+        )
+        return result.scalars().all()
+
     async def get_by_id(self, annonce_id: UUID) -> Annonce | None:
         result = await self.db.execute(
             select(Annonce).where(Annonce.id == normalized_id(annonce_id))

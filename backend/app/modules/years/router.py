@@ -18,14 +18,14 @@ def get_year_service(db: AsyncSession = Depends(get_db)) -> YearService:
 
 
 router = APIRouter(
-    prefix="/academic-years",
+    prefix="/year",
     tags=["Gestion des Années Académiques"],
     dependencies=[Depends(require_admin)],
 )
 
 
 @router.post(
-    "/create",
+    "",
     response_model=YearOut,
     status_code=status.HTTP_201_CREATED,
     summary="Créer une année académique",
@@ -40,7 +40,7 @@ async def create_year(
 
 
 @router.get(
-    "/all",
+    "",
     response_model=Page[YearOut],
     summary="Lister toutes les années académiques",
     description="Récupère la liste de toutes les années académiques enregistrées (Accès réservé aux administrateurs).",

@@ -1,11 +1,18 @@
 import apiClient from "./apiClient";
 
 export const createYear = async (newYear) => {
-  const result = await apiClient.post("/year", newYear);
+  const result = await apiClient.post("/year", {
+    label: newYear.label,
+    start_at: newYear.startAt,
+    end_at: newYear.endAt,
+  });
+  return result.data;
 };
 
-export const listYear = async () => {
-  const result = await apiClient.get("/year");
+export const listYear = async ({ page = 1, pageSize = 20 } = {}) => {
+  const result = await apiClient.get("/year", {
+    params: { page, page_size: pageSize },
+  });
   return result.data;
 };
 
@@ -20,10 +27,12 @@ export const activeYear = async (id) => {
 };
 
 export const deleteYear = async (id) => {
-  const result = await apiClient.delete(`/year/${id}`);
-  return result.data;
+  await apiClient.delete(`/year/${id}`);
 };
 
-export const getClasseByYear = async (id) => {
-  const result = await apiClient.get(`/year/${id}/classe`);
+export const getClasseByYear = async (id, { page = 1, pageSize = 20 } = {}) => {
+  const result = await apiClient.get(`/year/${id}/classes`, {
+    params: { page, page_size: pageSize },
+  });
+  return result.data;
 };

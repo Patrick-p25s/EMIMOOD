@@ -23,7 +23,7 @@ def get_annonce_service(db: AsyncSession = Depends(get_db)) -> AnnonceService:
 router = APIRouter(prefix="/annonces", tags=["Annonce router"])
 
 
-@router.post("/create", response_model=AnnonceOut)
+@router.post("", response_model=AnnonceOut)
 async def create_annonce(
     request: AnnonceCreate,
     classe_id: UUID | None = None,
@@ -31,6 +31,15 @@ async def create_annonce(
     service: AnnonceService = Depends(get_annonce_service),
 ) -> AnnonceOut:
     return await service.create_annonce(request, current_user, classe_id)
+
+
+@router.get("", response_model=Page[AnnonceOut])
+async def get_all_announces(
+    params: PaginationParams = Depends(),
+    current_user: Users = Depends(get_current_user),
+    service: AnnonceService = Depends(get_annonce_service),
+) -> Page[AnnonceOut]:
+    return await service.get_all_announce(current_user, params)
 
 
 @router.get("/actives", response_model=Page[AnnonceOut])
@@ -42,7 +51,7 @@ async def get_active_annonces(
     return await service.list_active_for_user(current_user, params)
 
 
-@router.get("/archivees", response_model=Page[AnnonceOut])
+@router.get("/archive", response_model=Page[AnnonceOut])
 async def get_archived_annonces(
     params: PaginationParams = Depends(),
     current_user: Users = Depends(get_current_user),

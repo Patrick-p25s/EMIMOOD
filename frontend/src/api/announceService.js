@@ -15,7 +15,7 @@ export const listActiveAnnonce = async () => {
   return result.data;
 };
 
-export const getArchivedAnnonce = async () => {
+export const listArchivedAnnonce = async () => {
   const result = await apiClient.get("/announces/archive");
   return result.data;
 };
