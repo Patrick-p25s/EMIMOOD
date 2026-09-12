@@ -15,7 +15,7 @@ import FormModal from "@/components/shared/FormModal";
 import { ChampUsersCreate } from "../RegisterPage";
 
 import useAnnonce from "@/hooks/useAnnonce";
-import useClasse from "@/hooks/useClasse";
+import { useClasse } from "@/hooks/useClasse";
 import useStudent from "@/hooks/useStudent";
 
 // Composants shadcn/ui

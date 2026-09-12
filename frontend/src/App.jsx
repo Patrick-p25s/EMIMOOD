@@ -9,25 +9,9 @@ import ProtectedRoute from "./route/ProtectedRoute";
 import RegisterPage from "./page/RegisterPage";
 import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
-import DashboardAdmin from "./page/admin/Dashboard";
-import ManageClasse from "./page/admin/ManageClasse";
-import AdminLayout from "./layout/AdminLayout";
-import Annonces from "./page/admin/Annonces";
-import Annee from "./page/admin/Annee";
-import Classe from "./page/admin/Classe";
-import Etudiant from "./page/admin/Etudiant";
+
 import ModeratorLayout from "./layout/ModeratorLayout";
-import ModeratorRoute from "./route/ModeratorRoute";
-import DashboardModerator from "./page/moderator/Dashboard";
-import StudentModerator from "./page/moderator/StudentModerator";
-import AnnounceModerator from "./page/moderator/AnnounceModerator";
-import SubjectModerator from "./page/moderator/SubjectModerator";
-import DocumentModerator from "./page/moderator/DocumentModerator";
-import OneSubjectModerator from "./page/moderator/OneSubjectModerator";
-import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
-import DocumentAdmin from "./page/admin/Document";
-import OneDocument from "./page/admin/OneDocument";
-import StudentLayout from "./page/moderator/MyProfile";
+
 import MyDashboard from "./page/connected/Dashboard";
 import AdminDashboard from "./page/administration/AdminDashboard";
 export default function App() {

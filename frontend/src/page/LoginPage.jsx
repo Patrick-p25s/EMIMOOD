@@ -5,7 +5,6 @@ import useAuth from "@/hooks/useAuth";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormCard from "@/components/shared/FormCard";
-import useClasse from "@/hooks/useClasse";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");

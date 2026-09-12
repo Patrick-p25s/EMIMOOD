@@ -1,8 +1,9 @@
 import useAnnonce from "@/hooks/useAnnonce";
-import useClasse from "@/hooks/useClasse";
+
 import useStudent from "@/hooks/useStudent";
 import useMatiere from "@/hooks/useMatiere";
 import StatCard from "@/components/shared/StatCard";
+import { useClasse } from "@/hooks/useClasse";
 
 export default function DashboardAdmin() {
   const { annonces } = useAnnonce();
