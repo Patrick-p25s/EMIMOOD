@@ -1,118 +1,115 @@
 import { classeData } from "@/mocks/classe";
-import { useState } from "react";
-import useAnnonce from "./useAnnonce";
-import useStudent from "./useStudent";
-import useMatiere from "./useMatiere";
+import { useCallback, useEffect, useState } from "react";
+import {
+  createClasse,
+  listClasse,
+  regenerateCode,
+  updateClasse,
+} from "@/api/classeService";
 
-export default function useClasse() {
-  const [classes, setClasses] = useState(classeData);
-  const { annonces: allAnnonces } = useAnnonce();
-  const { students } = useStudent();
-  const { matieres } = useMatiere();
+export const useClasse = (initialPage = 1, initialPageSize = 20) => {
+  const [classes, setClasses] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: initialPage,
+    pageSize: initialPageSize,
+    total: 0,
+    pages: 1,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const createClasse = async (classeDataInput, year_id) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const fetchClasse = useCallback(
+    async (page = pagination.page, pageSize = pagination.pageSize) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await listClasse({ page, pageSize });
+        setClasses(data.items);
+        setPagination({
+          page: data.page,
+          pageSize: data.pageSize,
+          total: data.total,
+          pages: data.pages,
+        });
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.page, pagination.pageSize],
+  );
 
-    if (!year_id || year_id.trim() === "") {
-      throw new Error("Impossible de créer une classe sans année active");
+  useEffect(() => {
+    fetchClasse(initialPage, initialPageSize);
+  }, []);
+
+  const goToPage = (newPage) => {
+    fetchClasse(newPage, pagination.pageSize);
+  };
+
+  const add = async (newClasse) => {
+    setError(null);
+    try {
+      const created = await createClasse(newClasse);
+      await fetchClasse(pagination.page, pagination.pageSize);
+      return created;
+    } catch (err) {
+      setError(err);
+      throw err;
     }
-
-    const newClasse = {
-      id: crypto.randomUUID(),
-      mention: classeDataInput.mention,
-      niveau: classeDataInput.label,
-      code_invitation: Math.random().toString(36).substring(2, 8).toUpperCase(),
-      year_id: year_id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    setClasses((prevClasses) => [...prevClasses, newClasse]);
-    return newClasse;
   };
 
-  const regenerateCodeInvitation = async (classId) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-    setClasses((prevClasses) =>
-      prevClasses.map((cl) =>
-        cl.id === classId ? { ...cl, code_invitation: newCode } : cl,
-      ),
-    );
-
-    return newCode;
-  };
-
-  const getClasseByCodeInvitation = async (code) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const found = classes.find((cl) => cl.code_invitation === code);
-    if (!found) {
-      throw new Error("Aucune classe trouvé");
+  const generate = async (id) => {
+    setError(null);
+    try {
+      const updated = await regenerateCode(id);
+      return updated;
+    } catch (err) {
+      setError(err);
+      throw err;
     }
-    return found;
   };
 
-  const updateClasse = async (id, mention, niveau, code_invitation) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    let updatedItem = null;
-
-    setClasses((prevClasses) =>
-      prevClasses.map((item) => {
-        if (item.id === id) {
-          updatedItem = {
-            ...item,
-            mention,
-            niveau,
-            code_invitation,
-            updated_at: new Date().toISOString(),
-          };
-          return updatedItem;
-        }
-        return item;
-      }),
-    );
-
-    return updatedItem;
-  };
-
-  const deleteClasse = async (id) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setClasses((prevClasses) => prevClasses.filter((c) => c.id !== id));
-  };
-
-  const studentByClasse = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return students.filter((stud) => stud.classe_id === classeId);
-  };
-
-  const getStudentClasse = async (studentId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const found = await classes.find((cl) => cl.id === studentId);
-    if (!found) {
-      throw new Error("Aucune classe trouvé");
+  const remove = async (id) => {
+    setError(null);
+    try {
+      await deleteClasse(id);
+      setClasses((prev) => prev.filter((cl) => cl.id !== id));
+    } catch (err) {
+      setError(err);
+      throw err;
     }
-    return found;
   };
 
-  const getMatiere = async (classeId) => {
-    if (classeId === null) {
-      return await classes;
+  const update = async (id, newClasse) => {
+    setError(null);
+    try {
+      const updated = await updateClasse(id, newClasse);
+      setClasses((prev) =>
+        prev.filter((cl) =>
+          cl.id === id
+            ? { ...cl, niveau: newClasse.niveau, mention: newClasse.mention }
+            : cl,
+        ),
+      );
+      return updated;
+    } catch (err) {
+      setError(err);
+      throw err;
     }
-    const matiere = matieres.filter((matier) => matier.classe_id === classeId);
-    return matiere;
   };
 
   return {
     classes,
-    regenerateCodeInvitation,
-    getClasseByCodeInvitation,
-    createClasse,
-    updateClasse,
-    deleteClasse,
-    studentByClasse,
-    getStudentClasse,
-    getMatiere,
+    error,
+    loading,
+    pagination,
+    goToPage,
+    refresh: () => fetchClasse(pagination.page, pagination.pageSize),
+    add,
+    update,
+    remove,
+    generate,
   };
-}
+};

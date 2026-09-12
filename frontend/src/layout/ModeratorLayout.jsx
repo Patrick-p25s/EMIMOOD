@@ -14,15 +14,10 @@ import {
   Book,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
-import useMatiere from "@/hooks/useMatiere";
-import useClasse from "@/hooks/useClasse";
-import useDocument from "@/hooks/useDocument";
-import useStudent from "@/hooks/useStudent";
-import useAnnonce from "@/hooks/useAnnonce";
+
 const NAV_ITEMS = [
   {
     to: "/moderator",
@@ -126,7 +121,7 @@ export default function ModeratorLayout() {
               variant="outline"
               className="border-orange-300 text-orange-700 bg-orange-50"
             >
-              {user.role}
+              Administration
             </Badge>
             <span className="text-sm text-gray-600">{user?.name}</span>
           </div>

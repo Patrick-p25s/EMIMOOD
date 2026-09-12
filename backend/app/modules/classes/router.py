@@ -21,7 +21,7 @@ router = APIRouter(prefix="/classes", tags=["Gestion des Classes"])
 
 
 @router.post(
-    "/create",
+    "",
     response_model=ClasseOut,
     status_code=status.HTTP_201_CREATED,
     summary="Créer une nouvelle classe (Admin require)",
@@ -36,7 +36,7 @@ async def create_classe(
 
 
 @router.get(
-    "/all",
+    "",
     response_model=Page[ClasseOut],
     summary="Lister toutes les classes",
     description="Récupère la liste complète de toutes les classes enregistrées.",

@@ -1,51 +1,32 @@
-import * as React from "react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormCard from "@/components/shared/FormCard";
+import { useState } from "react";
 
 export default function RegisterPage() {
-  const [formData, setFormData] = React.useState({
-    first_name: "",
-    last_name: "",
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     matricule: "",
-    phone_number: "",
+    phoneNumber: "",
     email: "",
-    password_hash: "",
-    code_invitation: "",
+    password: "",
+    codeInvitation: "",
   });
-  const [erreur, setErreur] = React.useState(null);
-  const [isSubmiting, setIsSubmiting] = React.useState(false);
+  const [erreur, setErreur] = useState(null);
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur(null);
     setIsSubmiting(true);
     try {
       const user = await register(formData);
+      console.log(formData);
       user.role === "admin"
         ? navigate("/admin", { replace: true })
         : user.role === "moderator"
@@ -87,16 +68,16 @@ export function ChampUsersCreate({
     <div className={className}>
       {/* champ pour nom  */}
       <InputLabeled
-        value={value.first_name}
-        name="first_name"
+        value={value.firstName}
+        name="firstName"
         label="Entrez votre nom"
         setValue={setValue}
         required
         placeholder="Ex: John"
       />
       <InputLabeled
-        value={value.last_name}
-        name="last_name"
+        value={value.lastName}
+        name="lastName"
         label="Entrez votre prénom"
         setValue={setValue}
         required
@@ -112,8 +93,8 @@ export function ChampUsersCreate({
         placeholder="354I25"
       />
       <InputLabeled
-        value={value.phone_number}
-        name="phone_number"
+        value={value.phoneNumber}
+        name="phoneNumber"
         label="Numéro de téléphone"
         setValue={setValue}
         placeholder="Ex : 038 85 454 19"
@@ -134,8 +115,8 @@ export function ChampUsersCreate({
         <InputLabeled
           type="password"
           label="Mot de passe "
-          value={value.password_hash}
-          name="password_hash"
+          value={value.password}
+          name="password"
           setValue={setValue}
           required
         />
@@ -145,9 +126,9 @@ export function ChampUsersCreate({
       {isCode && (
         <InputLabeled
           label="Identifiant d'une classe "
-          value={value.code_invitation}
+          value={value.codeInvitation}
           setValue={setValue}
-          name="code_invitation"
+          name="codeInvitation"
           description="Entrer l'id de votre classe"
         />
       )}

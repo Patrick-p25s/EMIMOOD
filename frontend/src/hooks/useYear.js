@@ -60,6 +60,17 @@ export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
     }
   };
 
+  const remove = async (id) => {
+    setError(null);
+    try {
+      await deleteYear(id);
+      setYears((prev) => prev.filter((y) => y.id !== id));
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
   const activate = async (id) => {
     setError(null);
     try {
@@ -68,17 +79,6 @@ export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
         prev.map((year) => ({ ...year, is_active: year.id === id })),
       );
       return activated;
-    } catch (err) {
-      setError(err);
-      throw err;
-    }
-  };
-
-  const remove = async (id) => {
-    setError(null);
-    try {
-      await deleteYear(id);
-      setYears((prev) => prev.filter((y) => y.id !== id));
     } catch (err) {
       setError(err);
       throw err;

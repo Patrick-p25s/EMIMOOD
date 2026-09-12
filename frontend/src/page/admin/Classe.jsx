@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useClasse from "@/hooks/useClasse";
+import { useClasse } from "@/hooks/useClasse";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import { useYear } from "@/context/AnneeContext";
