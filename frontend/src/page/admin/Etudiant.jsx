@@ -70,7 +70,6 @@ export default function Etudiant() {
         if (updateProfile) await updateProfile(selectedStudent.id, newStudent);
       } else {
         const user = await createStudent(newStudent, null, "student");
-        console.log(user);
       }
 
       // Fermeture et réinitialisation SEULEMENT si la requête réussit
@@ -127,9 +126,7 @@ export default function Etudiant() {
     const student = await getMyProfile(studentId);
     const studentClasse = await getStudentClasse(student.id);
     const document = await studentDocument(studentId);
-    const pendindDocs = document.filter(
-      (item) => item.statut === "en_attente",
-    );
+    const pendindDocs = document.filter((item) => item.statut === "en_attente");
     setStudentProfile({
       user: student,
       classe: { studentClasse },

@@ -24,7 +24,6 @@ export default function LoginPage() {
       user?.role === "admin"
         ? navigate("/admin", { replace: true })
         : navigate("/dashboard", { replace: true });
-      console.log(user);
     } catch (e) {
       setErreur(e.message.toString());
     } finally {

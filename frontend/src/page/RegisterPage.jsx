@@ -26,7 +26,6 @@ export default function RegisterPage() {
     setIsSubmiting(true);
     try {
       const user = await register(formData);
-      console.log(formData);
       user.role === "admin"
         ? navigate("/admin", { replace: true })
         : user.role === "moderator"

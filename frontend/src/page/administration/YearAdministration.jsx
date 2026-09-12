@@ -5,7 +5,7 @@ import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
 
-export default function YearBlog() {
+export default function YearAdministration() {
   const [open, setOpen] = useState(false);
   const { loading, error, add, remove, activate, years } = userYearHook();
 
