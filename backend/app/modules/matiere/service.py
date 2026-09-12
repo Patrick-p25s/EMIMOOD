@@ -6,6 +6,7 @@ from app.core.security import hash_password
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from uuid import UUID
+from app.modules.users.model import Users
 
 
 class SubjectService:
@@ -21,8 +22,10 @@ class SubjectService:
         return matiere
 
     async def create_new_subject(
-        self, classe_id: str, request: SubjectCreate
+        self, classe_id: str | UUID | None, request: SubjectCreate
     ) -> SubjectOut:
+        if classe_id is None:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Aucune classe trouvé ")
         if await self.repo.get_by_name(request.name, classe_id) is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -70,8 +73,10 @@ class SubjectService:
         return True
 
     async def get_by_class(
-        self, classe_id: str, params: PaginationParams
+        self, classe_id: str | UUID | None, params: PaginationParams
     ) -> Page[SubjectOut]:
+        if classe_id is None:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Aucune classe trouvé")
         matieres, total = await self.repo.get_by_classe(
             classe_id, offset=params.offset, limit=params.limit
         )

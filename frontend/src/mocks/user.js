@@ -10,6 +10,8 @@ export const userData = [
     password_hash: "password",
     role: "student",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-25T08:00:00Z",
+    updated_at: "2026-06-25T08:00:00Z",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440002",
@@ -22,6 +24,8 @@ export const userData = [
     password_hash: "password",
     role: "student",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-25T08:10:00Z",
+    updated_at: "2026-06-25T08:10:00Z",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440003",
@@ -34,6 +38,8 @@ export const userData = [
     password_hash: "password",
     role: "moderator",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-24T08:00:00Z",
+    updated_at: "2026-06-24T08:00:00Z",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440004",
@@ -46,6 +52,8 @@ export const userData = [
     password_hash: "password",
     role: "moderator",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-06-24T08:10:00Z",
+    updated_at: "2026-06-24T08:10:00Z",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440005",
@@ -58,5 +66,7 @@ export const userData = [
     password_hash: "password",
     role: "admin",
     classe_id: null,
+    created_at: "2026-06-01T08:00:00Z",
+    updated_at: "2026-06-01T08:00:00Z",
   },
 ];

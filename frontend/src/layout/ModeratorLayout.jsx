@@ -36,135 +36,10 @@ const NAV_ITEMS = [
   { to: "/moderator/profile", label: "My Profile", icon: Users },
 ];
 
-const RECENT_LIMIT = 5;
-
 export default function ModeratorLayout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const {
-    annonces,
-    getActiveAnnonce,
-    archiveAnnonce,
-    deleteAnnonce,
-    updateAnnonce,
-    createAnnonce,
-  } = useAnnonce();
-  const moderatorClasseId = user?.classe_id || user?.classeId;
-
-  const { classes, getStudentClasse } = useClasse();
-  const { matieres, createSubject, updateSubject, deleteSubject } =
-    useMatiere();
-  const {
-    students,
-    updateProfile,
-    deleteStudent,
-    createStudent,
-    getMyProfile,
-  } = useStudent();
-  const {
-    documents,
-    valideDocument,
-    rejeteDocument,
-    createDocument,
-    deleteDocument,
-    studentDocument,
-  } = useDocument();
-
-  const userClasse = useMemo(
-    () => classes?.find((cl) => String(cl.id) === String(moderatorClasseId)),
-    [classes, moderatorClasseId],
-  );
-
-  const allAnnonces = useMemo(() => {
-    if (!annonces || !moderatorClasseId) return [];
-    return annonces.filter(
-      (annonce) => String(annonce.classe_id) === String(moderatorClasseId),
-    );
-  });
-
-  const allStudents = useMemo(() => {
-    if (!students || !moderatorClasseId) return [];
-    return students.filter(
-      (student) => String(student.classe_id) === String(moderatorClasseId),
-    );
-  }, [students, moderatorClasseId]);
-
-  const classMatieres = useMemo(() => {
-    if (!matieres || !moderatorClasseId) return [];
-    return matieres.filter(
-      (m) => String(m.classe_id) === String(moderatorClasseId),
-    );
-  }, [matieres, moderatorClasseId]);
-
-  const classMatiereIds = useMemo(
-    () => classMatieres.map((m) => String(m.id)),
-    [classMatieres],
-  );
-
-  const classDocuments = useMemo(() => {
-    if (!documents || classMatiereIds.length === 0) return [];
-
-    // Création d'un Set à partir de classMatiereIds pour une recherche instantanée O(1)
-    const matiereSet = new Set(classMatiereIds.map(String));
-
-    return documents.filter((doc) => matiereSet.has(String(doc.matiere_id)));
-  }, [documents, classMatiereIds]);
-
-  const pendingDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "pending"),
-    [classDocuments],
-  );
-  const publicDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "public"),
-    [classDocuments],
-  );
-  const rejectedDocs = useMemo(
-    () => classDocuments.filter((d) => d.statut === "rejete"),
-    [classDocuments],
-  );
-
-  const recentPendingDocs = useMemo(
-    () => pendingDocs.slice(0, RECENT_LIMIT),
-    [pendingDocs],
-  );
-
-  const matiereNameById = useMemo(() => {
-    const map = new Map();
-    classMatieres.forEach((m) => map.set(String(m.id), m.nom));
-    return map;
-  }, [classMatieres]);
-
-  const contextValue = {
-    userClasse,
-    classMatieres,
-    classMatiereIds,
-    classDocuments,
-    matiereNameById,
-    recentPendingDocs,
-    rejectedDocs,
-    publicDocs,
-    allStudents,
-    allAnnonces,
-    createDocument,
-    deleteDocument,
-    archiveAnnonce,
-    createStudent,
-    deleteAnnonce,
-    updateAnnonce,
-    createAnnonce,
-    getActiveAnnonce,
-    createSubject,
-    deleteSubject,
-    updateSubject,
-    updateProfile,
-    deleteStudent,
-    valideDocument,
-    rejeteDocument,
-    studentDocument,
-    getStudentClasse,
-    getMyProfile,
-  };
   return (
     <div className="min-h-screen flex bg-orange-50/30">
       {/* Overlay mobile */}
@@ -251,14 +126,14 @@ export default function ModeratorLayout() {
               variant="outline"
               className="border-orange-300 text-orange-700 bg-orange-50"
             >
-              Modérateur
+              {user.role}
             </Badge>
             <span className="text-sm text-gray-600">{user?.name}</span>
           </div>
         </header>
 
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          <Outlet context={contextValue} />
+          <Outlet />
         </main>
       </div>
     </div>

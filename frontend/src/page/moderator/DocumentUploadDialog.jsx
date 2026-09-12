@@ -25,7 +25,7 @@ export default function DocumentUploadDialog({
     type_document: "cours",
     matiere_id: "",
     date_limite: "",
-    proposer_publique: true,
+    proposer_publiquement: true,
   });
 
   const [file, setFile] = useState(null);
@@ -52,10 +52,10 @@ export default function DocumentUploadDialog({
         description: form.description,
         type_document: form.type_document,
         date_limite: isAssignment && form.date_limite ? form.date_limite : null,
-        proposer_publique: form.proposer_publique,
+        proposer_publiquement: form.proposer_publiquement,
         file: file, // Optionnel si traité plus tard avec FormData
         taille_octets: file.size,
-        fichier_path: URL.createObjectURL(file), // Mock URL temporaire pour la prévisualisation
+        storage_key: URL.createObjectURL(file),
       };
 
       await onCreate(documentData, form.matiere_id, ownerId);
@@ -67,7 +67,7 @@ export default function DocumentUploadDialog({
         type_document: "cours",
         matiere_id: "",
         date_limite: "",
-        proposer_publique: true,
+        proposer_publiquement: true,
       });
       setFile(null);
       onOpenChange(false);

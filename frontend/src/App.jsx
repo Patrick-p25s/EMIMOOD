@@ -6,7 +6,6 @@ import { AnneeProvider } from "./context/AnneeContext";
 import MainLayout from "./layout/MainLayout";
 import GuestRoute from "./route/GuestRoute";
 import ProtectedRoute from "./route/ProtectedRoute";
-import Dashboard from "./page/Dashboard";
 import RegisterPage from "./page/RegisterPage";
 import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
@@ -29,6 +28,8 @@ import OneDocumentModerator from "./page/moderator/OneDocumentModerator";
 import DocumentAdmin from "./page/admin/Document";
 import OneDocument from "./page/admin/OneDocument";
 import StudentLayout from "./page/moderator/MyProfile";
+import MyDashboard from "./page/connected/Dashboard";
+import AdminDashboard from "./page/administration/AdminDashboard";
 export default function App() {
   return (
     <AuthProvider>
@@ -47,12 +48,17 @@ export default function App() {
 
               {/* Route pour tous ce qui est connecté  */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard" element={<MyDashboard />} />
               </Route>
             </Route>
 
-            <Route element={<AdminLayout />}>
-              {/* Route pour administrateur seulement  */}
+            <Route element={<ModeratorLayout />}>
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route index element={<AdminDashboard />} />
+              </Route>
+            </Route>
+
+            {/* <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminRoute />}>
                 <Route path="" element={<DashboardAdmin />} />
                 <Route path="annonces" element={<Annonces />} />
@@ -65,9 +71,7 @@ export default function App() {
               </Route>
             </Route>
 
-            {/* Route pour les moderator seulement  */}
             <Route path="/moderator" element={<ModeratorRoute />}>
-              {/* Layout unique qui gère la Sidebar et le Context */}
               <Route element={<ModeratorLayout />}>
                 <Route index element={<DashboardModerator />} />
                 <Route path="students" element={<StudentModerator />} />
@@ -84,7 +88,7 @@ export default function App() {
                   element={<OneDocumentModerator />}
                 />
               </Route>
-            </Route>
+            </Route> */}
           </Routes>
         </BrowserRouter>
       </AnneeProvider>

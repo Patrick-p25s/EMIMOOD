@@ -27,7 +27,7 @@ export default function useAnnonce() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setAnnonces((prev) =>
       prev.map((annonce) =>
-        annonce.id === annonceId ? { ...annonce, statut: "archive" } : annonce,
+        annonce.id === annonceId ? { ...annonce, statut: "archivee" } : annonce,
       ),
     );
   };

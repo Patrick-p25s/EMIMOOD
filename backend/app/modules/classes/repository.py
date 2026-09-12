@@ -7,6 +7,7 @@ from app.modules.users.model import Users, UserRole
 from app.modules.matiere.model import Subject
 from app.modules.documents.model import Document
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.normalised_id import normalized_id
 
 
 class ClasseRepository:
@@ -14,8 +15,9 @@ class ClasseRepository:
         self.db = db
 
     async def get_by_id(self, classe_id: str | UUID) -> ClasseOut:
-        normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
-        stmt = await self.db.execute(select(Classe).where(Classe.id == normalized))
+        stmt = await self.db.execute(
+            select(Classe).where(Classe.id == normalized_id(classe_id))
+        )
         return stmt.scalar_one_or_none()
 
     async def get_by_code_invitation(self, code: str) -> ClasseOut:
@@ -52,17 +54,21 @@ class ClasseRepository:
         total_result = await self.db.execute(select(func.count()).select_from(Classe))
         total = total_result.scalar_one()
         stmt = await self.db.execute(
-            select(Classe).order_by(Classe.created_at.desc()).offset(offset).limit(limit)
+            select(Classe)
+            .order_by(Classe.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return stmt.scalars().all(), total
 
-    async def get_all_student(self, classe_id: UUID | str, offset: int, limit: int):
-        normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
+    async def get_all_student(
+        self, offset: int, limit: int, classe_id: UUID | str | None = None
+    ):
+        query = select(Users).where(Users.role == UserRole.student)
+        if classe_id is not None:
+            query = query.where(Users.classe_id == normalized_id(classe_id))
         result = await self.db.execute(
-            select(Users)
-            .where(Users.classe_id == normalized)
-            .where(Users.role == UserRole.student)
-            .order_by(Users.last_name, Users.first_name)
+            query.order_by(Users.last_name, Users.first_name)
             .offset(offset)
             .limit(limit)
         )
@@ -70,7 +76,10 @@ class ClasseRepository:
         total_result = await self.db.execute(
             select(func.count())
             .select_from(Users)
-            .where(Users.classe_id == normalized, Users.role == UserRole.student)
+            .where(
+                Users.classe_id == normalized_id(classe_id),
+                Users.role == UserRole.student,
+            )
         )
         return students, total_result.scalar_one()
 
@@ -78,7 +87,7 @@ class ClasseRepository:
         result = await self.db.execute(
             select(Document.id)
             .join(Subject, Subject.id == Document.matiere_id)
-            .where(Subject.classe_id == classe_id)
+            .where(Subject.classe_id == normalized_id(classe_id))
             .limit(1)
         )
         return result.scalar_one_or_none() is not None

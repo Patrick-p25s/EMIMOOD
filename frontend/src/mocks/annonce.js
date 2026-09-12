@@ -8,6 +8,8 @@ export const annonceData = [
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440005",
     classe_id: null,
+    created_at: "2026-09-01T08:00:00Z",
+    updated_at: "2026-09-01T08:00:00Z",
   },
   {
     id: "850e8400-e29b-41d4-a716-446655440002",
@@ -18,6 +20,8 @@ export const annonceData = [
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440004",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-09-05T09:30:00Z",
+    updated_at: "2026-09-05T09:30:00Z",
   },
   {
     id: "850e8400-e29b-41d4-a716-446655440003",
@@ -27,6 +31,8 @@ export const annonceData = [
     statut: "active",
     auteur_id: "550e8400-e29b-41d4-a716-446655440004",
     classe_id: "20000000-0000-4000-8000-000000000001",
+    created_at: "2026-09-08T10:15:00Z",
+    updated_at: "2026-09-08T10:15:00Z",
   },
   {
     id: "850e8400-e29b-41d4-a716-446655440004",
@@ -37,5 +43,7 @@ export const annonceData = [
     statut: "archivee",
     auteur_id: "550e8400-e29b-41d4-a716-446655440005",
     classe_id: null,
+    created_at: "2026-08-25T18:00:00Z",
+    updated_at: "2026-08-26T00:00:00Z",
   },
 ];

@@ -36,7 +36,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
     titre,
     description,
     mime_type,
-    fichier_path,
+    storage_key: fichier_path,
     taille_octets,
     type_document,
     date_limite,
@@ -178,7 +178,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             <CheckCircle2 className="h-3.5 w-3.5" /> Public
           </Badge>
         );
-      case "pending":
+      case "en_attente":
         return (
           <Badge
             variant="secondary"
@@ -187,7 +187,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             <Clock className="h-3.5 w-3.5" /> En attente
           </Badge>
         );
-      case "rejected":
+      case "rejete":
         return (
           <Badge
             variant="outline"
@@ -196,7 +196,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             <XCircle className="h-3.5 w-3.5" /> Rejeté
           </Badge>
         );
-      case "private":
+      case "prive":
       default:
         return (
           <Badge

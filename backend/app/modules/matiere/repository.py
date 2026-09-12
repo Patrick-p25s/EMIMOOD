@@ -4,6 +4,7 @@ from app.modules.matiere.model import Subject
 from app.modules.matiere.schema import SubjectCreate, SubjectOut
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.normalised_id import normalized_id
 
 
 class SubjectRepository:
@@ -11,17 +12,16 @@ class SubjectRepository:
         self.db = db
 
     async def get_by_id(self, matiere_id: str | UUID) -> SubjectOut:
-        normalized = matiere_id if isinstance(matiere_id, UUID) else UUID(matiere_id)
-        stmt = await self.db.execute(select(Subject).where(Subject.id == normalized))
+        stmt = await self.db.execute(
+            select(Subject).where(Subject.id == normalized_id(matiere_id))
+        )
         return stmt.scalar_one_or_none()
 
-    async def get_by_name(
-        self, name: str, classe_id: UUID | str
-    ) -> Subject | None:
+    async def get_by_name(self, name: str, classe_id: UUID | str) -> Subject | None:
         stmt = await self.db.execute(
             select(Subject).where(
                 Subject.name == name,
-                Subject.classe_id == classe_id,
+                Subject.classe_id == normalized_id(classe_id),
             )
         )
         return stmt.scalar_one_or_none()
@@ -58,14 +58,15 @@ class SubjectRepository:
         return stmt.scalars().all(), total
 
     async def get_by_classe(self, classe_id: UUID | str, offset: int, limit: int):
-        normalized = classe_id if isinstance(classe_id, UUID) else UUID(classe_id)
         total_result = await self.db.execute(
-            select(func.count()).select_from(Subject).where(Subject.classe_id == normalized)
+            select(func.count())
+            .select_from(Subject)
+            .where(Subject.classe_id == normalized_id(classe_id))
         )
         total = total_result.scalar_one()
         stmt = await self.db.execute(
             select(Subject)
-            .where(Subject.classe_id == normalized)
+            .where(Subject.classe_id == normalized_id(classe_id))
             .order_by(Subject.name)
             .offset(offset)
             .limit(limit)

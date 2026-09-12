@@ -123,7 +123,9 @@ export default function StudentModerator() {
     const student = await getMyProfile(studentId);
     const studentClasse = await getStudentClasse(student.id);
     const document = await studentDocument(studentId);
-    const pendindDocs = document?.filter((docs) => docs.statut === "pending");
+    const pendindDocs = document?.filter(
+      (item) => item.statut === "en_attente",
+    );
     setStudentProfile({
       user: student,
       classe: { studentClasse },

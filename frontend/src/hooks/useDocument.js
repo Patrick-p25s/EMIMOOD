@@ -1,8 +1,10 @@
-import { documentData } from "@/mocks/document";
+import { documentData, saveDocumentData } from "@/mocks/document";
+import { pre } from "framer-motion/client";
 import { useState } from "react";
 
 export default function useDocument() {
   const [documents, setDocuments] = useState(documentData);
+  const [saved, setSaved] = useState(saveDocumentData);
   const createDocument = async (newDocument, matiereId, ownerId) => {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -12,18 +14,27 @@ export default function useDocument() {
       description: newDocument.description || "",
       type_document: newDocument.type_document || "cours",
       date_limite: newDocument.date_limite || null,
-      proposer_publique: Boolean(newDocument.proposer_publique),
-      statut: newDocument.proposer_publique ? "validated" : "pending",
-      fichier_path: newDocument.fichier_path || "/documents/sample.pdf",
+      statut: newDocument.proposer_publiquement ? "en_attente" : "prive",
+      original_filename: newDocument.file?.name || "sample.pdf",
+      storage_key: newDocument.storage_key || "/documents/sample.pdf",
       mime_type: newDocument.file?.type || "application/pdf",
       taille_octets: newDocument.taille_octets || 0,
       matiere_id: matiereId,
       owner_id: ownerId,
+      classe_id: newDocument.classe_id || null,
+      validated_by_id: null,
+      motif_rejet: null,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
     setDocuments((prev) => [...prev, document]);
     return document;
+  };
+
+  const getDocumentByMatiere = async (matiere_id) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return await documents.filter((doc) => doc.matiere_id === matiere_id);
   };
 
   const getDocumentByType = async (typeDocument) => {
@@ -34,12 +45,12 @@ export default function useDocument() {
   };
 
   const getPublicDocument = async () => {
-    const docs = documents.filter((doc) => doc.statut === "publique");
+    const docs = documents.filter((doc) => doc.statut === "public");
     return docs;
   };
 
   const getPendingDocument = async () => {
-    const docs = documents.filter((doc) => doc.statut === "pending");
+    const docs = documents.filter((doc) => doc.statut === "en_attente");
     return docs;
   };
 
@@ -52,13 +63,29 @@ export default function useDocument() {
     return documents.filter((docs) => docs.owner_id === studentId);
   };
 
+  const saveDocument = async (document_id, user_id) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const exist = saved.some(
+      (save) => save.document_id === document_id && save.user_id === user_id,
+    );
+    if (exist) {
+      throw new Error("Document déjà enregistré");
+    }
+    const newDocs = {
+      document_id,
+      user_id,
+      is_favorite: false,
+      is_hidden: false,
+    };
+    return setSaved((prev) => [...prev, newDocs]);
+  };
+
   const valideDocument = async (documentId) => {
     try {
-      // 1. Récupération du document
       const document = await getDocumentById(documentId);
 
       // 2. Vérification sur le statut (et non sur l'id)
-      if (document.statut !== "pending") {
+      if (document.statut !== "en_attente") {
         throw new Error("Ce document n'est plus en attente");
       }
 
@@ -82,7 +109,7 @@ export default function useDocument() {
       const document = await getDocumentById(documentId);
 
       // 2. Vérification sur le statut (et non sur l'id)
-      if (document.statut !== "pending") {
+      if (document.statut !== "en_attente") {
         throw new Error("Ce document n'est plus en attente");
       }
 
@@ -114,6 +141,8 @@ export default function useDocument() {
 
   return {
     documents,
+    saveDocument,
+    getDocumentByMatiere,
     studentDocument,
     deleteDocument,
     createDocument,

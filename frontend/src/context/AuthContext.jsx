@@ -1,68 +1,69 @@
-import {
-  getCurrentUser,
-  login as loginApi,
-  register as registerApi,
-  logout as logoutApi,
-} from "@/api/authService";
 import { tokenStorage } from "@/api/tokenStorage";
-import { userData } from "@/mocks/user";
-import useClasse from "@/hooks/useClasse";
-import { createContext, use, useEffect, useState } from "react";
-
+import { createContext, useEffect, useState } from "react";
+import { loginApi, logoutApi } from "@/api/authService";
+import { getProfile, register as registerApi } from "@/api/userService";
 export const AuthContext = createContext(null);
 export default function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { classes } = useClasse();
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem("users");
-    return savedUsers ? JSON.parse(savedUsers) : userData;
-  });
+  const [user, setUser] = useState(null);
+  const initAuth = async () => {
+    const token = tokenStorage.get();
+    if (token) {
+      try {
+        const currentUser = await getProfile();
+        setUser(currentUser);
+      } catch (err) {
+        setError(err);
+        tokenStorage.clear();
+      }
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const initAuth = async () => {
-      const token = tokenStorage.get();
-      if (token) {
-        try {
-          const currentUser = await getCurrentUser();
-          setUser(currentUser);
-        } catch (error) {
-          tokenStorage.clear();
-        }
-      }
-      setLoading(false);
-    };
     initAuth();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
-
   const login = async (email, password) => {
-    const data = await loginApi(email, password);
-    tokenStorage.set(data.accessToken);
-
-    const foundUser = await getCurrentUser();
-    setUser(foundUser);
+    setError(null);
+    try {
+      const data = await loginApi(email, password);
+      tokenStorage.set(data.accessToken);
+      await initAuth();
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
   const register = async (userData) => {
-    await registerApi(userData);
-    await loginApi(userData.email, userData.password_hash);
+    setError(null);
+    try {
+      await registerApi(userData);
+      await login(userData.email, userData.password);
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
   const logout = async () => {
     const token = tokenStorage.get();
-    console.log(token);
-    await logoutApi(token);
-    setUser(null);
-    tokenStorage.clear();
+    try {
+      await logoutApi(token);
+    } catch (err) {
+      // on ignore l'erreur réseau/serveur, on déconnecte localement quand même
+    } finally {
+      setUser(null);
+      tokenStorage.clear();
+    }
   };
 
   const value = {
     user,
     loading,
+    error,
     isAuthenticated: Boolean(user),
     role: user?.role,
     register,

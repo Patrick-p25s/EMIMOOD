@@ -44,7 +44,7 @@ export default function AnnonceItem({
     <Card
       className={`relative transition-all duration-200 hover:shadow-md flex flex-col justify-between ${
         important ? "border-l-4 border-l-amber-500 bg-amber-500/5" : ""
-      } ${statut === "archive" ? "opacity-60 bg-muted/40" : ""}`}
+      } ${statut === "archivee" ? "opacity-60 bg-muted/40" : ""}`}
     >
       <div>
         <CardHeader className="pb-3">
@@ -62,7 +62,7 @@ export default function AnnonceItem({
                     Important
                   </Badge>
                 )}
-                {statut === "archive" ? (
+                {statut === "archivee" ? (
                   <Badge variant="secondary" className="text-[11px]">
                     Archivée
                   </Badge>
@@ -95,7 +95,7 @@ export default function AnnonceItem({
                   <Edit className="h-4 w-4" />
                 </Button>
               )}
-              {onArchive && statut !== "archive" && (
+              {onArchive && statut !== "archivee" && (
                 <Button
                   variant="ghost"
                   size="icon"

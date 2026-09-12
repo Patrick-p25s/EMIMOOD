@@ -3,6 +3,7 @@ from uuid import UUID
 from app.modules.annonce.model import Annonce, AnnonceLecture, AnnonceStatut
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.normalised_id import normalized_id
 
 
 class AnnonceRepository:
@@ -16,8 +17,21 @@ class AnnonceRepository:
         await self.db.refresh(annonce)
         return annonce
 
+    async def get_all_annonces(
+        self, classe_id: UUID | str | None, offset: int, limit: int
+    ):
+        query = select(Annonce)
+        if classe_id is not None:
+            query = query.where(Annonce.classe_id == normalized_id(classe_id))
+        result = await self.db.execute(
+            query.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
+        )
+        return result.scalars().all()
+
     async def get_by_id(self, annonce_id: UUID) -> Annonce | None:
-        result = await self.db.execute(select(Annonce).where(Annonce.id == annonce_id))
+        result = await self.db.execute(
+            select(Annonce).where(Annonce.id == normalized_id(annonce_id))
+        )
         return result.scalar_one_or_none()
 
     async def update(self, annonce: Annonce, data: dict) -> Annonce:
@@ -37,7 +51,10 @@ class AnnonceRepository:
         statement = select(Annonce).where(Annonce.statut == statut)
         if classe_id is not None:
             statement = statement.where(
-                or_(Annonce.classe_id == classe_id, Annonce.classe_id.is_(None))
+                or_(
+                    Annonce.classe_id == normalized_id(classe_id),
+                    Annonce.classe_id.is_(None),
+                )
             )
         total_result = await self.db.execute(
             select(func.count()).select_from(statement.subquery())
@@ -62,8 +79,8 @@ class AnnonceLectureRepository:
     async def exists(self, annonce_id: UUID, user_id: UUID) -> bool:
         result = await self.db.execute(
             select(AnnonceLecture.id).where(
-                AnnonceLecture.annonce_id == annonce_id,
-                AnnonceLecture.user_id == user_id,
+                AnnonceLecture.annonce_id == normalized_id(annonce_id),
+                AnnonceLecture.user_id == normalized_id(user_id),
             )
         )
         return result.scalar_one_or_none() is not None
@@ -71,7 +88,7 @@ class AnnonceLectureRepository:
     async def get_lecteur_ids(self, annonce_id: UUID) -> list[UUID]:
         result = await self.db.execute(
             select(AnnonceLecture.user_id).where(
-                AnnonceLecture.annonce_id == annonce_id
+                AnnonceLecture.annonce_id == normalized_id(annonce_id)
             )
         )
         return list(result.scalars().all())
