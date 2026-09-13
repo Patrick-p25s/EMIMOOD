@@ -1,5 +1,49 @@
-import React from "react";
+import { getDocumentById } from "@/api/documentService";
+import { DocumentViewerPage } from "@/components/special/DocumentViewer";
+import { getFileUrl } from "@/utils/file";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 export default function DocumentLecture() {
-  return <div>DocumentLecture</div>;
+  const { documentId } = useParams();
+  const [doc, setDoc] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [erreur, setErreur] = useState(null);
+
+  useEffect(() => {
+    if (!documentId) return;
+
+    const fetchDocument = async () => {
+      setLoading(true);
+      setErreur(null);
+      try {
+        const res = await getDocumentById(documentId);
+        setDoc(res);
+      } catch (err) {
+        setErreur(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocument();
+  }, [documentId]);
+
+  if (loading) {
+    return (
+      <p className="text-sm text-muted-foreground">Chargement du document...</p>
+    );
+  }
+
+  if (erreur) {
+    return <p className="text-sm text-destructive">Erreur : {erreur}</p>;
+  }
+
+  if (!doc) {
+    return (
+      <p className="text-sm text-muted-foreground">Document introuvable.</p>
+    );
+  }
+
+  return <DocumentViewerPage document={doc} />;
 }

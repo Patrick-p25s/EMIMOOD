@@ -20,6 +20,7 @@ class DocumentOut(BaseModel):
     statut: DocumentStatus
     original_filename: str
     mime_type: str
+    storage_key: str
     taille_octets: int
     owner_id: UUID
     matiere_id: UUID | None

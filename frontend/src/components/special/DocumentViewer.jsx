@@ -15,6 +15,7 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
+import { getFileUrl } from "@/utils/file";
 export function DocumentViewerPage({ document, onBack, onSave }) {
   const [isSaved, setIsSaved] = useState(false);
 
@@ -89,7 +90,10 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             preload="metadata"
             className="w-full max-h-[75vh] outline-none"
           >
-            <source src={fichier_path} type={mime_type || "video/mp4"} />
+            <source
+              src={getFileUrl(fichier_path)}
+              type={mime_type || "video/mp4"}
+            />
             Votre navigateur ne supporte pas la lecture de vidéos HTML5.
           </video>
         </div>
@@ -100,7 +104,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
     if (mime_type === "application/pdf") {
       return (
         <iframe
-          src={`${fichier_path}#toolbar=1`}
+          src={`${getFileUrl(fichier_path)}#toolbar=1`}
           title={titre}
           className="w-full h-[75vh] rounded-lg border border-border shadow-inner bg-background"
         />
@@ -112,7 +116,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       return (
         <div className="flex items-center justify-center p-4 bg-black/5 dark:bg-black/40 rounded-lg border border-border min-h-[50vh]">
           <img
-            src={fichier_path}
+            src={getFileUrl(fichier_path)}
             alt={titre}
             className="max-h-[70vh] max-w-full object-contain rounded-md shadow-sm"
           />
@@ -154,7 +158,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
           </p>
         </div>
         <a
-          href={fichier_path}
+          href={getFileUrl(fichier_path)}
           download
           target="_blank"
           rel="noopener noreferrer"
@@ -229,7 +233,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
           </Button>
 
           <a
-            href={fichier_path}
+            href={getFileUrl(fichier_path)}
             download
             target="_blank"
             rel="noopener noreferrer"

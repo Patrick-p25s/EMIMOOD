@@ -17,6 +17,7 @@ import DocumentAdministration from "./page/administration/DocumentAdministration
 import YearAdministration from "./page/administration/YearAdministration";
 import AdminLayout from "./layout/AdminLayout";
 import MyDashboard from "./page/connected/Dashboard";
+import DocumentLecture from "./page/connected/DocumentLecture";
 export default function App() {
   return (
     <AuthProvider>
@@ -37,6 +38,10 @@ export default function App() {
             {/* Route pour tous ce qui est connecté  */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<MyDashboard />} />
+              <Route
+                path="/dashboard/:documentId"
+                element={<DocumentLecture />}
+              />
             </Route>
 
             <Route element={<AdminLayout />}>
