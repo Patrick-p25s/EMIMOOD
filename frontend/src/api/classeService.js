@@ -19,7 +19,7 @@ export const regenerateCode = async (id) => {
 };
 
 export const updateClasse = async (id, newClasse) => {
-  const result = await apiClient.patch(`/classes/${id}`, {
+  const result = await apiClient.put(`/classes/${id}`, {
     mention: newClasse.mention,
     niveau: newClasse.niveau,
   });

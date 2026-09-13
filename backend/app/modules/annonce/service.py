@@ -35,10 +35,10 @@ class AnnonceService:
         return annonce
 
     async def get_all_announce(self, current_user: Users, params: PaginationParams):
-        annonces = await self.repo.get_all_annonces(
+        annonces, total = await self.repo.get_all_annonces(
             current_user.classe_id, params.offset, params.limit
         )
-        return annonces
+        return make_page(annonces, total, params)
 
     # Creation
     async def create_annonce(

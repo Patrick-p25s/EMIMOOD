@@ -11,7 +11,9 @@ import {
   Bookmark,
   ShieldCheck,
   User,
-  Edit,
+  Pencil,
+  KeyRound,
+  Flag,
   Hash,
   Layers,
 } from "lucide-react";
@@ -25,6 +27,8 @@ export default function ProfileStudent({
     pendingCount: 0,
   },
   onEditProfile,
+  onEditPassword,
+  onSignaler,
 }) {
   if (!user) return null;
 
@@ -44,7 +48,6 @@ export default function ProfileStudent({
   const userInitials =
     `${first_name?.[0] || ""}${last_name?.[0] || ""}`.toUpperCase() || "U";
 
-  // Libellé et style selon le rôle
   const getRoleBadge = (roleName) => {
     switch (roleName?.toLowerCase()) {
       case "admin":
@@ -68,17 +71,56 @@ export default function ProfileStudent({
 
   const roleInfo = getRoleBadge(role);
 
+  // Regroupe les actions disponibles selon les handlers reçus en props
+  const actions = [
+    onEditProfile && {
+      key: "profile",
+      label: "Modifier le profil",
+      icon: Pencil,
+      onClick: () => onEditProfile(user),
+    },
+    onEditPassword && {
+      key: "password",
+      label: "Modifier le mot de passe",
+      icon: KeyRound,
+      onClick: () => onEditPassword(user),
+    },
+    onSignaler && {
+      key: "signaler",
+      label: "Signaler un problème",
+      icon: Flag,
+      onClick: () => onSignaler(user),
+    },
+  ].filter(Boolean);
+
   return (
     <Card className="relative overflow-hidden border border-border shadow-sm bg-card">
       {/* Couverture / Fond supérieur décoratif */}
       <div className="h-28 md:h-36 bg-linear-to-r from-primary/20 via-primary/10 to-background border-b border-border/50" />
 
+      {/* Actions — flottent au-dessus de la couverture, toujours visibles */}
+      {actions.length > 0 && (
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          {actions.map(({ key, label, icon: Icon, onClick }) => (
+            <Button
+              key={key}
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 text-xs bg-background/80 backdrop-blur-sm border border-border/60 hover:bg-background shadow-sm"
+              onClick={onClick}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{label}</span>
+            </Button>
+          ))}
+        </div>
+      )}
+
       <CardContent className="relative px-4 pb-6 md:px-8 -mt-12 md:-mt-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           {/* Bloc Photo + Infos Principales */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-            {/* Photo de profil avec bordure accentuée */}
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background shrink-0">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background shrink-0 ring-1 ring-border/50 transition-transform hover:scale-[1.02]">
               <AvatarImage
                 src={avatar_url}
                 alt={fullName}
@@ -89,7 +131,6 @@ export default function ProfileStudent({
               </AvatarFallback>
             </Avatar>
 
-            {/* Identité + Métadonnées */}
             <div className="space-y-1.5 pb-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
@@ -104,7 +145,6 @@ export default function ProfileStudent({
                 </Badge>
               </div>
 
-              {/* Ligne Classe, Niveau et Matricule */}
               <div className="flex items-center gap-3 justify-center sm:justify-start text-xs md:text-sm text-muted-foreground flex-wrap">
                 {classe ? (
                   <>
@@ -134,7 +174,6 @@ export default function ProfileStudent({
                 )}
               </div>
 
-              {/* Contact : Email & Téléphone */}
               <div className="flex items-center gap-4 justify-center sm:justify-start text-xs text-muted-foreground flex-wrap pt-1">
                 {email && (
                   <span className="flex items-center gap-1.5">
@@ -151,27 +190,11 @@ export default function ProfileStudent({
               </div>
             </div>
           </div>
-
-          {/* Action Éditer */}
-          {onEditProfile && (
-            <div className="self-center md:self-end shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 text-xs"
-                onClick={() => onEditProfile(user)}
-              >
-                <Edit className="h-3.5 w-3.5" />
-                Modifier le profil
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Grille de Statistiques Générales */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-8 pt-6 border-t border-border">
-          {/* Stat 1 : Documents partagés / uploadés */}
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
+          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
             <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
               <FileText className="h-5 w-5" />
             </div>
@@ -185,8 +208,7 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          {/* Stat 2 : Documents enregistrés / favoris */}
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
+          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
             <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-500 shrink-0">
               <Bookmark className="h-5 w-5" />
             </div>
@@ -200,8 +222,7 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          {/* Stat 3 : En attente de modération */}
-          <div className="col-span-2 md:col-span-1 flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50">
+          <div className="col-span-2 md:col-span-1 flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
             <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-500 shrink-0">
               <User className="h-5 w-5" />
             </div>
