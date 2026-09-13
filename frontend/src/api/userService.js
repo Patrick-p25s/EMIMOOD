@@ -61,7 +61,7 @@ export const deleteUser = async (id) => {
   return result.data;
 };
 
-export const getUserClasse = async (id) => {
-  const result = await apiClient.get("/users/classe", { user_id: id });
+export const getUserClasse = async () => {
+  const result = await apiClient.get("/users/classe");
   return result.data;
 };

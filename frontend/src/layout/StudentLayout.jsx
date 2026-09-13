@@ -1,25 +1,12 @@
 import React, { useState } from "react";
-import {
-  LayoutDashboard,
-  Globe,
-  BookOpen,
-  UploadCloud,
-  Download,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-// Import de tes composants déjà créés
-import ProfileStudent from "@/components/special/ProfileStudent";
-import DocumentCard from "@/components/shared/DocumentCard";
+import { LayoutDashboard, Globe, BookOpen, UploadCloud } from "lucide-react";
 import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
-export default function StudentLayout({
-  user,
-  classe,
-  documents,
-  matieres,
-  onCreateDocument,
-  downloadDoc,
-}) {
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import ProfileManage from "@/page/connected/ProfileManage";
+import MyDocumentManage from "@/page/connected/MyDocumentManage";
+import PublicPageManage from "@/page/connected/PublicPageManage";
+
+export default function StudentLayout({ matieres, onCreateDocument }) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
@@ -28,118 +15,59 @@ export default function StudentLayout({
       {/* Barre de navigation principale */}
       <div className="flex items-center justify-between gap-4 border-b border-border pb-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <Button
+          <ButtonStyled
+            icon={<LayoutDashboard className="h-4 w-4" />}
             variant={activeTab === "dashboard" ? "default" : "ghost"}
-            size="sm"
             onClick={() => setActiveTab("dashboard")}
             className="gap-2"
           >
-            <LayoutDashboard className="h-4 w-4" /> Tableau de bord
-          </Button>
-
-          <Button
+            Tableau de bord
+          </ButtonStyled>
+          <ButtonStyled
+            icon={<Globe className="h-4 w-4" />}
             variant={activeTab === "public" ? "default" : "ghost"}
-            size="sm"
             onClick={() => setActiveTab("public")}
             className="gap-2"
           >
-            <Globe className="h-4 w-4" /> Espace Public
-          </Button>
+            Espace Public
+          </ButtonStyled>
 
-          <Button
+          <ButtonStyled
+            icon={<BookOpen className="h-4 w-4" />}
             variant={activeTab === "courses" ? "default" : "ghost"}
-            size="sm"
             onClick={() => setActiveTab("courses")}
             className="gap-2"
           >
-            <BookOpen className="h-4 w-4" /> Mes Cours par Matière
-          </Button>
+            Mes Cours par Matière
+          </ButtonStyled>
         </div>
 
         {/* Bouton d'action rapide d'upload */}
-        <Button onClick={() => setIsUploadOpen(true)} className="gap-2">
-          <UploadCloud className="h-4 w-4" /> Publier un document
-        </Button>
+        <ButtonStyled
+          onClick={() => setIsUploadOpen(true)}
+          className="gap-2"
+          icon={<UploadCloud className="h-4 w-4" />}
+        >
+          Publier un document
+        </ButtonStyled>
       </div>
 
       {/* Vue 1 : Dashboard */}
       {activeTab === "dashboard" && (
         <div className="space-y-6">
-          <ProfileStudent
-            user={user}
-            classe={classe}
-            stats={{
-              documentsCount: documents.length,
-              savedCount: documents.filter((d) => d.isSaved).length,
-              pendingCount: documents.filter((d) => d.statut === "en_attente")
-                .length,
-            }}
-          />
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-foreground">
-              Mes derniers documents
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {documents.slice(0, 3).map((doc) => (
-                <DocumentCard
-                  key={doc.id}
-                  document={doc}
-                  onDownload={downloadDoc}
-                />
-              ))}
-            </div>
-          </div>
+          <ProfileManage />
         </div>
       )}
 
       {/* Vue 2 : Espace Public */}
       {activeTab === "public" && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">
-            Documents publics de {classe?.mention}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documents.map((doc) => (
-              <DocumentCard
-                key={doc.id}
-                document={doc}
-                onDownload={downloadDoc}
-              />
-            ))}
-          </div>
+          <MyDocumentManage />
         </div>
       )}
 
       {/* Vue 3 : Cours par Matière */}
-      {activeTab === "courses" && (
-        <div className="space-y-6">
-          {matieres.map((matiere) => {
-            const matiereDocs = documents.filter(
-              (d) => String(d.matiere_id) === String(matiere.id),
-            );
-            return (
-              <div
-                key={matiere.id}
-                className="border border-border rounded-xl p-4 bg-card space-y-3"
-              >
-                <h3 className="font-semibold text-lg text-primary">
-                  {matiere.name}
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {matiereDocs.map((doc) => (
-                    <DocumentCard
-                      key={doc.id}
-                      document={doc}
-                      onDownload={downloadDoc}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {activeTab === "courses" && <PublicPageManage />}
 
       {/* Modal d'upload */}
       <DocumentUploadDialog
@@ -147,7 +75,6 @@ export default function StudentLayout({
         onOpenChange={setIsUploadOpen}
         matieres={matieres}
         onCreate={onCreateDocument}
-        ownerId={user.id}
       />
     </div>
   );

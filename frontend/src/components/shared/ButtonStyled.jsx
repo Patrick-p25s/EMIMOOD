@@ -38,12 +38,12 @@ const ButtonStyled = forwardRef(function Button(
   {
     className,
     variant,
-    size,
+    size = "sm",
     asChild = false,
     loading = false,
     loadingText = null,
     disabled = false,
-    icon = null, // icône affichée à gauche quand pas en loading
+    icon = null,
     children,
     ...props
   },
