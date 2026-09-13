@@ -4,6 +4,13 @@ import {
 } from "@/api/documentService";
 import { useCallback, useEffect, useState } from "react";
 
+const initialFilters = {
+  search: "",
+  matiereId: "",
+  typeDocument: "",
+  dossierId: "",
+};
+
 export const useMyDocuments = ({
   initialPage = 1,
   initialPageSize = 20,
@@ -11,6 +18,7 @@ export const useMyDocuments = ({
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState(initialFilters);
 
   const [pagination, setPagination] = useState({
     page: initialPage,
@@ -19,7 +27,7 @@ export const useMyDocuments = ({
     pages: 1,
   });
 
-  const fetchDocuments = useCallback(async (page, pageSize) => {
+  const fetchDocuments = useCallback(async (page, pageSize, currentFilters) => {
     setLoading(true);
     setError(null);
 
@@ -27,6 +35,10 @@ export const useMyDocuments = ({
       const data = await myDocument({
         page,
         pageSize,
+        search: currentFilters.search || undefined,
+        matiereId: currentFilters.matiereId || undefined,
+        typeDocument: currentFilters.typeDocument || undefined,
+        dossierId: currentFilters.dossierId || undefined,
       });
 
       setDocuments(data.items);
@@ -48,15 +60,23 @@ export const useMyDocuments = ({
   }, []);
 
   useEffect(() => {
-    fetchDocuments(initialPage, initialPageSize);
+    fetchDocuments(initialPage, initialPageSize, filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDocuments, initialPage, initialPageSize]);
 
   const goToPage = (page) => {
-    return fetchDocuments(page, pagination.pageSize);
+    return fetchDocuments(page, pagination.pageSize, filters);
   };
 
   const refresh = () => {
-    return fetchDocuments(pagination.page, pagination.pageSize);
+    return fetchDocuments(pagination.page, pagination.pageSize, filters);
+  };
+
+  // Met à jour un ou plusieurs filtres et repart toujours à la page 1
+  const updateFilters = (newFilters) => {
+    const merged = { ...filters, ...newFilters };
+    setFilters(merged);
+    fetchDocuments(1, pagination.pageSize, merged);
   };
 
   const deleteDocument = async (documentId) => {
@@ -80,10 +100,12 @@ export const useMyDocuments = ({
   return {
     documents,
     pagination,
+    filters,
     loading,
     error,
     goToPage,
     refresh,
+    updateFilters,
     deleteDocument,
   };
 };

@@ -74,20 +74,13 @@ export default function ProfileManage() {
 
   return (
     <div>
-      <ProfileStudent user={me} classe={classe} />
-
-      <div className="flex gap-2 mt-4">
-        <ButtonStyled onClick={() => setOpenProfile(true)}>
-          Modifier le profil
-        </ButtonStyled>
-        <ButtonStyled onClick={() => setOpenPassword(true)}>
-          Modifier le mot de passe
-        </ButtonStyled>
-        <ButtonStyled onClick={() => setOpenSignal(true)}>
-          Signaler
-        </ButtonStyled>
-      </div>
-
+      <ProfileStudent
+        user={me}
+        classe={classe}
+        onEditProfile={() => setOpenProfile(true)}
+        onEditPassword={() => setOpenPassword(true)}
+        onSignaler={() => setOpenSignal(true)}
+      />
       {/* Modal : modifier le profil */}
       <FormModal
         open={openProfile}
