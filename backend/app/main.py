@@ -15,6 +15,8 @@ from app.modules.users.router import router as user_router
 from app.modules.years.router import router as year_router
 from app.modules.annonce.router import router as annonce_router
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from app.modules.documents.storage import UPLOAD_DIR
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -75,7 +77,7 @@ app = FastAPI(
     lifespan=lifespan,
     swagger_ui_parameters={"persistAuthorization": True},
 )
-
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

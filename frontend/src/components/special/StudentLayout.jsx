@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import { LayoutDashboard, Globe, BookOpen, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import ProfileStudent from "@/components/special/ProfileStudent";
-// Import de tes composants déjà créés
 import DocumentCard from "@/components/shared/DocumentCard";
-import DocumentUploadDialog from "./DocumentUploadDialog";
+import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
 export default function StudentLayout({
   user,
   classe,
@@ -13,10 +11,9 @@ export default function StudentLayout({
   matieres,
   onCreateDocument,
 }) {
-  const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "public" | "courses"
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
-  // Filtrage des documents
   const publicDocuments = documents.filter((doc) => doc.statut === "public");
   const myDocuments = documents.filter((doc) => doc.owner_id === user.id);
 

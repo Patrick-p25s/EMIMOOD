@@ -18,7 +18,7 @@ import {
 
 export default function ProfileStudent({
   user,
-  classe, // ex: { id: "...", nom: "L1 Informatique", niveau: "L1" }
+  classe,
   stats = {
     documentsCount: 0,
     savedCount: 0,

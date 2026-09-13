@@ -41,6 +41,7 @@ class UserOut(BaseModel):
 
 
 class UserRead(BaseModel):
+    id: UUID
     first_name: str
     last_name: str
     phone_number: str | None = None

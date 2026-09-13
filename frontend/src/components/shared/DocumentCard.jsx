@@ -254,11 +254,8 @@ export default function DocumentCard({
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1"
-          onClick={(e) => {
-            if (onDownload) {
-              e.preventDefault();
-              onDownload(document);
-            }
+          onClick={() => {
+            onDownload(document.id);
           }}
         >
           <Button

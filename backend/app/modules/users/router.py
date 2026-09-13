@@ -130,4 +130,4 @@ async def get_user_classe(
     user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_classe_user(user.id)
+    return await service.get_classe_user(current_user_id=user.id)

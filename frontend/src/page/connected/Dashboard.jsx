@@ -1,26 +1,18 @@
-import ProfileStudent from "@/components/special/ProfileStudent";
-import useAuth from "@/hooks/useAuth";
-import React, { useEffect } from "react";
+import { createDocument, downloadDocument } from "@/api/documentService";
+import StudentLayout from "@/layout/StudentLayout";
 
 export default function MyDashboard() {
-  const { user } = useAuth();
-  console.log(user);
-  const classe = {
-    id: 23,
-    niveau: "DAII",
-    mention: "L3",
+  const handleCreate = async (data) => {
+    try {
+      const res = await createDocument(data);
+      console.log(res);
+    } catch (error) {
+      console.log("Erreur ", error.message);
+    }
   };
-  const stats = {
-    documentsCount: 0,
-    savedCount: 0,
-    pendingCount: 0,
-  };
-  useEffect(() => {
-    console.log("Patrick");
-  }, []);
   return (
-    <div className="grid place-items-center">
-      <ProfileStudent user={user} stats={stats} classe={classe} />
+    <div>
+      <StudentLayout matieres={[]} onCreateDocument={handleCreate} />
     </div>
   );
 }

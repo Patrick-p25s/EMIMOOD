@@ -127,5 +127,5 @@ class UserService:
             return True
         return False
 
-    async def get_classe_user(self, user_id: UUID):
-        return await self.user_repo.get_user_classe(user_id)
+    async def get_classe_user(self, current_user_id: str):
+        return await self.user_repo.get_user_classe(current_user_id)
