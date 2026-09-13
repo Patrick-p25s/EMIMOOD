@@ -18,6 +18,7 @@ import YearAdministration from "./page/administration/YearAdministration";
 import AdminLayout from "./layout/AdminLayout";
 import MyDashboard from "./page/connected/Dashboard";
 import DocumentLecture from "./page/connected/DocumentLecture";
+import AnnoncesAdministration from "./page/administration/AnnonceAdministration";
 export default function App() {
   return (
     <AuthProvider>
@@ -51,7 +52,7 @@ export default function App() {
                 <Route path="classe" element={<ClasseAdministration />} />
                 <Route path="matiere" element={<MatiereAdministration />} />
                 <Route path="document" element={<DocumentAdministration />} />
-                <Route path="annonces" element={<DocumentAdministration />} />
+                <Route path="annonces" element={<AnnoncesAdministration />} />
                 <Route path="etudiant" element={<DocumentAdministration />} />
               </Route>
             </Route>

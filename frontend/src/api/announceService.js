@@ -1,24 +1,34 @@
 import apiClient from "./apiClient";
 
 export const createAnnonce = async (newAnnonce) => {
-  const result = await apiClient.post("/announces", newAnnonce);
+  const result = await apiClient.post("/announces", {
+    titre: newAnnonce.titre,
+    contenu: newAnnonce.contenu,
+    important: newAnnonce.important,
+  });
   return result.data;
 };
 
-export const listAnnonces = async () => {
-  const result = await apiClient.get("/announces");
+export const listAnnonces = async ({ page = 1, pageSize = 20 } = {}) => {
+  const result = await apiClient.get("/announces", {
+    params: { page, page_size: pageSize },
+  });
   return result.data;
 };
 
-export const listActiveAnnonce = async () => {
-  const result = await apiClient.get("/announces/active");
-  return result.data;
-};
+// export const listActiveAnnonce = async ({ page = 1, pageSize = 20 } = {}) => {
+//   const result = await apiClient.get("/announces/active", {
+//     params: { page, page_size: pageSize },
+//   });
+//   return result.data;
+// };
 
-export const listArchivedAnnonce = async () => {
-  const result = await apiClient.get("/announces/archive");
-  return result.data;
-};
+// export const listArchivedAnnonce = async ({ page = 1, pageSize = 20 } = {}) => {
+//   const result = await apiClient.get("/announces/archive", {
+//     params: { page, page_size: pageSize },
+//   });
+//   return result.data;
+// };
 
 export const getAnnonceById = async (id) => {
   const result = await apiClient.get(`/announces/${id}`);

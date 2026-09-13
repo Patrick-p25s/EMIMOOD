@@ -1,83 +1,123 @@
-import { annonceData } from "@/mocks/annonce";
-import { useState } from "react";
+import {
+  activeAnnounce,
+  createAnnonce,
+  listAnnonces,
+} from "@/api/announceService";
+import { useCallback, useState, useEffect } from "react";
 
-export default function useAnnonce() {
-  const [annonces, setAnnonces] = useState(annonceData);
+export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
+  const [annonces, setAnnonces] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: initialPage,
+    pageSize: initialPageSize,
+    total: 0,
+    pages: 1,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const createAnnonce = async (annonce, classeId, auteurId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const fetchAnnonce = useCallback(
+    async (page = pagination.page, pageSize = pagination.pageSize) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await listAnnonces({ page, pageSize });
+        setAnnonces(data.items);
+        setPagination({
+          page: data.page,
+          pageSize: data.pageSize,
+          total: data.total,
+          pages: data.pages,
+        });
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.page, pagination.pageSize],
+  );
 
-    const newAnnonce = {
-      id: crypto.randomUUID(),
-      titre: annonce.titre,
-      contenu: annonce.contenu,
-      important: annonce.important ?? false,
-      classe_id: classeId,
-      auteur_id: auteurId,
-      statut: "active",
-      created_at: new Date().toISOString(),
-    };
+  useEffect(() => {
+    fetchAnnonce(initialPage, initialPageSize);
+  }, []);
 
-    // Correctement ajouté au state
-    setAnnonces((prev) => [newAnnonce, ...prev]);
-    return newAnnonce;
+  const goToPage = (newPage) => {
+    fetchAnnonce(newPage, pagination.pageSize);
   };
 
-  const archiveAnnonce = async (annonceId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setAnnonces((prev) =>
-      prev.map((annonce) =>
-        annonce.id === annonceId ? { ...annonce, statut: "archivee" } : annonce,
-      ),
-    );
+  const activeAnnonce = annonces.filter(
+    (annonce) => annonce.statut === "active",
+  );
+  const archiveAnnonce = annonces.filter(
+    (annonce) => annonce.statut !== "active",
+  );
+
+  const add = async (newAnnonce) => {
+    setError(null);
+    try {
+      const created = await createAnnonce(newAnnonce);
+      await fetchAnnonce(pagination.page, pagination.pageSize);
+      return created;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
-  const getActiveAnnonce = async (classeId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  // const remove = async (id) => {
+  //   setError(null);
+  //   try {
+  //     await del(id);
+  //     setAnnonces((prev) => prev.filter((y) => y.id !== id));
+  //   } catch (err) {
+  //     setError(err);
+  //     throw err;
+  //   }
+  // };
 
-    // Filtrage avec le return explicite et condition corrigée
-    return annonces.filter(
-      (ann) =>
-        ann.statut === "active" &&
-        (ann.classe_id === classeId || ann.classe_id === null),
-    );
+  const archive = async (id) => {
+    setError(null);
+    try {
+      const archived = await archiveAnnonce(id);
+      setAnnonces((prev) =>
+        prev.map((annonce) =>
+          annonce.id === id ? { ...annonce, statut: "archive" } : annonce,
+        ),
+      );
+      return archived;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
-  const deleteAnnonce = async (annonceId) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setAnnonces((prev) => prev.filter((annonce) => annonce.id !== annonceId));
-  };
-
-  const updateAnnonce = async (annonceId, newAnnonce) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    let updatedItem = null;
-
-    setAnnonces((prev) =>
-      prev.map((annonce) => {
-        if (annonce.id === annonceId) {
-          updatedItem = {
-            ...annonce,
-            titre: newAnnonce.titre,
-            contenu: newAnnonce.contenu,
-            important: newAnnonce.important,
-            updated_at: new Date().toISOString(),
-          };
-          return updatedItem;
-        }
-        return annonce;
-      }),
-    );
-
-    return updatedItem;
+  const active = async (id) => {
+    setError(null);
+    try {
+      const activated = await activeAnnounce(id);
+      setAnnonces((prev) =>
+        prev.map((annonce) =>
+          annonce.id === id ? { ...annonce, statut: "active" } : annonce,
+        ),
+      );
+      return activated;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
   return {
     annonces,
-    createAnnonce,
-    updateAnnonce,
-    deleteAnnonce,
+    activeAnnonce,
     archiveAnnonce,
-    getActiveAnnonce,
+    loading,
+    error,
+    goToPage,
+    refresh: () => fetchAnnonce(pagination.page, pagination.pageSize),
+    add,
+    active,
+    archive,
   };
 }
