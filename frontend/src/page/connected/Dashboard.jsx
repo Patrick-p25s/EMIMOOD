@@ -1,26 +1,53 @@
+import { createDocument, downloadDocument } from "@/api/documentService";
 import ProfileStudent from "@/components/special/ProfileStudent";
 import useAuth from "@/hooks/useAuth";
+import { useMe, useMyDocuments } from "@/hooks/useMe";
+import StudentLayout from "@/layout/StudentLayout";
 import React, { useEffect } from "react";
 
 export default function MyDashboard() {
   const { user } = useAuth();
-  console.log(user);
-  const classe = {
-    id: 23,
-    niveau: "DAII",
-    mention: "L3",
+  const { getClasse } = useMe();
+  const { documents } = useMyDocuments();
+  const handleDownload = async (documentId) => {
+    try {
+      const blob = await downloadDocument(documentId);
+
+      // Crée une URL temporaire pointant vers le blob en mémoire
+      const url = window.URL.createObjectURL(blob);
+
+      // Crée un lien invisible et simule le clic
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = documentId; // nom du fichier proposé au téléchargement
+      document.body.appendChild(link);
+      link.click();
+
+      // Nettoyage
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    }
   };
-  const stats = {
-    documentsCount: 0,
-    savedCount: 0,
-    pendingCount: 0,
+
+  const handleCreate = async (data) => {
+    try {
+      const res = await createDocument(data);
+      console.log(res);
+    } catch (error) {
+      console.log("Erreur ", error.message);
+    }
   };
-  useEffect(() => {
-    console.log("Patrick");
-  }, []);
   return (
-    <div className="grid place-items-center">
-      <ProfileStudent user={user} stats={stats} classe={classe} />
+    <div>
+      <StudentLayout
+        user={user}
+        documents={documents}
+        classe={getClasse}
+        downloadDoc={handleDownload}
+        onCreateDocument={handleCreate}
+      />
     </div>
   );
 }

@@ -16,7 +16,6 @@ import MatiereAdministration from "./page/administration/MatiereAdministration";
 import DocumentAdministration from "./page/administration/DocumentAdministration";
 import YearAdministration from "./page/administration/YearAdministration";
 import AdminLayout from "./layout/AdminLayout";
-import Test from "./page/administration/Test";
 import MyDashboard from "./page/connected/Dashboard";
 export default function App() {
   return (
@@ -33,11 +32,11 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
               </Route>
+            </Route>
 
-              {/* Route pour tous ce qui est connecté  */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<MyDashboard />} />
-              </Route>
+            {/* Route pour tous ce qui est connecté  */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<MyDashboard />} />
             </Route>
 
             <Route element={<AdminLayout />}>

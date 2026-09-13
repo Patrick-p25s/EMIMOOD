@@ -1,11 +1,8 @@
 import {
   createModerator as createModeratorApi,
   deleteUser as deleteUserApi,
-  getProfile as getProfileApi,
   listUsers,
   register as registerApi,
-  updatePassword as updatePasswordApi,
-  updateProfile as updateProfileApi,
 } from "@/api/userService";
 import { useState, useEffect, useCallback } from "react";
 
@@ -60,39 +57,6 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
       throw err;
     }
   };
-  const updateProfile = async (id, newData) => {
-    setError(null);
-    try {
-      const updated = await updateProfileApi(newData);
-      await fetchUser(pagination.page, pagination.page_size);
-      return updated;
-    } catch (err) {
-      setError(err);
-      throw err;
-    }
-  };
-
-  const updatePassword = async (password, newPassword) => {
-    setError(null);
-    try {
-      const updated = await updatePasswordApi({ password, newPassword });
-      return updated;
-    } catch (err) {
-      setError(err);
-      throw err;
-    }
-  };
-
-  const getProfile = async () => {
-    setError(null);
-    try {
-      const user = await getProfileApi();
-      return user;
-    } catch (err) {
-      setError(err);
-      throw err;
-    }
-  };
 
   const createModerator = async (userData) => {
     setError(null);
@@ -124,9 +88,6 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     pagination,
     refresh: () => fetchUser(pagination.page, pagination.pageSize),
     register,
-    getProfile,
-    updatePassword,
-    updateProfile,
     createModerator,
     deleteUser,
   };

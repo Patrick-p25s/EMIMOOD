@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Globe, BookOpen, UploadCloud } from "lucide-react";
+import {
+  LayoutDashboard,
+  Globe,
+  BookOpen,
+  UploadCloud,
+  Download,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Import de tes composants déjà créés
@@ -12,13 +18,10 @@ export default function StudentLayout({
   documents,
   matieres,
   onCreateDocument,
+  downloadDoc,
 }) {
-  const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "public" | "courses"
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-
-  // Filtrage des documents
-  const publicDocuments = documents.filter((doc) => doc.statut === "public");
-  const myDocuments = documents.filter((doc) => doc.owner_id === user.id);
 
   return (
     <div className="min-h-screen bg-background space-y-6 p-4 md:p-8 max-w-7xl mx-auto">
@@ -66,9 +69,9 @@ export default function StudentLayout({
             user={user}
             classe={classe}
             stats={{
-              documentsCount: myDocuments.length,
+              documentsCount: documents.length,
               savedCount: documents.filter((d) => d.isSaved).length,
-              pendingCount: myDocuments.filter((d) => d.statut === "en_attente")
+              pendingCount: documents.filter((d) => d.statut === "en_attente")
                 .length,
             }}
           />
@@ -78,8 +81,12 @@ export default function StudentLayout({
               Mes derniers documents
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {myDocuments.slice(0, 3).map((doc) => (
-                <DocumentCard key={doc.id} document={doc} />
+              {documents.slice(0, 3).map((doc) => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  onDownload={downloadDoc}
+                />
               ))}
             </div>
           </div>
@@ -90,11 +97,15 @@ export default function StudentLayout({
       {activeTab === "public" && (
         <div className="space-y-4">
           <h2 className="text-xl font-bold">
-            Documents publics de {classe?.nom}
+            Documents publics de {classe?.mention}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {publicDocuments.map((doc) => (
-              <DocumentCard key={doc.id} document={doc} />
+            {documents.map((doc) => (
+              <DocumentCard
+                key={doc.id}
+                document={doc}
+                onDownload={downloadDoc}
+              />
             ))}
           </div>
         </div>
@@ -117,7 +128,11 @@ export default function StudentLayout({
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {matiereDocs.map((doc) => (
-                    <DocumentCard key={doc.id} document={doc} />
+                    <DocumentCard
+                      key={doc.id}
+                      document={doc}
+                      onDownload={downloadDoc}
+                    />
                   ))}
                 </div>
               </div>

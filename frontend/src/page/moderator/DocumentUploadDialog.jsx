@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import InputLabeled from "@/components/shared/InputLabeled";
 import TextareaLabeled from "@/components/shared/TextareaLabeled";
 import { UploadCloud } from "lucide-react";
 import FormModal from "@/components/shared/FormModal";
+import SelectLabeled from "@/components/shared/SelectLabeled";
+
+const buildFileMeta = (file) => ({
+  file,
+  fichierNom: file.name,
+  mimeType: file.type,
+  tailleOctets: file.size,
+});
 
 export default function DocumentUploadDialog({
   matieres = [],
@@ -22,52 +23,49 @@ export default function DocumentUploadDialog({
   const [form, setForm] = useState({
     titre: "",
     description: "",
-    type_document: "cours",
-    matiere_id: "",
-    date_limite: "",
-    proposer_publiquement: true,
+    typeDocument: "cours",
+    matiereId: "",
+    dateLimite: "",
+    proposerPubliquement: true,
   });
 
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const isAssignment = ["td", "tp", "devoir"].includes(form.type_document);
+  const isAssignment = ["td", "tp", "devoir"].includes(form.typeDocument);
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setError(null);
 
-    if (!form.titre.trim() || !form.matiere_id || !file) {
-      setError("Le titre, la matière et le fichier sont obligatoires.");
-      return;
-    }
+    // if (!form.titre.trim() || !form.matiereId || !file) {
+    //   setError("Le titre, la matière et le fichier sont obligatoires.");
+    //   return;
+    // }
 
     setLoading(true);
 
     try {
-      // Données à transmettre au handler createDocument
       const documentData = {
         titre: form.titre,
         description: form.description,
-        type_document: form.type_document,
-        date_limite: isAssignment && form.date_limite ? form.date_limite : null,
-        proposer_publiquement: form.proposer_publiquement,
-        file: file, // Optionnel si traité plus tard avec FormData
-        taille_octets: file.size,
-        storage_key: URL.createObjectURL(file),
+        typeDocument: form.typeDocument,
+        dateLimite: isAssignment && form.date_limite ? form.date_limite : null,
+        proposerPubliquement: form.proposerPubliquement,
+        matiereId: form.matiereId,
+        ...buildFileMeta(file),
       };
 
-      await onCreate(documentData, form.matiere_id, ownerId);
+      await onCreate(documentData);
 
-      // Reinitialisation du formulaire à la fermeture
       setForm({
         titre: "",
         description: "",
-        type_document: "cours",
-        matiere_id: "",
+        typeDocument: "cours",
+        matiereId: "",
         date_limite: "",
-        proposer_publiquement: true,
+        proposerPubliquement: true,
       });
       setFile(null);
       onOpenChange(false);
@@ -98,59 +96,39 @@ export default function DocumentUploadDialog({
       />
 
       {/* Sélection du Type de Document */}
-      <div className="space-y-1.5">
-        <Label htmlFor="type_document">Type de document</Label>
-        <Select
-          value={form.type_document}
-          onValueChange={(val) =>
-            setForm((p) => ({ ...p, type_document: val }))
-          }
-        >
-          <SelectTrigger id="type_document">
-            <SelectValue placeholder="Sélectionner le type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="cours">Cours</SelectItem>
-            <SelectItem value="td">Travaux Dirigés (TD)</SelectItem>
-            <SelectItem value="tp">Travaux Pratiques (TP)</SelectItem>
-            <SelectItem value="examen">Examen / Controle</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectLabeled
+        placeholder="Sélectionner le type"
+        value={form.typeDocument}
+        setValue={setForm}
+        options={[
+          { value: "cours", label: "Cours" },
+          { value: "td", label: "Travaux dirigée" },
+          { value: "tp", label: "Travaux pratique" },
+          { value: "examen", label: "Examen" },
+        ]}
+        id="typeDocument"
+      />
 
       {/* Sélection de la Matière */}
-      <div className="space-y-1.5">
-        <Label htmlFor="matiere">Matière</Label>
-        <Select
-          value={form.matiere_id}
-          onValueChange={(val) => setForm((p) => ({ ...p, matiere_id: val }))}
-        >
-          <SelectTrigger id="matiere">
-            <SelectValue placeholder="Sélectionner une matière" />
-          </SelectTrigger>
-          <SelectContent>
-            {matieres.map((m) => (
-              <SelectItem key={m.id} value={String(m.id)}>
-                {m.name || m.titre || m.nom}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectLabeled
+        options={matieres}
+        value={form.matiereId}
+        id="matiereId"
+        setValue={setForm}
+        placeholder="Choisir matiere"
+      />
 
       {/* Conditionnel : Date limite uniquement si TD/TP/Devoir */}
       {isAssignment && (
         <div className="space-y-1.5">
-          <Label htmlFor="date_limite">
-            Date limite de rendu (Optionnelle)
-          </Label>
+          <Label htmlFor="dateLimite">Date limite de rendu (Optionnelle)</Label>
           <input
-            id="date_limite"
+            id="dateLimite"
             type="datetime-local"
             className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            value={form.date_limite}
+            value={form.dateLimite}
             onChange={(e) =>
-              setForm((p) => ({ ...p, date_limite: e.target.value }))
+              setForm((p) => ({ ...p, dateLimite: e.target.value }))
             }
           />
         </div>

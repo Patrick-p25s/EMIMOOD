@@ -127,7 +127,8 @@ async def delete_one_user(
 
 @router.get("/classe")
 async def get_user_classe(
+    user_id: str | None,
     user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_classe_user(user.id)
+    return await service.get_classe_user(user_id, user.id)
