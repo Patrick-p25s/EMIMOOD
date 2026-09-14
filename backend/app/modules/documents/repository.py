@@ -53,6 +53,23 @@ class DocumentRepository:
         )
         return result.scalars().all(), total_result.scalar_one()
 
+    async def stat_document(self, user_id: UUID | str):
+        base_query = (
+            select(func.count())
+            .select_from(Document)
+            .where(Document.owner_id == normalized_id(user_id))
+        )
+        document = await self.db.execute(base_query)
+        pending_query = base_query.where(
+            Document.statut == DocumentStatus.en_attente.value
+        )
+        pending = await self.db.execute(pending_query)
+
+        return {
+            "document": document.scalar_one(),
+            "pending": pending.scalar_one(),
+        }
+
     async def list_pending(
         self,
         classe_id: UUID | str | None,
@@ -179,6 +196,14 @@ class DocumentSaveRepository:
             )
         )
         return result.scalars().all()
+
+    async def stats_save(self, user_id: str | UUID):
+        save = await self.db.execute(
+            select(func.count())
+            .select_from(DocumentSauvegarde)
+            .where(DocumentSauvegarde.user_id == normalized_id(user_id))
+        )
+        return {"saved": save.scalar_one()}
 
     async def list_by_folder(self, folder_id: UUID | str):
         result = await self.db.execute(

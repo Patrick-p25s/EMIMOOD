@@ -104,6 +104,13 @@ export const deleteDocumentSaved = async (documentId) => {
   return result.data;
 };
 
+export const getStats = async (userId = null) => {
+  const result = await apiClient.get("/documents/stats", {
+    params: { user_id: userId },
+  });
+  return result.data;
+};
+
 export const getDocumentById = async (documentId) => {
   const result = await apiClient.get(`/documents/${documentId}`);
   return result.data;

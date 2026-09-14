@@ -124,6 +124,15 @@ async def delete_saved_document(
     await service.delete_save_document(save_id, current_user)
 
 
+@router.get("/stats")
+async def get_stats(
+    user_id: str | None = None,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_stat_user(user_id, current_user.id)
+
+
 @router.get("/{document_id}", response_model=DocumentOut)
 async def get_document(
     document_id: UUID,
@@ -163,4 +172,4 @@ async def delete_document(
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> None:
-    await service.delete_document(document_id, current_user)
+    return await service.delete_document(document_id, current_user)

@@ -86,8 +86,12 @@ class UserService:
         }
         return await self.user_repo.create(data)
 
-    async def update_profile(self, id: UUID | str, request: UpdateProfile) -> UserOut:
-        user = await self._get_user_by_id(id)
+    async def update_profile(
+        self, user_id: str | None, current_user_id: UUID | str, request: UpdateProfile
+    ) -> UserOut:
+        current_user = await self._get_user_by_id(current_user_id)
+        if user_id is not None:
+            user = await self._get_user_by_id(user_id)
 
         existing_user = await self.user_repo.get_by_email(request.email)
         if existing_user is not None and existing_user.id != user.id:
@@ -102,7 +106,9 @@ class UserService:
             "email": request.email,
             "phone_number": request.phone_number,
         }
-        return await self.user_repo.update(user, data)
+        if user_id is not None:
+            return await self.user_repo.update(user, data)
+        return await self.user_repo.update(current_user, data)
 
     async def update_password(self, id: UUID | str, request: UpdatePassword) -> UserOut:
         user = await self._get_user_by_id(id)
@@ -126,5 +132,7 @@ class UserService:
             return True
         return False
 
-    async def get_classe_user(self, current_user_id: str):
+    async def get_classe_user(self, user_id: str | None, current_user_id: str):
+        if user_id is not None:
+            return await self.user_repo.get_user_classe(user_id)
         return await self.user_repo.get_user_classe(current_user_id)

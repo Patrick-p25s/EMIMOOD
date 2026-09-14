@@ -23,6 +23,7 @@ export default function AnnoncesAdministration() {
     update,
     remove,
     archive,
+    active,
   } = useAnnonce();
 
   const [filter, setFilter] = useState("all");
@@ -65,6 +66,18 @@ export default function AnnoncesAdministration() {
     setActionLoading(true);
     try {
       await archive(annonceId);
+    } catch (err) {
+      setActionError(`Erreur : ${err.message?.toString()}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleActive = async (annonceId) => {
+    setActionError(null);
+    setActionLoading(true);
+    try {
+      await active(annonceId);
     } catch (err) {
       setActionError(`Erreur : ${err.message?.toString()}`);
     } finally {
@@ -156,6 +169,7 @@ export default function AnnoncesAdministration() {
               onDelete={() => handleDelete(annonce)}
               onArchive={() => handleArchive(annonce.id)}
               onEdit={() => handleEdit(annonce)}
+              onUnarchive={() => handleActive(annonce.id)}
             />
           ))}
         </div>

@@ -60,10 +60,11 @@ async def get_my_profile(user: Users = Depends(get_current_user)) -> UserRead:
 )
 async def update_my_profile(
     request: UpdateProfile,
-    user: Users = Depends(get_current_user),
+    user_id: str | None = None,
+    current_user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    updated_user = await service.update_profile(user.id, request)
+    updated_user = await service.update_profile(user_id, current_user.id, request)
     return UserRead.model_validate(updated_user)
 
 
@@ -129,7 +130,8 @@ async def delete_one_user(
 
 @router.get("/classe")
 async def get_user_classe(
+    user_id: str | None = None,
     user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_classe_user(current_user_id=user.id)
+    return await service.get_classe_user(user_id, current_user_id=user.id)

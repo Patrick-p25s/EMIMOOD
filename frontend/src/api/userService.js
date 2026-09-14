@@ -18,13 +18,18 @@ export const getProfile = async () => {
   return result.data;
 };
 
-export const updateProfile = async (newData) => {
-  const result = await apiClient.put("/users/me", {
-    first_name: newData.firstName,
-    last_name: newData.lastName,
-    email: newData.email,
-    phone_number: newData.phoneNumber,
-  });
+export const updateProfile = async (userId = null, newData) => {
+  const params = userId ? { user_id: userId } : {};
+  const result = await apiClient.put(
+    "/users/me",
+    {
+      first_name: newData.firstName,
+      last_name: newData.lastName,
+      email: newData.email,
+      phone_number: newData.phoneNumber,
+    },
+    { params },
+  );
   return result.data;
 };
 
@@ -60,7 +65,9 @@ export const deleteUser = async (id) => {
   return result.data;
 };
 
-export const getUserClasse = async () => {
-  const result = await apiClient.get("/users/classe");
+export const getUserClasse = async (userId = null) => {
+  const result = await apiClient.get("/users/classe", {
+    params: { user_id: userId },
+  });
   return result.data;
 };

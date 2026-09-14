@@ -121,7 +121,7 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
   const active = async (id) => {
     setError(null);
     try {
-      const activated = await activeAnnonce(id);
+      const activated = await activeAnnounce(id);
       setAnnonces((prev) =>
         prev.map((annonce) =>
           annonce.id === id ? { ...annonce, statut: "active" } : annonce,
