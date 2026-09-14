@@ -16,7 +16,7 @@ export default function AnnoncesAdministration() {
   const {
     annonces,
     activeAnnonce,
-    archiveAnnonce,
+    archivedAnnonce,
     loading,
     error,
     add,
@@ -33,9 +33,9 @@ export default function AnnoncesAdministration() {
 
   const filteredAnnonces = useMemo(() => {
     if (filter === "active") return activeAnnonce;
-    if (filter === "archive") return archiveAnnonce;
+    if (filter === "archive") return archivedAnnonce;
     return annonces;
-  }, [filter, annonces, activeAnnonce, archiveAnnonce]);
+  }, [filter, annonces, activeAnnonce, archivedAnnonce]);
 
   const cancelUpdate = () => {
     setUpdated(null);
@@ -117,7 +117,7 @@ export default function AnnoncesAdministration() {
           <TabsTrigger value="archive">
             Archivées{" "}
             <Badge variant="secondary" className="ml-1.5">
-              {archiveAnnonce.length}
+              {archivedAnnonce.length}
             </Badge>
           </TabsTrigger>
         </TabsList>

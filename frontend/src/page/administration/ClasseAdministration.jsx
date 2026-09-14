@@ -10,7 +10,8 @@ import { useClasse } from "@/hooks/useClasse";
 const emptyClasse = { mention: "", niveau: "" };
 
 export default function ClasseAdministration() {
-  const { loading, error, classes, add, remove, update } = useClasse();
+  const { loading, error, classes, add, remove, update, generate } =
+    useClasse();
 
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -18,17 +19,17 @@ export default function ClasseAdministration() {
   const [classeEnEdition, setClasseEnEdition] = useState(null);
 
   const [saving, setSaving] = useState(false);
-  const [erreur, setErreur] = useState(null);
+  const [erreur, setActionErreur] = useState(null);
 
   const handleCreate = async () => {
-    setErreur(null);
+    setActionErreur(null);
     setSaving(true);
     try {
       await add(classeData);
       setClasseData(emptyClasse);
       setOpenCreate(false);
     } catch (err) {
-      setErreur(err.message?.toString());
+      setActionErreur(err.message?.toString());
     } finally {
       setSaving(false);
     }
@@ -41,31 +42,45 @@ export default function ClasseAdministration() {
   };
 
   const handleUpdate = async () => {
-    setErreur(null);
+    setActionErreur(null);
     setSaving(true);
     try {
-      await update(classeEnEdition.id, classeData);
+      const updated = await update(classeEnEdition.id, classeData);
       setOpenEdit(false);
       setClasseEnEdition(null);
+      return updated;
     } catch (err) {
-      setErreur(err.message?.toString());
+      setActionErreur(err.message?.toString());
     } finally {
       setSaving(false);
     }
   };
 
+  const handleRegenerate = async (id) => {
+    setActionErreur(null);
+    try {
+      await generate(id);
+    } catch (err) {
+      setActionErreur(err.message?.toString());
+    }
+  };
+
   const handleDelete = async (id) => {
-    setErreur(null);
+    setActionErreur(null);
     try {
       await remove(id);
     } catch (err) {
-      setErreur(err.message?.toString());
+      setActionErreur(err.message?.toString());
     }
   };
 
   // Pas encore implémenté — juste le point d'entrée pour l'instant
   const handleAddModerateur = (classe) => {
-    return null;
+    try {
+      return dfs;
+    } catch (err) {
+      setActionErreur(err.message);
+    }
   };
 
   return (
@@ -81,12 +96,21 @@ export default function ClasseAdministration() {
         <ButtonStyled
           type="button"
           className="gap-1.5"
-          onClick={() => setOpenCreate(true)}
+          onClick={() => {
+            setOpenCreate(true);
+            setActionErreur(null);
+          }}
+          icon={<Plus className="h-4 w-4" />}
         >
-          <Plus className="h-4 w-4" />
           Ajouter
         </ButtonStyled>
       </div>
+
+      {(error || erreur) && (
+        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
+          {erreur || error?.message}
+        </div>
+      )}
 
       {/* Modal : créer une classe */}
       <FormModal
@@ -103,14 +127,14 @@ export default function ClasseAdministration() {
           value={classeData.mention}
           setValue={setClasseData}
           name="mention"
-          onChange={() => setErreur(null)}
+          onChange={() => setActionErreur(null)}
         />
         <InputLabeled
           label="Niveau"
           value={classeData.niveau}
           setValue={setClasseData}
           name="niveau"
-          onChange={() => setErreur(null)}
+          onChange={() => setActionErreur(null)}
         />
       </FormModal>
 
@@ -129,14 +153,14 @@ export default function ClasseAdministration() {
           value={classeData.mention}
           setValue={setClasseData}
           name="mention"
-          onChange={() => setErreur(null)}
+          onChange={() => setActionErreur(null)}
         />
         <InputLabeled
           label="Niveau"
           value={classeData.niveau}
           setValue={setClasseData}
           name="niveau"
-          onChange={() => setErreur(null)}
+          onChange={() => setActionErreur(null)}
         />
       </FormModal>
 
@@ -148,7 +172,7 @@ export default function ClasseAdministration() {
           ))}
         </div>
       ) : error ? (
-        <p className="text-sm text-destructive">Erreur : {error.message}</p>
+        <p className="text-sm text-destructive">erreur : {error.message}</p>
       ) : classes.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center text-muted-foreground">
           <School className="h-8 w-8" />
@@ -165,6 +189,7 @@ export default function ClasseAdministration() {
               onEdit={openEditModal}
               onDelete={handleDelete}
               onAddModerateur={handleAddModerateur}
+              onRegenerate={handleRegenerate}
             />
           ))}
         </div>

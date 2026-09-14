@@ -2,7 +2,12 @@ from uuid import UUID
 
 from app.modules.annonce.model import Annonce, AnnonceStatut
 from app.modules.annonce.repository import AnnonceLectureRepository, AnnonceRepository
-from app.modules.annonce.schema import AnnonceCreate, LecteurStats
+from app.modules.annonce.schema import (
+    AnnonceCreate,
+    LecteurStats,
+    LectureOut,
+    AnnonceUpdate,
+)
 from app.modules.users.model import UserRole, Users
 from app.modules.users.repository import UserRepository
 from app.core.pagination import Page, PaginationParams, make_page
@@ -40,6 +45,36 @@ class AnnonceService:
         )
         return make_page(annonces, total, params)
 
+    async def update_annonces(self, id: str, data: AnnonceUpdate, current_user: Users):
+        annonce = await self.get_annonce_by_id(id, current_user)
+        return await self.repo.update(
+            annonce,
+            {"titre": data.titre, "contenu": data.contenu, "important": data.important},
+        )
+
+    # async def get_anonce_by_id(self, current_user: Users, id: str):
+    #     annonce = self._get_annonce_or_404(id)
+    #     if (
+    #         current_user.role != UserRole.admin
+    #         and annonce.classe_id is not None
+    #         and annonce.classe_id != current_user.classe_id
+    #     ):
+    #         raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+
+    #     if annonce.statut == AnnonceStatut.archivee and current_user.role not in (
+    #         UserRole.admin,
+    #         UserRole.moderator,
+    #     ):
+    #         raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+
+    #     return annonce
+
+    async def is_read(self, current_user: Users, id: str) -> LectureOut:
+        exists = await self.lecture_repo.exists(id, current_user.id)
+        if exists:
+            return True
+        return False
+
     # Creation
     async def create_annonce(
         self, request: AnnonceCreate, current_user: Users, classe_id: UUID | None = None
@@ -61,9 +96,10 @@ class AnnonceService:
         return await self.repo.create(data)
 
     # lecture et consultation
-    async def get_annonce_by_id(self, annonce_id: UUID, current_user: Users) -> Annonce:
+    async def get_annonce_by_id(
+        self, annonce_id: UUID, current_user: Users
+    ) -> LectureOut:
         annonce = await self._get_annonce_or_404(annonce_id)
-
         if (
             current_user.role != UserRole.admin
             and annonce.classe_id is not None
@@ -120,6 +156,10 @@ class AnnonceService:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces refusé")
 
         return await self.repo.update(annonce, {"statut": AnnonceStatut.archivee})
+
+    async def delete_annonce(self, id: str, current_user: Users) -> bool:
+        annonce = await self.get_annonce_by_id(id, current_user)
+        return await self.repo.delete(annonce)
 
     # Suive de lecture
     async def get_lecteur_stats(

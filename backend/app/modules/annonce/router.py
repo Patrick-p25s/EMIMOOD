@@ -1,7 +1,13 @@
 from uuid import UUID
 
 from app.modules.annonce.repository import AnnonceLectureRepository, AnnonceRepository
-from app.modules.annonce.schema import AnnonceCreate, AnnonceOut, LecteurStats
+from app.modules.annonce.schema import (
+    AnnonceCreate,
+    AnnonceOut,
+    LecteurStats,
+    LectureOut,
+    AnnonceUpdate,
+)
 from app.modules.annonce.service import AnnonceService
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -60,6 +66,24 @@ async def get_archived_annonces(
     return await service.list_archived(current_user, params)
 
 
+@router.post("/{id}/read", response_model=AnnonceOut)
+async def read_one_annonce(
+    id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: AnnonceService = Depends(get_annonce_service),
+) -> AnnonceOut:
+    return await service.get_annonce_by_id(id, current_user)
+
+
+@router.post("/read/{id}", response_model=bool)
+async def already_read(
+    id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: AnnonceService = Depends(get_annonce_service),
+) -> bool:
+    return await service.is_read(current_user, id)
+
+
 @router.get("/{id}", response_model=AnnonceOut)
 async def get_annonce_by_id(
     id: UUID,
@@ -69,7 +93,7 @@ async def get_annonce_by_id(
     return await service.get_annonce_by_id(id, current_user)
 
 
-@router.patch("/{id}/archiver", response_model=AnnonceOut)
+@router.patch("/{id}/archive", response_model=AnnonceOut)
 async def archive_annonce(
     id: UUID,
     current_user: Users = Depends(get_current_user),
@@ -85,3 +109,22 @@ async def get_lecteur_stats(
     service: AnnonceService = Depends(get_annonce_service),
 ) -> LecteurStats:
     return await service.get_lecteur_stats(id, current_user)
+
+
+@router.delete("/{id}/delete", response_model=bool)
+async def delete_annonce(
+    id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: AnnonceService = Depends(get_annonce_service),
+) -> bool:
+    return await service.delete_annonce(id, current_user)
+
+
+@router.patch("/{id}/update", response_model=AnnonceOut)
+async def delete_annonce(
+    id: UUID,
+    data: AnnonceUpdate,
+    current_user: Users = Depends(get_current_user),
+    service: AnnonceService = Depends(get_annonce_service),
+) -> AnnonceOut:
+    return await service.update_annonces(id, data, current_user)

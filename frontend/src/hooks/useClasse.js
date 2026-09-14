@@ -1,4 +1,3 @@
-import { classeData } from "@/mocks/classe";
 import { useCallback, useEffect, useState } from "react";
 import {
   createClasse,
@@ -53,7 +52,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
     setError(null);
     try {
       const created = await createClasse(newClasse);
-      await fetchClasse(pagination.page, pagination.pageSize);
+      setClasses((prev) => [...prev, created]);
       return created;
     } catch (err) {
       setError(err);
@@ -65,6 +64,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
     setError(null);
     try {
       const updated = await regenerateCode(id);
+      setClasses((prev) => prev.map((cl) => (cl.id === id ? updated : cl)));
       return updated;
     } catch (err) {
       setError(err);
