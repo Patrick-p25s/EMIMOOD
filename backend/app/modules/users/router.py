@@ -14,6 +14,7 @@ from app.modules.users.schema import (
     UpdateProfile,
     UserCreate,
     UserRead,
+    ModeratorCreate,
 )
 from app.modules.users.service import UserService
 
@@ -96,18 +97,19 @@ async def get_all_users(
 
 
 @router.post(
-    "/moderators",
+    "/{classe_id}/moderators",
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
     summary="Créer un compte modérateur",
     description="Permet à un administrateur de créer un compte avec les privilèges de modérateur.",
 )
 async def create_moderator(
-    request: UserCreate,
+    classe_id: str,
+    request: ModeratorCreate,
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    moderator = await service.create_moderator(request=request)
+    moderator = await service.create_moderator(request=request, classe_id=classe_id)
     return UserRead.model_validate(moderator)
 
 

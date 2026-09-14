@@ -234,7 +234,12 @@ class DocumentService:
         if not (est_proprietaire or est_moderateur):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Modification non autorisée")
 
-        data = request.model_dump(exclude_unset=True)
+        data = {
+            "titre": request.titre,
+            "description": request.description,
+            "date_limite": request.date_limite,
+            "type_document": request.type_document,
+        }
 
         return await self.document_repo.update(document, data)
 

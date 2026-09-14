@@ -6,17 +6,27 @@ import ClasseCard from "@/components/special/ClasseCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, School } from "lucide-react";
 import { useClasse } from "@/hooks/useClasse";
+import { userData } from "@/mocks/user";
+import { ChampUsersCreate } from "../RegisterPage";
 
 const emptyClasse = { mention: "", niveau: "" };
 
 export default function ClasseAdministration() {
-  const { loading, error, classes, add, remove, update, generate } =
+  const { loading, error, classes, add, remove, update, generate, moderator } =
     useClasse();
 
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [classeData, setClasseData] = useState(emptyClasse);
   const [classeEnEdition, setClasseEnEdition] = useState(null);
+  const [openModerator, setOpentModerator] = useState(false);
+  const [classe, setClasse] = useState(null);
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
 
   const [saving, setSaving] = useState(false);
   const [erreur, setActionErreur] = useState(null);
@@ -75,11 +85,15 @@ export default function ClasseAdministration() {
   };
 
   // Pas encore implémenté — juste le point d'entrée pour l'instant
-  const handleAddModerateur = (classe) => {
+  const handleAddModerateur = async () => {
+    if (classe === null) {
+      setActionErreur("Aucune classe séléctionné");
+      return;
+    }
     try {
-      return dfs;
+      return await moderator(userData, classe.id);
     } catch (err) {
-      setActionErreur(err.message);
+      setActionErreur(err.message?.toString());
     }
   };
 
@@ -138,6 +152,14 @@ export default function ClasseAdministration() {
         />
       </FormModal>
 
+      <FormModal
+        open={openModerator}
+        onOpenChange={setOpentModerator}
+        onSubmit={handleAddModerateur}
+      >
+        <ChampUsersCreate value={userData} setValue={setUserData} />
+      </FormModal>
+
       {/* Modal : modifier une classe */}
       <FormModal
         onSubmit={handleUpdate}
@@ -188,7 +210,10 @@ export default function ClasseAdministration() {
               classe={classe}
               onEdit={openEditModal}
               onDelete={handleDelete}
-              onAddModerateur={handleAddModerateur}
+              onAddModerateur={() => {
+                setOpentModerator(true);
+                setClasse(classe);
+              }}
               onRegenerate={handleRegenerate}
             />
           ))}

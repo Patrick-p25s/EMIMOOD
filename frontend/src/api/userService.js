@@ -43,15 +43,14 @@ export const listUsers = async ({ page = 0, pageSize = 20 } = {}) => {
   return result.data;
 };
 
-export const createModerator = async (userData) => {
-  const result = await apiClient.post("/users/moderators", {
+export const createModerator = async (userData, classeId) => {
+  const result = await apiClient.post(`/users/${classeId}/moderators`, {
     first_name: userData.firstName,
     last_name: userData.lastName,
     email: userData.email,
     password: userData.password,
     phone_number: userData.phoneNumber,
     matricule: userData.matricule,
-    code_invitation: userData.codeInvitation,
   });
   return result.data;
 };

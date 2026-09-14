@@ -14,6 +14,15 @@ class UserCreate(BaseModel):
     code_invitation: str
 
 
+class ModeratorCreate(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: str
+    matricule: str
+    email: EmailStr
+    password: str
+
+
 class UpdateProfile(BaseModel):
     first_name: str
     last_name: str

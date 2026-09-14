@@ -8,7 +8,14 @@ from app.core.security import hash_password, verify_password
 from app.modules.classes.repository import ClasseRepository
 from app.modules.users.model import UserRole
 from app.modules.users.repository import UserRepository
-from app.modules.users.schema import UpdatePassword, UpdateProfile, UserCreate, UserOut
+from app.modules.users.schema import (
+    UpdatePassword,
+    UpdateProfile,
+    UserCreate,
+    UserOut,
+    ModeratorCreate,
+)
+from app.core.normalised_id import normalized_id
 
 
 class UserService:
@@ -62,14 +69,12 @@ class UserService:
                 detail="Classe spécifié n'existe pas ",
             )
 
-    async def create_moderator(self, request: UserCreate) -> UserOut:
+    async def create_moderator(
+        self, request: ModeratorCreate, classe_id: str
+    ) -> UserOut:
         existing_user = await self.user_repo.get_by_email(request.email)
         if existing_user is not None:
             raise HTTPException(400, "Email already registered")
-        classe = await self.classe_repo.get_by_code_invitation(request.code_invitation)
-        if classe is None:
-            raise HTTPException(400, "Code d'invitation invalide")
-
         data = {
             "first_name": request.first_name,
             "last_name": request.last_name,
@@ -77,15 +82,9 @@ class UserService:
             "role": UserRole.moderator.value,
             "password_hash": hash_password(request.password),
             "phone_number": request.phone_number,
-            "classe_id": classe.id,
+            "classe_id": normalized_id(classe_id),
         }
-        try:
-            return await self.user_repo.create(data)
-        except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Classe spécifié n'existe pas ",
-            )
+        return await self.user_repo.create(data)
 
     async def update_profile(self, id: UUID | str, request: UpdateProfile) -> UserOut:
         user = await self._get_user_by_id(id)
