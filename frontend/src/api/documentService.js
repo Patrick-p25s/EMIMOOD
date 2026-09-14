@@ -34,6 +34,13 @@ export const getPublicDocuments = async ({
   return result.data;
 };
 
+export const getNotPrivateDocs = async ({ page = 1, pageSize = 20 } = {}) => {
+  const result = await apiClient.get("/documents", {
+    params: { page, page_size: pageSize },
+  });
+  return result.data;
+};
+
 export const pendingDocuments = async ({
   page = 1,
   pageSize = 20,

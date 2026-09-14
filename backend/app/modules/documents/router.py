@@ -60,6 +60,15 @@ async def create_document(
     return await service.create_document(matiere_id, current_user, request, file)
 
 
+@router.get("", response_model=Page[DocumentOut])
+async def get_document_not_private(
+    params: PaginationParams = Depends(),
+    current_user: Users = Depends(require_moderator),
+    service: DocumentService = Depends(get_document_service),
+) -> Page[DocumentOut]:
+    return await service.get_not_private_document(current_user, params)
+
+
 @router.get("/mine", response_model=Page[DocumentOut])
 async def list_my_documents(
     params: PaginationParams = Depends(),

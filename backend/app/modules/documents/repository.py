@@ -123,6 +123,21 @@ class DocumentRepository:
         result = await self.db.execute(query)
         return result.scalars().all()
 
+    async def not_private_doc(
+        self, classe_id: str | str | None = None, offset: int = 0, limit: int = 20
+    ):
+        query = select(Document).where(Document.statut != DocumentStatus.prive)
+        if classe_id is not None:
+            query = query.where(Document.classe_id == normalized_id(classe_id))
+        total_query = select(func.count()).select_from(query.subquery())
+        total_result = await self.db.execute(total_query)
+        total = total_result.scalar_one()
+        result = await self.db.execute(
+            query.order_by(Document.created_at.desc()).offset(offset).limit(limit)
+        )
+        documents = result.scalars().all()
+        return documents, total
+
     async def delete(self, matiere: Document) -> None:
         await self.db.delete(matiere)
         await self.db.commit()

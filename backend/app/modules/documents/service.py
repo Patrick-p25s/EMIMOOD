@@ -150,6 +150,15 @@ class DocumentService:
         )
         return make_page(documents, total, params)
 
+    async def get_not_private_document(
+        self, current_user: Users, params: PaginationParams
+    ):
+        self._require_moderator(current_user)
+        result, total = await self.document_repo.not_private_doc(
+            current_user.classe_id, params.offset, params.limit
+        )
+        return make_page(result, total, params)
+
     async def get_rejected_docs(
         self, current_user: Users, matiere_id: str | None = None
     ):

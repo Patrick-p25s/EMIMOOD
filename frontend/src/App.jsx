@@ -52,42 +52,14 @@ export default function App() {
                 <Route path="classe" element={<ClasseAdministration />} />
                 <Route path="matiere" element={<MatiereAdministration />} />
                 <Route path="document" element={<DocumentAdministration />} />
+                <Route
+                  path="document/:documentId"
+                  element={<DocumentLecture />}
+                />
                 <Route path="annonces" element={<AnnoncesAdministration />} />
                 <Route path="etudiant" element={<DocumentAdministration />} />
               </Route>
             </Route>
-
-            {/* <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<AdminRoute />}>
-                <Route path="" element={<DashboardAdmin />} />
-                <Route path="annonces" element={<Annonces />} />
-                <Route path="annees" element={<Annee />} />
-                <Route path="classes" element={<Classe />} />
-                <Route path="classes/:classeId" element={<ManageClasse />} />
-                <Route path="etudiants" element={<Etudiant />} />
-                <Route path="documents" element={<DocumentAdmin />} />
-                <Route path="documents/:documentId" element={<OneDocument />} />
-              </Route>
-            </Route>
-
-            <Route path="/moderator" element={<ModeratorRoute />}>
-              <Route element={<ModeratorLayout />}>
-                <Route index element={<DashboardModerator />} />
-                <Route path="students" element={<StudentModerator />} />
-                <Route path="annonces" element={<AnnounceModerator />} />
-                <Route path="matieres" element={<SubjectModerator />} />
-                <Route path="profile" element={<StudentLayout />} />
-                <Route
-                  path="matieres/:subjectId"
-                  element={<OneSubjectModerator />}
-                />
-                <Route path="documents" element={<DocumentModerator />} />
-                <Route
-                  path="documents/:documentId"
-                  element={<OneDocumentModerator />}
-                />
-              </Route>
-            </Route> */}
           </Routes>
         </BrowserRouter>
       </AnneeProvider>
