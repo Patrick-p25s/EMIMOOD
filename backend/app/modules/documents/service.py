@@ -102,11 +102,11 @@ class DocumentService:
         return await self.document_repo.create(data)
 
     async def get_stat_user(self, user_id: str | None, current_user_id: str | UUID):
-        docs = await self.document_repo.stat_document(user_id)
-        save = await self.save_repo.stats_save(user_id)
-        if user_id is None:
-            docs = await self.document_repo.stat_document(current_user_id)
-            save = await self.save_repo.stats_save(current_user_id)
+        docs = await self.document_repo.stat_document(current_user_id)
+        save = await self.save_repo.stats_save(current_user_id)
+        if user_id is not None:
+            docs = await self.document_repo.stat_document(user_id)
+            save = await self.save_repo.stats_save(user_id)
 
         return docs | save
 

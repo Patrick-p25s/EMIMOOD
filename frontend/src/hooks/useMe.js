@@ -6,11 +6,17 @@ import {
   updatePassword as updatePasswordApi,
   updateProfile as updateProfileApi,
 } from "@/api/userService";
+import { getStats } from "@/api/documentService";
 
 export const useMe = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [classe, setClasse] = useState(null);
+  const [stats, setStats] = useState({
+    documentsCount: 0,
+    savedCount: 0,
+    pendingCount: 0,
+  });
   const [me, setMe] = useState(null);
 
   const execute = async (callback) => {
@@ -46,15 +52,29 @@ export const useMe = () => {
       }),
     [],
   );
+  const getStatiStique = useCallback(
+    (userId = null) =>
+      execute(async () => {
+        const response = await getStats(userId);
+        setStats({
+          documentsCount: response.document,
+          savedCount: response.saved,
+          pendingCount: response.pending,
+        });
+        return response;
+      }),
+    [],
+  );
 
   useEffect(() => {
     getProfile();
     getClasse();
-  }, [getProfile, getClasse]);
+    getStatiStique();
+  }, [getProfile, getClasse, getStatiStique]);
 
-  const updateProfile = (data) => execute(() => updateProfileApi(data));
+  const updateProfile = (data) => execute(() => updateProfileApi(null, data));
 
-  const updatePassword = (password, newPassword) =>
+  const updatePassword = ({ password, newPassword }) =>
     execute(() =>
       updatePasswordApi({
         password,
@@ -66,6 +86,7 @@ export const useMe = () => {
     loading,
     error,
     me,
+    stats,
     classe,
     getProfile,
     getClasse,

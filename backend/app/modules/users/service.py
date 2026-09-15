@@ -91,10 +91,10 @@ class UserService:
     ) -> UserOut:
         current_user = await self._get_user_by_id(current_user_id)
         if user_id is not None:
-            user = await self._get_user_by_id(user_id)
+            current_user = await self._get_user_by_id(user_id)
 
         existing_user = await self.user_repo.get_by_email(request.email)
-        if existing_user is not None and existing_user.id != user.id:
+        if existing_user is not None and existing_user.id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already registered",
@@ -106,15 +106,14 @@ class UserService:
             "email": request.email,
             "phone_number": request.phone_number,
         }
-        if user_id is not None:
-            return await self.user_repo.update(user, data)
         return await self.user_repo.update(current_user, data)
 
     async def update_password(self, id: UUID | str, request: UpdatePassword) -> UserOut:
-        user = await self._get_user_by_id(id)
+        user: Users = await self._get_user_by_id(id)
         if not verify_password(request.password, user.password_hash):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Mot de passe incorrecte"
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Mot de passe incorrecte",
             )
         data = {"password_hash": hash_password(request.new_password)}
         return await self.user_repo.update(user, data)

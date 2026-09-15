@@ -1,22 +1,23 @@
 import { downloadDocument } from "@/api/documentService";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentCard from "@/components/shared/DocumentCard";
 import FilterBar from "@/components/shared/FiterBar";
 import { Button } from "@/components/ui/button";
 import { useMyDocuments } from "@/hooks/useMyDocs";
+import { usePublicDocument } from "@/hooks/usePublic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
 export default function PublicPageManage() {
   const {
-    documents,
+    pagination,
     error,
     loading,
-    pagination,
     filters,
     updateFilters,
+    documents,
     goToPage,
-    deleteDocument,
-  } = useMyDocuments();
+  } = usePublicDocument(1, 2);
 
   return (
     <div className="space-y-4">
@@ -42,25 +43,24 @@ export default function PublicPageManage() {
 
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page <= 1}
             onClick={() => goToPage(pagination.page - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+            icon={<ChevronLeft className="h-4 w-4" />}
+          />
+
           <span className="text-sm text-muted-foreground">
             Page {pagination.page} sur {pagination.pages}
           </span>
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page >= pagination.pages}
             onClick={() => goToPage(pagination.page + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+            icon={<ChevronRight className="h-4 w-4" />}
+          />
         </div>
       )}
     </div>

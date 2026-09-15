@@ -56,5 +56,6 @@ class UserRead(BaseModel):
     phone_number: str | None = None
     email: EmailStr
     role: str
+    matricule: str | None
     classe_id: UUID | None = None
     model_config = {"from_attributes": True}

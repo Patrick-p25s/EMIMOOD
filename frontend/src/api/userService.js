@@ -33,7 +33,7 @@ export const updateProfile = async (userId = null, newData) => {
   return result.data;
 };
 
-export const updatePassword = async (password, newPassword) => {
+export const updatePassword = async ({ password, newPassword }) => {
   const result = await apiClient.patch("/users/me/password", {
     new_password: newPassword,
     password: password,
