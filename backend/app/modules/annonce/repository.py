@@ -20,13 +20,20 @@ class AnnonceRepository:
     async def get_all_annonces(
         self, classe_id: UUID | str | None, offset: int, limit: int
     ):
+        totalQuery = select(func.count()).select_from(Annonce)
+        if classe_id is not None:
+            totalQuery = totalQuery.where(Annonce.classe_id == normalized_id(classe_id))
+
+        result = await self.db.execute(totalQuery)
+        total = result.scalar_one()
+
         query = select(Annonce)
         if classe_id is not None:
             query = query.where(Annonce.classe_id == normalized_id(classe_id))
         result = await self.db.execute(
             query.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
         )
-        return result.scalars().all()
+        return result.scalars().all(), total
 
     async def get_by_id(self, annonce_id: UUID) -> Annonce | None:
         result = await self.db.execute(
@@ -63,6 +70,11 @@ class AnnonceRepository:
             statement.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
         )
         return result.scalars().all(), total_result.scalar_one()
+
+    async def delete(self, annonce: Annonce):
+        await self.db.delete(annonce)
+        await self.db.commit()
+        return True
 
 
 class AnnonceLectureRepository:

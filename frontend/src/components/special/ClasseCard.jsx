@@ -8,13 +8,16 @@ import {
   UserPlus,
   GraduationCap,
   KeyRound,
+  RefreshCw,
 } from "lucide-react";
+import { ButtonStyled } from "../shared/ButtonStyled";
 
 export default function ClasseCard({
   classe,
   onEdit,
   onDelete,
   onAddModerateur,
+  onRegenerate,
 }) {
   return (
     <Card className="group relative flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
@@ -35,16 +38,33 @@ export default function ClasseCard({
         </div>
 
         {/* Code d'invitation */}
-        <div className="pt-2 border-t border-border flex items-center gap-2">
-          <KeyRound className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
-              Code d'invitation
-            </p>
-            <p className="text-sm font-mono font-bold text-foreground tracking-wide">
-              {classe.code_invitation}
-            </p>
+        <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+
+            <div>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
+                Code d'invitation
+              </p>
+
+              <p className="text-sm font-mono font-bold text-foreground tracking-wide">
+                {classe.code_invitation}
+              </p>
+            </div>
           </div>
+
+          <ButtonStyled
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRegenerate(classe.id);
+            }}
+            title="Régénérer le code"
+            icon={<RefreshCw className="h-4 w-4" />}
+          />
         </div>
       </CardContent>
 

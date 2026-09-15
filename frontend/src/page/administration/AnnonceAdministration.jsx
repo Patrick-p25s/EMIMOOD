@@ -16,13 +16,14 @@ export default function AnnoncesAdministration() {
   const {
     annonces,
     activeAnnonce,
-    archiveAnnonce,
+    archivedAnnonce,
     loading,
     error,
     add,
     update,
     remove,
     archive,
+    active,
   } = useAnnonce();
 
   const [filter, setFilter] = useState("all");
@@ -33,9 +34,9 @@ export default function AnnoncesAdministration() {
 
   const filteredAnnonces = useMemo(() => {
     if (filter === "active") return activeAnnonce;
-    if (filter === "archive") return archiveAnnonce;
+    if (filter === "archive") return archivedAnnonce;
     return annonces;
-  }, [filter, annonces, activeAnnonce, archiveAnnonce]);
+  }, [filter, annonces, activeAnnonce, archivedAnnonce]);
 
   const cancelUpdate = () => {
     setUpdated(null);
@@ -65,6 +66,18 @@ export default function AnnoncesAdministration() {
     setActionLoading(true);
     try {
       await archive(annonceId);
+    } catch (err) {
+      setActionError(`Erreur : ${err.message?.toString()}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleActive = async (annonceId) => {
+    setActionError(null);
+    setActionLoading(true);
+    try {
+      await active(annonceId);
     } catch (err) {
       setActionError(`Erreur : ${err.message?.toString()}`);
     } finally {
@@ -117,7 +130,7 @@ export default function AnnoncesAdministration() {
           <TabsTrigger value="archive">
             Archivées{" "}
             <Badge variant="secondary" className="ml-1.5">
-              {archiveAnnonce.length}
+              {archivedAnnonce.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -156,6 +169,7 @@ export default function AnnoncesAdministration() {
               onDelete={() => handleDelete(annonce)}
               onArchive={() => handleArchive(annonce.id)}
               onEdit={() => handleEdit(annonce)}
+              onUnarchive={() => handleActive(annonce.id)}
             />
           ))}
         </div>

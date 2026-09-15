@@ -1,4 +1,3 @@
-import { classeData } from "@/mocks/classe";
 import { useCallback, useEffect, useState } from "react";
 import {
   createClasse,
@@ -7,6 +6,7 @@ import {
   regenerateCode,
   updateClasse,
 } from "@/api/classeService";
+import { createModerator } from "@/api/userService";
 
 export const useClasse = (initialPage = 1, initialPageSize = 20) => {
   const [classes, setClasses] = useState([]);
@@ -49,11 +49,21 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
     fetchClasse(newPage, pagination.pageSize);
   };
 
+  const moderator = async (userData, classeId) => {
+    setError(null);
+    try {
+      const moderator = await createModerator(userData, classeId);
+      return moderator;
+    } catch (err) {
+      setError(err);
+    }
+  };
+
   const add = async (newClasse) => {
     setError(null);
     try {
       const created = await createClasse(newClasse);
-      await fetchClasse(pagination.page, pagination.pageSize);
+      setClasses((prev) => [...prev, created]);
       return created;
     } catch (err) {
       setError(err);
@@ -65,6 +75,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
     setError(null);
     try {
       const updated = await regenerateCode(id);
+      setClasses((prev) => prev.map((cl) => (cl.id === id ? updated : cl)));
       return updated;
     } catch (err) {
       setError(err);
@@ -106,6 +117,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
     error,
     loading,
     pagination,
+    moderator,
     goToPage,
     refresh: () => fetchClasse(pagination.page, pagination.pageSize),
     add,

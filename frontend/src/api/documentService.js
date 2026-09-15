@@ -34,6 +34,13 @@ export const getPublicDocuments = async ({
   return result.data;
 };
 
+export const getNotPrivateDocs = async ({ page = 1, pageSize = 20 } = {}) => {
+  const result = await apiClient.get("/documents", {
+    params: { page, page_size: pageSize },
+  });
+  return result.data;
+};
+
 export const pendingDocuments = async ({
   page = 1,
   pageSize = 20,
@@ -94,6 +101,13 @@ export const saveDocument = async (documentId) => {
 
 export const deleteDocumentSaved = async (documentId) => {
   const result = await apiClient.delete(`/documents/saves/${documentId}`);
+  return result.data;
+};
+
+export const getStats = async (userId = null) => {
+  const result = await apiClient.get("/documents/stats", {
+    params: { user_id: userId },
+  });
   return result.data;
 };
 

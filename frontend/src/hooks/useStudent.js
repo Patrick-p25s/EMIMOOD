@@ -1,8 +1,10 @@
+import { getStats } from "@/api/documentService";
 import {
   createModerator as createModeratorApi,
   deleteUser as deleteUserApi,
   listUsers,
   register as registerApi,
+  updateProfile as updateProfileApi,
 } from "@/api/userService";
 import { useState, useEffect, useCallback } from "react";
 
@@ -39,6 +41,20 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     [pagination.page, pagination.page_size],
   );
 
+  const fetchStat = async (userId = null) => {
+    setError(null);
+    try {
+      if (userId) {
+        const st = await getStats(userId);
+        return st;
+      }
+      return null;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchUser(initialPage, initialPageSize);
   }, []);
@@ -58,11 +74,22 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     }
   };
 
-  const createModerator = async (userData) => {
+  const updateProfile = async (id, newData) => {
     setError(null);
     try {
-      const user = await createModeratorApi(userData);
-      return user;
+      const updated = await updateProfileApi(id, newData);
+      setUsers((prev) =>
+        prev.map((us) =>
+          us.id === id
+            ? {
+                first_name: newData.firstName,
+                last_name: newData.lastName,
+                email: newData.email,
+              }
+            : us,
+        ),
+      );
+      return updated;
     } catch (err) {
       setError(err);
       throw err;
@@ -88,7 +115,8 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     pagination,
     refresh: () => fetchUser(pagination.page, pagination.pageSize),
     register,
-    createModerator,
+    fetchStat,
+    updateProfile,
     deleteUser,
   };
 }

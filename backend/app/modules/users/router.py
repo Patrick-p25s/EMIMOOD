@@ -14,6 +14,7 @@ from app.modules.users.schema import (
     UpdateProfile,
     UserCreate,
     UserRead,
+    ModeratorCreate,
 )
 from app.modules.users.service import UserService
 
@@ -59,10 +60,11 @@ async def get_my_profile(user: Users = Depends(get_current_user)) -> UserRead:
 )
 async def update_my_profile(
     request: UpdateProfile,
-    user: Users = Depends(get_current_user),
+    user_id: str | None = None,
+    current_user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    updated_user = await service.update_profile(user.id, request)
+    updated_user = await service.update_profile(user_id, current_user.id, request)
     return UserRead.model_validate(updated_user)
 
 
@@ -96,18 +98,19 @@ async def get_all_users(
 
 
 @router.post(
-    "/moderators",
+    "/{classe_id}/moderators",
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
     summary="Créer un compte modérateur",
     description="Permet à un administrateur de créer un compte avec les privilèges de modérateur.",
 )
 async def create_moderator(
-    request: UserCreate,
+    classe_id: str,
+    request: ModeratorCreate,
     user: Users = Depends(require_admin),
     service: UserService = Depends(_get_user_service),
 ) -> UserRead:
-    moderator = await service.create_moderator(request=request)
+    moderator = await service.create_moderator(request=request, classe_id=classe_id)
     return UserRead.model_validate(moderator)
 
 
@@ -127,7 +130,8 @@ async def delete_one_user(
 
 @router.get("/classe")
 async def get_user_classe(
+    user_id: str | None = None,
     user: Users = Depends(get_current_user),
     service: UserService = Depends(_get_user_service),
 ):
-    return await service.get_classe_user(current_user_id=user.id)
+    return await service.get_classe_user(user_id, current_user_id=user.id)

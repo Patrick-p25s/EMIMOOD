@@ -101,6 +101,15 @@ class DocumentService:
         }
         return await self.document_repo.create(data)
 
+    async def get_stat_user(self, user_id: str | None, current_user_id: str | UUID):
+        docs = await self.document_repo.stat_document(user_id)
+        save = await self.save_repo.stats_save(user_id)
+        if user_id is None:
+            docs = await self.document_repo.stat_document(current_user_id)
+            save = await self.save_repo.stats_save(current_user_id)
+
+        return docs | save
+
     async def telecharger_document(
         self, document_id: UUID, current_user: Users
     ) -> Document:
@@ -149,6 +158,15 @@ class DocumentService:
             params.limit,
         )
         return make_page(documents, total, params)
+
+    async def get_not_private_document(
+        self, current_user: Users, params: PaginationParams
+    ):
+        self._require_moderator(current_user)
+        result, total = await self.document_repo.not_private_doc(
+            current_user.classe_id, params.offset, params.limit
+        )
+        return make_page(result, total, params)
 
     async def get_rejected_docs(
         self, current_user: Users, matiere_id: str | None = None
@@ -225,7 +243,12 @@ class DocumentService:
         if not (est_proprietaire or est_moderateur):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Modification non autorisée")
 
-        data = request.model_dump(exclude_unset=True)
+        data = {
+            "titre": request.titre,
+            "description": request.description,
+            "date_limite": request.date_limite,
+            "type_document": request.type_document,
+        }
 
         return await self.document_repo.update(document, data)
 

@@ -18,6 +18,7 @@ class DocumentOut(BaseModel):
     titre: str
     type_document: DocumentType
     statut: DocumentStatus
+    description: str
     original_filename: str
     mime_type: str
     storage_key: str

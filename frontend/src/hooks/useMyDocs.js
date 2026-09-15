@@ -72,7 +72,6 @@ export const useMyDocuments = ({
     return fetchDocuments(pagination.page, pagination.pageSize, filters);
   };
 
-  // Met à jour un ou plusieurs filtres et repart toujours à la page 1
   const updateFilters = (newFilters) => {
     const merged = { ...filters, ...newFilters };
     setFilters(merged);

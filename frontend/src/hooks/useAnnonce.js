@@ -1,7 +1,10 @@
 import {
   activeAnnounce,
   createAnnonce,
+  deleteAnnonce,
   listAnnonces,
+  updateAnnonce,
+  archiveAnnonce,
 } from "@/api/announceService";
 import { useCallback, useState, useEffect } from "react";
 
@@ -49,7 +52,7 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
   const activeAnnonce = annonces.filter(
     (annonce) => annonce.statut === "active",
   );
-  const archiveAnnonce = annonces.filter(
+  const archivedAnnonce = annonces.filter(
     (annonce) => annonce.statut !== "active",
   );
 
@@ -65,16 +68,39 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
     }
   };
 
-  // const remove = async (id) => {
-  //   setError(null);
-  //   try {
-  //     await del(id);
-  //     setAnnonces((prev) => prev.filter((y) => y.id !== id));
-  //   } catch (err) {
-  //     setError(err);
-  //     throw err;
-  //   }
-  // };
+  const remove = async (id) => {
+    setError(null);
+    try {
+      await deleteAnnonce(id);
+      setAnnonces((prev) => prev.filter((y) => y.id !== id));
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
+  const update = async (id, data) => {
+    setError(null);
+    try {
+      const updated = await updateAnnonce(id, data);
+      setAnnonces((prev) =>
+        prev.map((annonce) =>
+          annonce.id === id
+            ? {
+                ...annonce,
+                contenu: data.contenu,
+                titre: data.titre,
+                important: data.important,
+              }
+            : annonce,
+        ),
+      );
+      return updated;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
 
   const archive = async (id) => {
     setError(null);
@@ -82,7 +108,7 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
       const archived = await archiveAnnonce(id);
       setAnnonces((prev) =>
         prev.map((annonce) =>
-          annonce.id === id ? { ...annonce, statut: "archive" } : annonce,
+          annonce.id === id ? { ...annonce, statut: "archivee" } : annonce,
         ),
       );
       return archived;
@@ -111,12 +137,14 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
   return {
     annonces,
     activeAnnonce,
-    archiveAnnonce,
+    archivedAnnonce,
     loading,
     error,
     goToPage,
     refresh: () => fetchAnnonce(pagination.page, pagination.pageSize),
     add,
+    remove,
+    update,
     active,
     archive,
   };
