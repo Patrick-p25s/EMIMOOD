@@ -28,7 +28,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
         setClasses(data.items);
         setPagination({
           page: data.page,
-          pageSize: data.pageSize,
+          pageSize: data.page_size,
           total: data.total,
           pages: data.pages,
         });

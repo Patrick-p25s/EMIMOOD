@@ -34,9 +34,21 @@ export const getPublicDocuments = async ({
   return result.data;
 };
 
-export const getNotPrivateDocs = async ({ page = 1, pageSize = 20 } = {}) => {
+export const getNotPrivateDocs = async ({
+  page = 1,
+  pageSize = 20,
+  search = null,
+  typeDocument = null,
+  classeId = null,
+} = {}) => {
   const result = await apiClient.get("/documents", {
-    params: { page, page_size: pageSize },
+    params: {
+      page,
+      page_size: pageSize,
+      document_type: typeDocument,
+      classe_id: classeId,
+      search: search,
+    },
   });
   return result.data;
 };
@@ -120,5 +132,10 @@ export const downloadDocument = async (documentId) => {
   const result = await apiClient.get(`/documents/${documentId}/download`, {
     responseType: "blob",
   });
+  return result.data;
+};
+
+export const getSaveById = async (doucmentId) => {
+  const result = await apiClient.get(`/documents/${doucmentId}/saves`);
   return result.data;
 };

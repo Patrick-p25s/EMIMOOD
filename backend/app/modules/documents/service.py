@@ -160,11 +160,21 @@ class DocumentService:
         return make_page(documents, total, params)
 
     async def get_not_private_document(
-        self, current_user: Users, params: PaginationParams
+        self,
+        current_user: Users,
+        params: PaginationParams,
+        search: str | None,
+        document_type: DocumentType | None,
+        classe_id: str | None,
     ):
         self._require_moderator(current_user)
         result, total = await self.document_repo.not_private_doc(
-            current_user.classe_id, params.offset, params.limit
+            current_user.classe_id,
+            params.offset,
+            params.limit,
+            search,
+            document_type,
+            classe_id,
         )
         return make_page(result, total, params)
 
@@ -267,20 +277,28 @@ class DocumentService:
         new_save = {"user_id": current_user.id, "document_id": document.id}
         return await self.save_repo.create(new_save)
 
-    async def get_save_by_id(self, id: str, current_user: Users):
-        saved = await self.save_repo.get_by_id(id)
-        if saved is None:
+    async def get_save_by_document_id(self, document_id: str, current_user: Users):
+        document = await self.document_repo.get_by_id(document_id)
+        if document is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Document non trouvé")
-        if saved.user_id != current_user.id:
-            raise HTTPException(
-                status.HTTP_403_FORBIDDEN, "Vous n'avez acces a cette document"
-            )
 
-        return saved
+        save = await self.save_repo.get_by_document_id(document.id)
+        if save is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Aucune sauvegarde trouvé")
+        if save.user_id != current_user.id:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces a ce document réfusé")
 
-    async def delete_save_document(self, id: str, current_user: Users):
-        saved = await self.get_save_by_id(id, current_user)
-        return await self.save_repo.delete(saved)
+        return save
+
+    async def already_save(
+        self, document_id: str | UUID, current_user_id: str | UUID
+    ) -> bool:
+        return await self.save_repo.already_saved(document_id, current_user_id)
+
+    async def delete_save_document(self, document_id: str | UUID, current_user: Users):
+        saved = await self.get_save_by_document_id(document_id, current_user)
+        await self.save_repo.delete(saved)
+        return {"success": True}
 
     async def list_my_documents(
         self, current_user: Users, params: PaginationParams

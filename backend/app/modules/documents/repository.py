@@ -6,7 +6,7 @@ from app.modules.documents.model import (
     DocumentType,
     DocumentSauvegarde,
 )
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.matiere.model import Subject
 
@@ -141,12 +141,34 @@ class DocumentRepository:
         return result.scalars().all()
 
     async def not_private_doc(
-        self, classe_id: str | str | None = None, offset: int = 0, limit: int = 20
+        self,
+        current_user_classe_id: UUID | str | None = None,
+        offset: int = 0,
+        limit: int = 20,
+        search: str | None = None,
+        document_type: DocumentType | None = None,
+        classe_id: UUID | str | None = None,
     ):
         query = select(Document).where(Document.statut != DocumentStatus.prive)
+        if current_user_classe_id is not None:
+            query = query.where(
+                Document.classe_id == normalized_id(current_user_classe_id)
+            )
+        if document_type is not None:
+            query = query.where(Document.type_document == document_type)
         if classe_id is not None:
             query = query.where(Document.classe_id == normalized_id(classe_id))
+        if search and len(search.strip()) >= 3:
+            search_pattern = f"%{search.strip()}%"
+
+            query = query.where(
+                or_(
+                    Document.titre.ilike(search_pattern),
+                    Document.description.ilike(search_pattern),
+                )
+            )
         total_query = select(func.count()).select_from(query.subquery())
+
         total_result = await self.db.execute(total_query)
         total = total_result.scalar_one()
         result = await self.db.execute(
@@ -213,9 +235,22 @@ class DocumentSaveRepository:
         )
         return result.scalars().all()
 
-    async def get_by_id(self, id: UUID | str):
+    async def already_saved(self, document_id: str | UUID, user_id: str | UUID) -> bool:
         result = await self.db.execute(
-            select(DocumentSauvegarde).where(DocumentSauvegarde.id == normalized_id(id))
+            select(
+                exists()
+                .where(DocumentSauvegarde.document_id == normalized_id(document_id))
+                .where(DocumentSauvegarde.user_id == normalized_id(user_id))
+            )
+        )
+
+        return result.scalar()
+
+    async def get_by_document_id(self, document_id: UUID | str):
+        result = await self.db.execute(
+            select(DocumentSauvegarde).where(
+                DocumentSauvegarde.document_id == normalized_id(document_id)
+            )
         )
         return result.scalar_one_or_none()
 

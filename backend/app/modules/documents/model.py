@@ -93,9 +93,7 @@ class Document(UuidStamp):
     matiere: Mapped["Subject | None"] = relationship(
         "Subject", back_populates="documents"
     )
-    classe: Mapped["Classe | None"] = relationship(
-        "Classe", back_populates="documents"
-    )
+    classe: Mapped["Classe | None"] = relationship("Classe", back_populates="documents")
     sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
         "DocumentSauvegarde", back_populates="document", passive_deletes=True
     )
@@ -127,9 +125,7 @@ class DocumentSauvegarde(UuidStamp):
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),
     )
 
-    user: Mapped["Users"] = relationship(
-        "Users", back_populates="document_sauvegardes"
-    )
+    user: Mapped["Users"] = relationship("Users", back_populates="document_sauvegardes")
     document: Mapped["Document"] = relationship(
         "Document", back_populates="sauvegardes"
     )

@@ -1,288 +1,293 @@
-import React, { useState } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import {
   FileText,
   Download,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Trash2,
-  Edit,
-  HardDrive,
   Bookmark,
-  Lock,
-  XCircle,
+  BookmarkCheck,
+  Pencil,
+  Trash2,
   Check,
   X,
+  AlertCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+  deleteDocumentSaved,
+  downloadDocument,
+  getSaveById,
+  saveDocument,
+} from "@/api/documentService";
+import { ButtonStyled } from "./ButtonStyled";
+
+const STATUT_CONFIG = {
+  prive: { label: "Privé", className: "bg-muted text-muted-foreground" },
+  en_attente: {
+    label: "En attente",
+    className: "bg-warning/10 text-warning border-warning/30",
+  },
+  public: {
+    label: "Public",
+    className: "bg-success/10 text-success border-success/30",
+  },
+  rejete: {
+    label: "Rejeté",
+    className: "bg-destructive/10 text-destructive border-destructive/30",
+  },
+};
+
+const TYPE_LABELS = {
+  cours: "Cours",
+  td: "TD",
+  tp: "TP",
+  examen: "Examen",
+  corrige: "Corrigé",
+  autre: "Autre",
+};
+
+const MIME_EXTENSIONS = {
+  "application/pdf": "pdf",
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "docx",
+};
+
+const getExtension = (mimeType, fichierPath) => {
+  if (MIME_EXTENSIONS[mimeType]) return MIME_EXTENSIONS[mimeType];
+  return fichierPath?.split(".").pop() || "bin";
+};
+
+const slugifyTitre = (titre) =>
+  titre?.replace(/[\\/:*?"<>|]/g, "_").trim() || "document";
 
 export default function DocumentCard({
   document,
-  isSaved: isSavedInitial = false,
-  onDownload,
-  onSave,
   onEdit,
   onDelete,
   onValide,
   onRejete,
 }) {
+  const [erreur, setErreur] = useState(null);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [checkingSaved, setCheckingSaved] = useState(true);
+
+  // Vérifie au chargement si CE document est déjà enregistré par l'utilisateur connecté
+  useEffect(() => {
+    if (!document?.id) return;
+
+    let actif = true;
+
+    const checkSaved = async () => {
+      setCheckingSaved(true);
+      try {
+        const save = await getSaveById(document.id);
+        if (actif) setIsSaved(save);
+      } catch (err) {
+        setErreur(err.message?.toString());
+      } finally {
+        if (actif) setCheckingSaved(false);
+      }
+    };
+
+    checkSaved();
+    return () => {
+      actif = false;
+    };
+  }, [document?.id]);
+
   if (!document) return null;
 
-  const [isSaved, setIsSaved] = useState(isSavedInitial);
-  const navigate = useNavigate();
   const {
+    id,
     titre,
     description,
-    date_limite,
     type_document,
     statut,
-    storage_key: fichier_path,
     taille_octets,
+    mime_type,
+    fichier_path,
   } = document;
 
-  const formatFileSize = (bytes) => {
-    if (!bytes) return "Taille inconnue";
-    const k = 1024;
-    const sizes = ["Octets", "Ko", "Mo", "Go"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-  };
-
-  const formattedDueDate = date_limite
-    ? new Date(date_limite).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+  const statutInfo = STATUT_CONFIG[statut] || STATUT_CONFIG.prive;
+  const tailleLisible = taille_octets
+    ? `${(taille_octets / 1024 / 1024).toFixed(2)} Mo`
     : null;
 
-  const handleSaveToggle = () => {
-    const newState = !isSaved;
-    setIsSaved(newState);
-    if (onSave) onSave(document, newState);
-  };
+  const handleDownload = async () => {
+    setErreur(null);
+    setDownloadLoading(true);
+    try {
+      const blob = await downloadDocument(id);
+      const url = window.URL.createObjectURL(blob);
+      const extension = getExtension(mime_type, fichier_path);
+      const nomFichier = `${slugifyTitre(titre)}.${extension}`;
 
-  // Badge dynamique selon le statut exact du document
-  const renderStatusBadge = () => {
-    switch (statut) {
-      case "public":
-        return (
-          <Badge
-            variant="outline"
-            className="gap-1 border-emerald-500/30 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 text-[11px]"
-          >
-            <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Public
-          </Badge>
-        );
-      case "en_attente":
-        return (
-          <Badge
-            variant="secondary"
-            className="gap-1 border-amber-500/30 text-amber-600 bg-amber-50 dark:bg-amber-950/20 text-[11px]"
-          >
-            <Clock className="h-3 w-3 text-amber-600" /> En attente
-          </Badge>
-        );
-      case "rejete":
-        return (
-          <Badge
-            variant="outline"
-            className="gap-1 border-rose-500/30 text-rose-600 bg-rose-50 dark:bg-rose-950/20 text-[11px]"
-          >
-            <XCircle className="h-3 w-3 text-rose-600" /> Rejeté (Privé)
-          </Badge>
-        );
-      case "prive":
-      default:
-        return (
-          <Badge
-            variant="secondary"
-            className="gap-1 text-muted-foreground bg-muted text-[11px]"
-          >
-            <Lock className="h-3 w-3" /> Privé
-          </Badge>
-        );
+      const link = window.document.createElement("a");
+      link.href = url;
+      link.download = nomFichier;
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setErreur("Le téléchargement a échoué.");
+    } finally {
+      setDownloadLoading(false);
     }
   };
 
-  const getTypeBadge = (type) => {
-    switch (type?.toLowerCase()) {
-      case "td":
-        return {
-          label: "TD",
-          className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-        };
-      case "tp":
-        return {
-          label: "TP",
-          className: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-        };
-      case "cours":
-        return {
-          label: "Cours",
-          className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-        };
-      case "examen":
-        return {
-          label: "Examen",
-          className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-        };
-      default:
-        return {
-          label: type?.toUpperCase() || "Doc",
-          className: "bg-muted text-muted-foreground",
-        };
+  const handleToggleSave = async () => {
+    setErreur(null);
+    setSaveLoading(true);
+    try {
+      if (isSaved) {
+        await deleteDocumentSaved(id);
+        setIsSaved(false);
+      } else {
+        await saveDocument(id);
+        setIsSaved(true);
+      }
+    } catch (err) {
+      setErreur(
+        isSaved
+          ? "Impossible de retirer des enregistrements."
+          : "Impossible d'enregistrer le document.",
+      );
+    } finally {
+      setSaveLoading(false);
     }
   };
-
-  const typeInfo = getTypeBadge(type_document);
 
   return (
-    <Card className="hover:border-primary/50 transition-all duration-200 flex flex-col justify-between hover:shadow-sm">
-      <div>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
-            {/* Badges : Type + Statut */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge
-                variant="outline"
-                className={`font-semibold text-[11px] ${typeInfo.className}`}
-              >
-                {typeInfo.label}
-              </Badge>
-              {renderStatusBadge()}
+    <Card className="flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30">
+      <CardContent className="pt-5 space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+              <FileText className="h-4 w-4" />
             </div>
-
-            {/* Actions Administrateur / Modérateur */}
-            <div className="flex items-center gap-1 shrink-0">
-              {/* Boutons d'approbation (visibles si en attente ou si fonctions fournies) */}
-              {onValide && statut === "en_attente" && (
-                <ButtonStyled
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                  onClick={() => onValide(document)}
-                  title="Valider la publication"
-                  icon={<Check className="h-3.5 w-3.5" />}
-                />
-              )}
-              {onRejete && statut === "en_attente" && (
-                <ButtonStyled
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                  onClick={() => onRejete(document)}
-                  title="Rejeter la demande"
-                  icon={<X className="h-3.5 w-3.5" />}
-                />
-              )}
-
-              {/* Boutons standards Modification / Suppression */}
-              {onEdit && (
-                <ButtonStyled
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                  onClick={() => onEdit(document)}
-                  title="Modifier"
-                  icon={<Edit className="h-3.5 w-3.5" />}
-                />
-              )}
-              {onDelete && (
-                <ButtonStyled
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive/80 hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => onDelete(document.id)}
-                  title="Supprimer"
-                  icon={<Trash2 className="h-3.5 w-3.5" />}
-                />
-              )}
-            </div>
-          </div>
-
-          <div
-            className="flex items-start gap-2.5 pt-2 cursor-pointer"
-            onClick={() => navigate(document.id)}
-          >
-            <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <CardTitle className="text-base font-semibold leading-tight text-foreground line-clamp-2">
+            <h3 className="font-semibold text-sm text-foreground line-clamp-2">
               {titre}
-            </CardTitle>
+            </h3>
           </div>
-        </CardHeader>
+          <Badge
+            variant="outline"
+            className={`text-[11px] shrink-0 ${statutInfo.className}`}
+          >
+            {statutInfo.label}
+          </Badge>
+        </div>
 
-        <CardContent className="pb-3 space-y-3">
-          {description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-              {description}
-            </p>
-          )}
+        {description && (
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {description}
+          </p>
+        )}
 
-          <div className="space-y-1.5 pt-1 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <HardDrive className="h-3.5 w-3.5 text-muted-foreground/70" />
-              <span>{formatFileSize(taille_octets)}</span>
-            </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="secondary" className="text-[11px]">
+            {TYPE_LABELS[type_document] || type_document}
+          </Badge>
+          {tailleLisible && <span>{tailleLisible}</span>}
+        </div>
 
-            {formattedDueDate && (
-              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-500 font-medium">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>À rendre avant le {formattedDueDate}</span>
-              </div>
-            )}
+        {/* Erreur d'action, affichée directement dans la carte */}
+        {erreur && (
+          <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {erreur}
           </div>
-        </CardContent>
-      </div>
+        )}
+      </CardContent>
 
-      <CardFooter className="pt-3 border-t border-border/60 flex items-center gap-2">
-        <a
-          href={fichier_path}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1"
-          onClick={() => {
-            onDownload(document.id);
-          }}
-        >
-          <Button
+      <CardFooter className="pt-3 border-t border-border flex flex-col gap-2">
+        {/* Actions principales : télécharger / enregistrer */}
+        <div className="flex items-center gap-2 w-full">
+          <ButtonStyled
             variant="outline"
             size="sm"
-            className="w-full gap-2 text-xs h-8"
+            className="flex-1 gap-1.5 text-xs h-8"
+            onClick={handleDownload}
+            loading={downloadLoading}
+            icon={<Download className="h-3.5 w-3.5" />}
           >
-            <Download className="h-3.5 w-3.5" />
             Télécharger
-          </Button>
-        </a>
+          </ButtonStyled>
 
-        <Button
-          variant={isSaved ? "default" : "secondary"}
-          size="icon"
-          className="h-8 w-8 shrink-0"
-          onClick={handleSaveToggle}
-          title={
-            isSaved
-              ? "Retirer des enregistrements"
-              : "Enregistrer dans mes favoris"
-          }
-        >
-          <Bookmark
-            className={`h-3.5 w-3.5 ${isSaved ? "fill-current" : ""}`}
+          <ButtonStyled
+            icon={
+              isSaved ? (
+                <BookmarkCheck className="h-3.5 w-3.5" />
+              ) : (
+                <Bookmark className="h-3.5 w-3.5" />
+              )
+            }
+            variant="outline"
+            size="icon"
+            disabled={checkingSaved}
+            className={`h-8 w-8 shrink-0 ${
+              isSaved ? "text-primary border-primary/40 bg-primary/5" : ""
+            }`}
+            onClick={handleToggleSave}
+            loading={saveLoading}
+            title={isSaved ? "Retirer des enregistrements" : "Enregistrer"}
           />
-        </Button>
+        </div>
+
+        {/* Actions de modération : valider / rejeter (si en attente) */}
+        {statut === "en_attente" && (onValide || onRejete) && (
+          <div className="flex items-center gap-2 w-full">
+            {onValide && (
+              <ButtonStyled
+                size="sm"
+                icon={<Check className="h-3.5 w-3.5" />}
+                className="flex-1 gap-1.5 text-xs h-8 bg-success text-success-foreground hover:bg-success/90"
+                onClick={onValide}
+              >
+                Valider
+              </ButtonStyled>
+            )}
+            {onRejete && (
+              <ButtonStyled
+                icon={<X className="h-3.5 w-3.5" />}
+                variant="destructive"
+                size="sm"
+                className="flex-1 gap-1.5 text-xs h-8"
+                onClick={onRejete}
+              >
+                Rejeter
+              </ButtonStyled>
+            )}
+          </div>
+        )}
+
+        {/* Actions admin : modifier / supprimer */}
+        {(onEdit || onDelete) && (
+          <div className="flex items-center justify-end gap-1 w-full">
+            {onEdit && (
+              <ButtonStyled
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onEdit}
+                icon={<Pencil className="h-3.5 w-3.5" />}
+              />
+            )}
+            {onDelete && (
+              <ButtonStyled
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                icon={<Trash2 className="h-3.5 w-3.5" />}
+                onClick={() => onDelete(id)}
+              />
+            )}
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

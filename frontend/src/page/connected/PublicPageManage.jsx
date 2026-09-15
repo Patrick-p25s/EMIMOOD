@@ -18,24 +18,6 @@ export default function PublicPageManage() {
     deleteDocument,
   } = useMyDocuments();
 
-  const handleDownload = async (documentId) => {
-    try {
-      const blob = await downloadDocument(documentId);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = documentId;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleSave = async () => null;
-
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Documents publics</h2>
@@ -54,12 +36,7 @@ export default function PublicPageManage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {documents.map((doc) => (
-          <DocumentCard
-            key={doc.id}
-            document={doc}
-            onDownload={handleDownload}
-            onSave={handleSave}
-          />
+          <DocumentCard key={doc.id} document={doc} />
         ))}
       </div>
 

@@ -63,10 +63,15 @@ async def create_document(
 @router.get("", response_model=Page[DocumentOut])
 async def get_document_not_private(
     params: PaginationParams = Depends(),
+    search: str | None = None,
+    document_type: str | None = None,
+    classe_id: str | None = None,
     current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
 ) -> Page[DocumentOut]:
-    return await service.get_not_private_document(current_user, params)
+    return await service.get_not_private_document(
+        current_user, params, search, document_type, classe_id
+    )
 
 
 @router.get("/mine", response_model=Page[DocumentOut])
@@ -115,13 +120,13 @@ async def save_document(
     return await service.sauvegarde_document(document_id, current_user)
 
 
-@router.delete("/saves/{save_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/saves/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_saved_document(
-    save_id: UUID,
+    document_id: UUID,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> None:
-    await service.delete_save_document(save_id, current_user)
+    return await service.delete_save_document(document_id, current_user)
 
 
 @router.get("/stats")
@@ -173,3 +178,12 @@ async def delete_document(
     service: DocumentService = Depends(get_document_service),
 ) -> None:
     return await service.delete_document(document_id, current_user)
+
+
+@router.get("/{document_id}/saves")
+async def get_save_by_id(
+    document_id: UUID,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+) -> None:
+    return await service.already_save(document_id, current_user.id)
