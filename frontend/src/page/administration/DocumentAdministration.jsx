@@ -27,7 +27,7 @@ export default function DocumentAdministration({ classes = [] }) {
     update,
     reject,
     approve,
-  } = useDocument();
+  } = useDocument(1, 3);
 
   const { user } = useAuth();
   const isSuperAdmin = user?.role === "admin";

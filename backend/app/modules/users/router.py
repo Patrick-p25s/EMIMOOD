@@ -135,3 +135,14 @@ async def get_user_classe(
     service: UserService = Depends(_get_user_service),
 ):
     return await service.get_classe_user(user_id, current_user_id=user.id)
+
+
+@router.patch("/{user_id}/new-classe", response_model=UserRead)
+async def new_classe_user(
+    user_id: str,
+    code_invitation: str,
+    current_user: Users = Depends(require_moderator),
+    service: UserService = Depends(_get_user_service),
+):
+    user = await service.new_classe(user_id, current_user, code_invitation)
+    return UserRead.model_validate(user)

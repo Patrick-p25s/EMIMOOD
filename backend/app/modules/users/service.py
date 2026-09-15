@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core.pagination import Page, PaginationParams, make_page
 from app.core.security import hash_password, verify_password
 from app.modules.classes.repository import ClasseRepository
-from app.modules.users.model import UserRole
+from app.modules.users.model import UserRole, Users
 from app.modules.users.repository import UserRepository
 from app.modules.users.schema import (
     UpdatePassword,
@@ -136,3 +136,19 @@ class UserService:
         if user_id is not None:
             return await self.user_repo.get_user_classe(user_id)
         return await self.user_repo.get_user_classe(current_user_id)
+
+    async def new_classe(
+        self, user_id: str, current_user: Users, code_invitation: str
+    ) -> Users:
+        user = await self._get_user_by_id(user_id)
+        if user is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Aucune utilisateur trouvé")
+        if current_user.role == UserRole.student:
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, "Vous ne pouvez pas modifier la classe"
+            )
+        classe = await self.classe_repo.get_by_code_invitation(code_invitation)
+        if classe is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Aucune classe trouvé")
+
+        return await self.user_repo.update(user, {"classe_id": classe.id})
