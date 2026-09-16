@@ -14,6 +14,7 @@ from app.modules.matiere.router import router as subject_router
 from app.modules.users.router import router as user_router
 from app.modules.years.router import router as year_router
 from app.modules.annonce.router import router as annonce_router
+from app.modules.folder.router import router as folder_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.modules.documents.storage import UPLOAD_DIR
@@ -93,3 +94,4 @@ app.include_router(user_router)
 app.include_router(subject_router)
 app.include_router(docs_router)
 app.include_router(annonce_router)
+app.include_router(folder_router)
