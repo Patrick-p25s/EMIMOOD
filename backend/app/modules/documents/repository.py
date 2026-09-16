@@ -35,23 +35,28 @@ class DocumentRepository:
         await self.db.refresh(document)
         return document
 
-    async def list_by_owner(
-        self, owner_id: UUID | str, offset: int, limit: int
+    async def list_my_documents(
+        self, user_id: UUID | str, offset: int, limit: int
     ) -> tuple[list[Document], int]:
-        owner_uuid = normalized_id(owner_id)
+        user_uuid = normalized_id(user_id)
+        saved_subquery = select(DocumentSauvegarde.document_id).where(
+            DocumentSauvegarde.user_id == user_uuid
+        )
+        base_filter = or_(
+            Document.owner_id == user_uuid,
+            Document.id.in_(saved_subquery),
+        )
         total_result = await self.db.execute(
-            select(func.count())
-            .select_from(Document)
-            .where(Document.owner_id == owner_uuid)
+            select(func.count()).select_from(Document).where(base_filter)
         )
         result = await self.db.execute(
             select(Document)
-            .where(Document.owner_id == owner_uuid)
+            .where(base_filter)
             .order_by(Document.created_at.desc())
             .offset(offset)
             .limit(limit)
         )
-        return result.scalars().all(), total_result.scalar_one()
+        return list(result.scalars().all()), total_result.scalar_one()
 
     async def stat_document(self, user_id: UUID | str):
         base_query = (
@@ -264,3 +269,11 @@ class DocumentSaveRepository:
             )
         )
         return result.scalar_one_or_none()
+
+    async def list_user_folder(self, user_id: str | UUID):
+        result = await self.db.execute(
+            select(DocumentSauvegarde).where(
+                DocumentSauvegarde.user_id == normalized_id(user_id)
+            )
+        )
+        return result.scalars().all()

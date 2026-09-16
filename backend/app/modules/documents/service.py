@@ -6,6 +6,7 @@ from app.core.pagination import Page, PaginationParams, make_page
 from app.modules.documents.schema import DocumentCreate, DocumentUpdate
 from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
+from app.modules.folder.service import FolderService
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
 
@@ -16,10 +17,12 @@ class DocumentService:
         document_repo: DocumentRepository,
         subject_repo: SubjectRepository,
         save_repo: DocumentSaveRepository,
+        folder_service: FolderService,
     ):
         self.document_repo = document_repo
         self.subject_repo = subject_repo
         self.save_repo = save_repo
+        self.folder_service = folder_service
 
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
@@ -266,7 +269,9 @@ class DocumentService:
     SERVICE POUR TOUS LES SAUVEGARDE DEPUIS ICI
     """
 
-    async def sauvegarde_document(self, document_id: str | UUID, current_user: Users):
+    async def sauvegarde_document(
+        self, document_id: str | UUID, folder_id: str | None, current_user: Users
+    ):
         document = await self._get_document_or_404(document_id)
         if document.statut != DocumentStatus.public:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Erreur lors de sauvegarde")
@@ -274,7 +279,11 @@ class DocumentService:
         if await self.save_repo.get_by_user_and_document(current_user.id, document.id):
             raise HTTPException(status.HTTP_409_CONFLICT, "Document déjà sauvegardé")
 
-        new_save = {"user_id": current_user.id, "document_id": document.id}
+        new_save = {
+            "user_id": current_user.id,
+            "document_id": document.id,
+            "folder_id": folder_id,
+        }
         return await self.save_repo.create(new_save)
 
     async def get_save_by_document_id(self, document_id: str, current_user: Users):
@@ -303,7 +312,18 @@ class DocumentService:
     async def list_my_documents(
         self, current_user: Users, params: PaginationParams
     ) -> Page:
-        documents, total = await self.document_repo.list_by_owner(
+        documents, total = await self.document_repo.list_my_documents(
             current_user.id, params.offset, params.limit
         )
         return make_page(documents, total, params)
+
+    async def get_document_by_folder(self, folder_id: str, user: Users):
+        folder = await self.folder_service.get_folder_by_id(folder_id, user)
+        return await self.save_repo.list_by_folder(folder.id)
+
+    async def move_document_on_folder(
+        self, folder_id: str, document_id: str, user: Users
+    ):
+        folder = await self.folder_service.get_folder_by_id(folder_id, user)
+        document = await self.get_save_by_document_id(document_id, user)
+        return await self.save_repo.update(document, {"folder_id": folder.id})

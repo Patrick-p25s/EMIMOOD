@@ -14,11 +14,16 @@ from app.modules.documents.schema import DocumentCreate, DocumentOut, DocumentUp
 from app.modules.documents.service import DocumentService
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.users.model import Users
+from app.modules.folder.repository import FolderRepository
+from app.modules.folder.service import FolderService
 
 
 def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
     return DocumentService(
-        DocumentRepository(db), SubjectRepository(db), DocumentSaveRepository(db)
+        DocumentRepository(db),
+        SubjectRepository(db),
+        DocumentSaveRepository(db),
+        FolderService(FolderRepository(db)),
     )
 
 
@@ -114,10 +119,11 @@ async def reject_document(
 @router.post("/{document_id}/saves", status_code=status.HTTP_201_CREATED)
 async def save_document(
     document_id: UUID,
+    folder_id: str | None = None,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ):
-    return await service.sauvegarde_document(document_id, current_user)
+    return await service.sauvegarde_document(document_id, folder_id, current_user)
 
 
 @router.delete("/saves/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -187,3 +193,22 @@ async def get_save_by_id(
     service: DocumentService = Depends(get_document_service),
 ) -> None:
     return await service.already_save(document_id, current_user.id)
+
+
+@router.get("/{folder_id}/documents")
+async def get_save_by_folder(
+    folder_id: str,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.get_document_by_folder(folder_id, current_user)
+
+
+@router.patch("/{document_id}/move/{folder_id}")
+async def move_document_on_folder(
+    folder_id: str,
+    document_id: str,
+    current_user: Users = Depends(get_current_user),
+    service: DocumentService = Depends(get_document_service),
+):
+    return await service.move_document_on_folder(folder_id, document_id, current_user)
