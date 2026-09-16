@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status, Body
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,12 @@ from app.core.dependencies import get_current_user, require_moderator
 from app.core.pagination import Page, PaginationParams
 from app.modules.documents.model import DocumentType
 from app.modules.documents.repository import DocumentRepository, DocumentSaveRepository
-from app.modules.documents.schema import DocumentCreate, DocumentOut, DocumentUpdate
+from app.modules.documents.schema import (
+    DocumentCreate,
+    DocumentOut,
+    DocumentUpdate,
+    MoveDocumentSchema,
+)
 from app.modules.documents.service import DocumentService
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.users.model import Users
@@ -204,10 +209,10 @@ async def get_save_by_folder(
     return await service.get_document_by_folder(folder_id, current_user)
 
 
-@router.patch("/{document_id}/move/{folder_id}")
+@router.patch("/{document_id}/move")
 async def move_document_on_folder(
-    folder_id: str,
     document_id: str,
+    folder_id: str | None = Body(None, embed=True),
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ):

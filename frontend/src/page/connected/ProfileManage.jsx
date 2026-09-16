@@ -49,7 +49,6 @@ export default function ProfileManage() {
       });
     }
   }, [user]);
-  console.log(stats);
 
   const handleUpdateProfile = async () => {
     setActError(null);

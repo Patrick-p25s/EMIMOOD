@@ -39,24 +39,28 @@ class DocumentRepository:
         self, user_id: UUID | str, offset: int, limit: int
     ) -> tuple[list[Document], int]:
         user_uuid = normalized_id(user_id)
-        saved_subquery = select(DocumentSauvegarde.document_id).where(
-            DocumentSauvegarde.user_id == user_uuid
-        )
-        base_filter = or_(
-            Document.owner_id == user_uuid,
-            Document.id.in_(saved_subquery),
-        )
-        total_result = await self.db.execute(
-            select(func.count()).select_from(Document).where(base_filter)
-        )
-        result = await self.db.execute(
+
+        filters = DocumentSauvegarde.user_id == user_uuid
+
+        query = (
             select(Document)
-            .where(base_filter)
-            .order_by(Document.created_at.desc())
+            .join(
+                DocumentSauvegarde,
+                DocumentSauvegarde.document_id == Document.id,
+            )
+            .where(filters)
+            .order_by(DocumentSauvegarde.created_at.desc())
             .offset(offset)
             .limit(limit)
         )
-        return list(result.scalars().all()), total_result.scalar_one()
+
+        total_result = await self.db.execute(
+            select(func.count()).select_from(DocumentSauvegarde).where(filters)
+        )
+
+        result = await self.db.execute(query)
+
+        return result.scalars().all(), total_result.scalar_one()
 
     async def stat_document(self, user_id: UUID | str):
         base_query = (
@@ -251,11 +255,11 @@ class DocumentSaveRepository:
 
         return result.scalar()
 
-    async def get_by_document_id(self, document_id: UUID | str):
+    async def get_by_document_id(self, document_id: UUID | str, user_id: str | UUID):
         result = await self.db.execute(
-            select(DocumentSauvegarde).where(
-                DocumentSauvegarde.document_id == normalized_id(document_id)
-            )
+            select(DocumentSauvegarde)
+            .where(DocumentSauvegarde.document_id == normalized_id(document_id))
+            .where(DocumentSauvegarde.user_id == normalized_id(user_id))
         )
         return result.scalar_one_or_none()
 

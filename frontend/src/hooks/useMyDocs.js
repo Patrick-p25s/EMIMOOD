@@ -61,7 +61,6 @@ export const useMyDocuments = ({
 
   useEffect(() => {
     fetchDocuments(initialPage, initialPageSize, filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDocuments, initialPage, initialPageSize]);
 
   const goToPage = (page) => {

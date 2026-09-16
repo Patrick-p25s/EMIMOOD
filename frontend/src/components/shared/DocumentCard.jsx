@@ -11,6 +11,7 @@ import {
   Check,
   X,
   AlertCircle,
+  FolderInput,
 } from "lucide-react";
 import {
   deleteDocumentSaved,
@@ -68,6 +69,7 @@ export default function DocumentCard({
   onDelete,
   onValide,
   onRejete,
+  onMove,
 }) {
   const [erreur, setErreur] = useState(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
@@ -75,7 +77,6 @@ export default function DocumentCard({
   const [isSaved, setIsSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
 
-  // Vérifie au chargement si CE document est déjà enregistré par l'utilisateur connecté
   useEffect(() => {
     if (!document?.id) return;
 
@@ -195,7 +196,6 @@ export default function DocumentCard({
           {tailleLisible && <span>{tailleLisible}</span>}
         </div>
 
-        {/* Erreur d'action, affichée directement dans la carte */}
         {erreur && (
           <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5">
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
@@ -265,9 +265,19 @@ export default function DocumentCard({
           </div>
         )}
 
-        {/* Actions admin : modifier / supprimer */}
-        {(onEdit || onDelete) && (
+        {/* Actions secondaires : déplacer / modifier / supprimer */}
+        {(onMove || onEdit || onDelete) && (
           <div className="flex items-center justify-end gap-1 w-full">
+            {onMove && (
+              <ButtonStyled
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onMove(document)}
+                icon={<FolderInput className="h-3.5 w-3.5" />}
+                title="Déplacer vers un dossier"
+              />
+            )}
             {onEdit && (
               <ButtonStyled
                 variant="ghost"
@@ -275,6 +285,7 @@ export default function DocumentCard({
                 className="h-8 w-8"
                 onClick={onEdit}
                 icon={<Pencil className="h-3.5 w-3.5" />}
+                title="Modifier"
               />
             )}
             {onDelete && (
@@ -284,6 +295,7 @@ export default function DocumentCard({
                 className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                 icon={<Trash2 className="h-3.5 w-3.5" />}
                 onClick={() => onDelete(id)}
+                title="Supprimer"
               />
             )}
           </div>

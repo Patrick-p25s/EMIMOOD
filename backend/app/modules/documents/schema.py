@@ -37,3 +37,7 @@ class DocumentUpdate(BaseModel):
     description: str | None = None
     date_limite: datetime | None = None
     type_document: DocumentType | None = None
+
+
+class MoveDocumentSchema(BaseModel):
+    folder_id: str | None = None

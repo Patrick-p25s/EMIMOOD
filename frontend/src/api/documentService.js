@@ -139,3 +139,15 @@ export const getSaveById = async (doucmentId) => {
   const result = await apiClient.get(`/documents/${doucmentId}/saves`);
   return result.data;
 };
+
+export const moveDocument = async (documentId, folderId) => {
+  const result = await apiClient.patch(`/documents/${documentId}/move`, {
+    folder_id: folderId,
+  });
+  return result.data;
+};
+
+export const getSavedByFolder = async (folderId) => {
+  const result = await apiClient.get(`/documents/${folderId}/documents`);
+  return result.data;
+};

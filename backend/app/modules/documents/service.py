@@ -102,7 +102,11 @@ class DocumentService:
             if statut == DocumentStatus.public
             else None,
         }
-        return await self.document_repo.create(data)
+        document = await self.document_repo.create(data)
+        await self.save_repo.create(
+            {"user_id": current_user.id, "document_id": document.id}
+        )
+        return document
 
     async def get_stat_user(self, user_id: str | None, current_user_id: str | UUID):
         docs = await self.document_repo.stat_document(current_user_id)
@@ -291,7 +295,7 @@ class DocumentService:
         if document is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Document non trouvé")
 
-        save = await self.save_repo.get_by_document_id(document.id)
+        save = await self.save_repo.get_by_document_id(document.id, current_user.id)
         if save is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Aucune sauvegarde trouvé")
         if save.user_id != current_user.id:
@@ -307,6 +311,10 @@ class DocumentService:
     async def delete_save_document(self, document_id: str | UUID, current_user: Users):
         saved = await self.get_save_by_document_id(document_id, current_user)
         await self.save_repo.delete(saved)
+        document = await self.get_document_by_id(document_id, current_user)
+        if document.owner_id == current_user.id:
+            return self.document_repo.delete(document)
+
         return {"success": True}
 
     async def list_my_documents(
@@ -322,8 +330,12 @@ class DocumentService:
         return await self.save_repo.list_by_folder(folder.id)
 
     async def move_document_on_folder(
-        self, folder_id: str, document_id: str, user: Users
+        self, folder_id: str | None, document_id: str, user: Users
     ):
-        folder = await self.folder_service.get_folder_by_id(folder_id, user)
+        folder = None
+        if folder_id is not None:
+            folder = await self.folder_service.get_folder_by_id(folder_id, user)
         document = await self.get_save_by_document_id(document_id, user)
-        return await self.save_repo.update(document, {"folder_id": folder.id})
+        return await self.save_repo.update(
+            document, {"folder_id": folder.id if folder is not None else None}
+        )
