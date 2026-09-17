@@ -6,7 +6,7 @@ from app.modules.documents.model import (
     DocumentType,
     DocumentSauvegarde,
 )
-from sqlalchemy import func, or_, select, exists
+from sqlalchemy import func, or_, select, exists, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.matiere.model import Subject
 
@@ -37,30 +37,42 @@ class DocumentRepository:
 
     async def list_my_documents(
         self, user_id: UUID | str, offset: int, limit: int
-    ) -> tuple[list[Document], int]:
+    ) -> tuple[list[tuple[Document, UUID | None]], int]:
         user_uuid = normalized_id(user_id)
 
-        filters = DocumentSauvegarde.user_id == user_uuid
+        saved_subquery = select(DocumentSauvegarde.document_id).where(
+            DocumentSauvegarde.user_id == user_uuid
+        )
 
+        base_filter = or_(
+            Document.owner_id == user_uuid,
+            Document.id.in_(saved_subquery),
+        )
+
+        total_result = await self.db.execute(
+            select(func.count()).select_from(Document).where(base_filter)
+        )
+
+        # LEFT JOIN : récupère le folder_id SEULEMENT pour la sauvegarde de CET utilisateur
         query = (
-            select(Document)
-            .join(
+            select(Document, DocumentSauvegarde.folder_id)
+            .outerjoin(
                 DocumentSauvegarde,
-                DocumentSauvegarde.document_id == Document.id,
+                and_(
+                    DocumentSauvegarde.document_id == Document.id,
+                    DocumentSauvegarde.user_id == user_uuid,
+                ),
             )
-            .where(filters)
-            .order_by(DocumentSauvegarde.created_at.desc())
+            .where(base_filter)
+            .order_by(Document.created_at.desc())
             .offset(offset)
             .limit(limit)
         )
 
-        total_result = await self.db.execute(
-            select(func.count()).select_from(DocumentSauvegarde).where(filters)
-        )
-
         result = await self.db.execute(query)
+        rows = result.all()
 
-        return result.scalars().all(), total_result.scalar_one()
+        return rows, total_result.scalar_one()
 
     async def stat_document(self, user_id: UUID | str):
         base_query = (
@@ -236,13 +248,13 @@ class DocumentSaveRepository:
         )
         return {"saved": save.scalar_one()}
 
-    async def list_by_folder(self, folder_id: UUID | str):
+    async def list_by_folder(self, folder_id: UUID | str) -> list[Document]:
         result = await self.db.execute(
-            select(DocumentSauvegarde).where(
-                DocumentSauvegarde.folder_id == normalized_id(folder_id)
-            )
+            select(Document)
+            .join(DocumentSauvegarde, DocumentSauvegarde.document_id == Document.id)
+            .where(DocumentSauvegarde.folder_id == normalized_id(folder_id))
         )
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def already_saved(self, document_id: str | UUID, user_id: str | UUID) -> bool:
         result = await self.db.execute(

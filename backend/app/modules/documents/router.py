@@ -14,7 +14,7 @@ from app.modules.documents.schema import (
     DocumentCreate,
     DocumentOut,
     DocumentUpdate,
-    MoveDocumentSchema,
+    DocumentFolderOut,
 )
 from app.modules.documents.service import DocumentService
 from app.modules.matiere.repository import SubjectRepository
@@ -84,12 +84,12 @@ async def get_document_not_private(
     )
 
 
-@router.get("/mine", response_model=Page[DocumentOut])
+@router.get("/mine", response_model=Page[DocumentFolderOut])
 async def list_my_documents(
     params: PaginationParams = Depends(),
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
-) -> Page[DocumentOut]:
+) -> Page[DocumentFolderOut]:
     return await service.list_my_documents(current_user, params)
 
 

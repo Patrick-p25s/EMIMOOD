@@ -277,7 +277,10 @@ class DocumentService:
         self, document_id: str | UUID, folder_id: str | None, current_user: Users
     ):
         document = await self._get_document_or_404(document_id)
-        if document.statut != DocumentStatus.public:
+        if (
+            document.statut != DocumentStatus.public
+            and document.owner_id != current_user.id
+        ):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Erreur lors de sauvegarde")
 
         if await self.save_repo.get_by_user_and_document(current_user.id, document.id):
@@ -317,12 +320,19 @@ class DocumentService:
 
         return {"success": True}
 
-    async def list_my_documents(
-        self, current_user: Users, params: PaginationParams
-    ) -> Page:
-        documents, total = await self.document_repo.list_my_documents(
-            current_user.id, params.offset, params.limit
+    async def list_my_documents(self, user: Users, params: PaginationParams):
+        rows, total = await self.document_repo.list_my_documents(
+            user.id, params.offset, params.limit
         )
+        documents = []
+        for document, folder_id in rows:
+            documents.append(
+                {
+                    **document.__dict__,
+                    "folder_id": folder_id,
+                }
+            )
+
         return make_page(documents, total, params)
 
     async def get_document_by_folder(self, folder_id: str, user: Users):

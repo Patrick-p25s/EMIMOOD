@@ -32,6 +32,10 @@ class DocumentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class DocumentFolderOut(DocumentOut):
+    folder_id: UUID | None | str
+
+
 class DocumentUpdate(BaseModel):
     titre: str | None = None
     description: str | None = None

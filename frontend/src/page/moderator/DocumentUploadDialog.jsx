@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import InputLabeled from "@/components/shared/InputLabeled";
 import TextareaLabeled from "@/components/shared/TextareaLabeled";
-import { UploadCloud } from "lucide-react";
+import { Star, UploadCloud } from "lucide-react";
 import FormModal from "@/components/shared/FormModal";
 import SelectLabeled from "@/components/shared/SelectLabeled";
+import { Switch } from "@/components/ui/switch";
 
 const buildFileMeta = (file) => ({
   file,
@@ -110,13 +111,30 @@ export default function DocumentUploadDialog({
       />
 
       {/* Sélection de la Matière */}
-      <SelectLabeled
-        options={matieres}
-        value={form.matiereId}
-        id="matiereId"
-        setValue={setForm}
-        placeholder="Choisir matiere"
-      />
+      {matieres.length > 0 && (
+        <SelectLabeled
+          options={matieres}
+          value={form.matiereId}
+          id="matiereId"
+          setValue={setForm}
+          placeholder="Choisir matiere"
+        />
+      )}
+      <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+        <div className="flex items-center gap-2">
+          <Star className="h-4 w-4 text-amber-500" />
+          <Label htmlFor="important" className="cursor-pointer">
+            Proposer en publique
+          </Label>
+        </div>
+        <Switch
+          id="important"
+          checked={form.proposerPubliquement}
+          onCheckedChange={(checked) =>
+            setForm((prev) => ({ ...prev, proposerPubliquement: checked }))
+          }
+        />
+      </div>
 
       {/* Conditionnel : Date limite uniquement si TD/TP/Devoir */}
       {isAssignment && (
