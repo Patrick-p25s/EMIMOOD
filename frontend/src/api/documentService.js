@@ -26,10 +26,11 @@ export const createDocument = async (documentData) => {
 export const getPublicDocuments = async ({
   page = 1,
   pageSize = 20,
+  search = null,
   matiereId = null,
 } = {}) => {
   const result = await apiClient.get(`/documents/public`, {
-    params: { page, page_size: pageSize, matiere_id: matiereId },
+    params: { page, page_size: pageSize, matiere_id: matiereId, search },
   });
   return result.data;
 };
@@ -57,6 +58,7 @@ export const pendingDocuments = async ({
   page = 1,
   pageSize = 20,
   matiereId = null,
+  search = null,
   typeDocument = null,
 } = {}) => {
   const result = await apiClient.get("/documents/moderation/pending", {
@@ -65,6 +67,7 @@ export const pendingDocuments = async ({
       page_size: pageSize,
       matiere_id: matiereId,
       type_document: typeDocument,
+      search,
     },
   });
   return result.data;

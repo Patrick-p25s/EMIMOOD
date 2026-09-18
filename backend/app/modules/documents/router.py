@@ -40,11 +40,12 @@ async def list_public_documents(
     params: PaginationParams = Depends(),
     matiere_id: UUID | None = None,
     type_document: DocumentType | None = None,
+    search: str | None = None,
     current_user: Users = Depends(get_current_user),
     service: DocumentService = Depends(get_document_service),
 ) -> Page[DocumentOut]:
     return await service.list_public_documents(
-        current_user, params, matiere_id, type_document
+        current_user, search, params, matiere_id, type_document
     )
 
 
@@ -97,10 +98,13 @@ async def list_my_documents(
 async def list_pending_documents(
     params: PaginationParams = Depends(),
     matiere_id: UUID | None = None,
+    search: str | None = None,
     current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
 ) -> Page[DocumentOut]:
-    return await service.list_pending_documents(current_user, params, matiere_id)
+    return await service.list_pending_documents(
+        current_user, search, params, matiere_id
+    )
 
 
 @router.patch("/moderation/{document_id}/approve", response_model=DocumentOut)

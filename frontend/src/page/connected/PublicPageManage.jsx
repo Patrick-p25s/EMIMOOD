@@ -1,6 +1,7 @@
 import { downloadDocument } from "@/api/documentService";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentCard from "@/components/shared/DocumentCard";
+import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
 import FilterBar from "@/components/shared/FiterBar";
 import { usePublicDocument } from "@/hooks/usePublic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -21,7 +22,7 @@ export default function PublicPageManage() {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Documents publics</h2>
 
-      <FilterBar filters={filters} onChange={updateFilters} />
+      <DocumentFilterBar filters={filters} onChange={updateFilters} />
 
       {loading && (
         <p className="text-sm text-muted-foreground">Chargement...</p>

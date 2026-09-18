@@ -128,6 +128,7 @@ class DocumentService:
     async def list_public_documents(
         self,
         current_user: Users,
+        search: str | None,
         params: PaginationParams,
         matiere_id: UUID | None = None,
         document_type: DocumentType | None = None,
@@ -136,6 +137,7 @@ class DocumentService:
             current_user.classe_id,
             matiere_id,
             document_type,
+            search,
             params.offset,
             params.limit,
         )
@@ -154,6 +156,7 @@ class DocumentService:
     async def list_pending_documents(
         self,
         current_user: Users,
+        search: str | None,
         params: PaginationParams,
         matiere_id: UUID | None = None,
     ) -> Page:
@@ -161,6 +164,7 @@ class DocumentService:
         documents, total = await self.document_repo.list_pending(
             None if current_user.role == UserRole.admin else current_user.classe_id,
             matiere_id,
+            search,
             params.offset,
             params.limit,
         )

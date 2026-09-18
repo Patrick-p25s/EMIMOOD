@@ -53,7 +53,6 @@ class DocumentRepository:
             select(func.count()).select_from(Document).where(base_filter)
         )
 
-        # LEFT JOIN : récupère le folder_id SEULEMENT pour la sauvegarde de CET utilisateur
         query = (
             select(Document, DocumentSauvegarde.folder_id)
             .outerjoin(
@@ -95,6 +94,7 @@ class DocumentRepository:
         self,
         classe_id: UUID | str | None,
         matiere_id: UUID | str | None,
+        search: str | None,
         offset: int,
         limit: int,
     ) -> tuple[list[Document], int]:
@@ -107,6 +107,15 @@ class DocumentRepository:
         if matiere_id is not None:
             query = query.where(Document.matiere_id == matiere_id)
 
+        if search and len(search.strip()) >= 3:
+            search_pattern = f"%{search.strip()}%"
+
+            query = query.where(
+                or_(
+                    Document.titre.ilike(search_pattern),
+                    Document.description.ilike(search_pattern),
+                )
+            )
         total_result = await self.db.execute(
             select(func.count()).select_from(query.subquery())
         )
@@ -120,6 +129,7 @@ class DocumentRepository:
         classe_id: UUID | str | None,
         matiere_id: UUID | str | None,
         document_type: DocumentType | None,
+        search: str | None,
         offset: int,
         limit: int,
     ) -> tuple[list[Document], int]:
@@ -133,6 +143,16 @@ class DocumentRepository:
             )
         else:
             query = query.where(Document.classe_id.is_(None))
+
+        if search and len(search.strip()) >= 3:
+            search_pattern = f"%{search.strip()}%"
+
+            query = query.where(
+                or_(
+                    Document.titre.ilike(search_pattern),
+                    Document.description.ilike(search_pattern),
+                )
+            )
 
         if matiere_id is not None:
             query = query.where(Document.matiere_id == matiere_id)

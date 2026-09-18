@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import InputLabeled from "./InputLabeled";
+import SelectLabeled from "./SelectLabeled";
+import { label } from "framer-motion/client";
 
 const TYPES_DOCUMENT = [
   { value: "cours", label: "Cours" },
@@ -48,7 +51,18 @@ export default function FilterBar({
       </div>
 
       {/* Matière */}
-      <Select
+      <SelectLabeled
+        value={filters.matiereId}
+        id="matiereId"
+        setValue={onChange}
+        options={[
+          { value: "all", label: "Tous les matière" },
+          ...matieres.map((f) => ({ value: f.id, label: f.name })),
+        ]}
+        label="Matière"
+        placeholder="Matière"
+      />
+      {/* <Select
         value={filters.matiereId || "all"}
         onValueChange={(val) =>
           onChange({ matiereId: val === "all" ? "" : val })
@@ -61,14 +75,25 @@ export default function FilterBar({
           <SelectItem value="all">Toutes les matières</SelectItem>
           {matieres.map((m) => (
             <SelectItem key={m.id} value={String(m.id)}>
-              {m.nom}
+              {m.name}
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       {/* Type */}
-      <Select
+      <SelectLabeled
+        value={filters.typeDocument || "all"}
+        setValue={onChange}
+        id="typeDocument"
+        options={[
+          { value: "all", label: "Tous les types" },
+          ...TYPES_DOCUMENT.map((f) => ({ value: f.id, label: f.name })),
+        ]}
+        label="Matière"
+        placeholder="Matière"
+      />
+      {/* <Select
         value={filters.typeDocument || "all"}
         onValueChange={(val) =>
           onChange({ typeDocument: val === "all" ? "" : val })
@@ -85,10 +110,22 @@ export default function FilterBar({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       {/* Dossier */}
-      <Select
+      <SelectLabeled
+        value={filters.dossierId}
+        setValue={onChange}
+        id="dossierId"
+        options={[
+          {
+            value: "all",
+            label: "Tous les dossier",
+            ...dossiers.map((d) => ({ value: d.id, label: d.name })),
+          },
+        ]}
+      />
+      {/* <Select
         value={filters.dossierId || "all"}
         onValueChange={(val) =>
           onChange({ dossierId: val === "all" ? "" : val })
@@ -105,7 +142,7 @@ export default function FilterBar({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       {hasActiveFilters && (
         <Button
