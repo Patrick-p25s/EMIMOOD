@@ -19,11 +19,8 @@ export default function MoveToFolderDialog({
     setErreur(null);
     setLoading(true);
     try {
-      const res = await moveDocument(document.id, folderId.folderId || null);
-      console.log(res);
-      console.log("Document id ", document.id);
-      console.log("folder id ", folderId.folderId);
-      // onMoved?.(document.id, folderId.folderId || null);
+      await moveDocument(document.id, folderId.folderId || null);
+      onMoved?.(document.id, folderId.folderId || null);
       onOpenChange(false);
     } catch (err) {
       setErreur(err.message?.toString());

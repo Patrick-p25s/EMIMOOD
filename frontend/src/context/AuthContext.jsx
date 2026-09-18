@@ -1,7 +1,12 @@
 import { tokenStorage } from "@/api/tokenStorage";
 import { createContext, useEffect, useState } from "react";
 import { loginApi, logoutApi } from "@/api/authService";
-import { getProfile, register as registerApi } from "@/api/userService";
+import {
+  getProfile,
+  register as registerApi,
+  updateProfile,
+} from "@/api/userService";
+import { data } from "react-router-dom";
 export const AuthContext = createContext(null);
 export default function AuthProvider({ children }) {
   const [error, setError] = useState(null);
@@ -37,6 +42,22 @@ export default function AuthProvider({ children }) {
     }
   };
 
+  const update = async (data) => {
+    setError(null);
+    try {
+      await updateProfile(null, data);
+      setUser({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone_number: data.phoneNumber,
+      });
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
   const register = async (userData) => {
     setError(null);
     try {
@@ -64,6 +85,7 @@ export default function AuthProvider({ children }) {
     user,
     loading,
     error,
+    update,
     isAuthenticated: Boolean(user),
     role: user?.role,
     register,

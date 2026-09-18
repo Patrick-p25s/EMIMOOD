@@ -17,11 +17,11 @@ export default function MyDocumentManage() {
     add: addFolder,
     remove: removeFolder,
     update: updateFolder,
+    refresh,
   } = useFolder();
 
   const { documents } = useMyDocuments();
 
-  // Documents qui n'appartiennent à aucun dossier
   const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
 
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -47,7 +47,6 @@ export default function MyDocumentManage() {
     setOpenMove(true);
   };
 
-  // Vue "à l'intérieur d'un dossier"
   if (selectedFolder) {
     return (
       <>
@@ -118,8 +117,6 @@ export default function MyDocumentManage() {
           </div>
         )}
       </section>
-
-      {/* Documents sans dossier */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">
           Sans dossier

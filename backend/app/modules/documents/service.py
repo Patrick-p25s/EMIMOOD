@@ -314,9 +314,10 @@ class DocumentService:
     async def delete_save_document(self, document_id: str | UUID, current_user: Users):
         saved = await self.get_save_by_document_id(document_id, current_user)
         await self.save_repo.delete(saved)
+
         document = await self.get_document_by_id(document_id, current_user)
         if document.owner_id == current_user.id:
-            return self.document_repo.delete(document)
+            return await self.document_repo.delete(document)
 
         return {"success": True}
 

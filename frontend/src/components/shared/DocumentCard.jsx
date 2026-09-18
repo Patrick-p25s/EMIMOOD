@@ -20,6 +20,7 @@ import {
   saveDocument,
 } from "@/api/documentService";
 import { ButtonStyled } from "./ButtonStyled";
+import useAuth from "@/hooks/useAuth";
 
 const STATUT_CONFIG = {
   prive: { label: "Privé", className: "bg-muted text-muted-foreground" },
@@ -76,6 +77,7 @@ export default function DocumentCard({
   const [saveLoading, setSaveLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!document?.id) return;
@@ -146,6 +148,12 @@ export default function DocumentCard({
     setSaveLoading(true);
     try {
       if (isSaved) {
+        if (document.owner_id == user.id) {
+          if (window.confirm("Cette document va disparaitre ")) {
+            return await deleteDocumentSaved(id);
+          }
+          return;
+        }
         await deleteDocumentSaved(id);
         setIsSaved(false);
       } else {

@@ -124,11 +124,8 @@ class AnnonceService:
     async def list_active_for_user(
         self, current_user: Users, params: PaginationParams
     ) -> Page:
-        classe_id = (
-            None if current_user.role == UserRole.admin else current_user.classe_id
-        )
         annonces, total = await self.repo.list_by_status(
-            AnnonceStatut.active, classe_id, params.offset, params.limit
+            AnnonceStatut.active, current_user.classe_id, params.offset, params.limit
         )
         return make_page(annonces, total, params)
 

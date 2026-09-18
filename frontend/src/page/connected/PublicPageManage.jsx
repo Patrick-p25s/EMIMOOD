@@ -2,8 +2,6 @@ import { downloadDocument } from "@/api/documentService";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentCard from "@/components/shared/DocumentCard";
 import FilterBar from "@/components/shared/FiterBar";
-import { Button } from "@/components/ui/button";
-import { useMyDocuments } from "@/hooks/useMyDocs";
 import { usePublicDocument } from "@/hooks/usePublic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";

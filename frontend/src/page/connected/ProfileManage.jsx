@@ -9,7 +9,7 @@ import { useMe } from "@/hooks/useMe";
 import React, { useEffect, useState } from "react";
 
 export default function ProfileManage() {
-  const { user } = useAuth();
+  const { user, update } = useAuth();
 
   const { classe, updatePassword, updateProfile, error, loading, stats } =
     useMe();
@@ -54,7 +54,7 @@ export default function ProfileManage() {
     setActError(null);
     setActLoading(true);
     try {
-      await updateProfile(profile);
+      await update(profile);
       setOpenProfile(false);
     } catch (err) {
       setActError(err.message?.toString());
