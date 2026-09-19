@@ -16,6 +16,8 @@ from app.modules.documents.schema import (
     DocumentUpdate,
     DocumentFolderOut,
 )
+from app.modules.notification.repository import NotificationRepository
+from app.modules.notification.service import NotificationService
 from app.modules.documents.service import DocumentService
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.users.model import Users
@@ -29,6 +31,7 @@ def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
         SubjectRepository(db),
         DocumentSaveRepository(db),
         FolderService(FolderRepository(db)),
+        NotificationService(NotificationRepository(db)),
     )
 
 

@@ -6,10 +6,11 @@ from app.modules.notification.model import NotificationType
 
 class NotificationRead(BaseModel):
     id: UUID
-    from_user_id: UUID | None
+    from_user_id: UUID | None = None
     message: str
     is_read: bool
-    to_user_id: UUID
+    to_user_id: UUID | None = None
+    classe_id: UUID | None = None
     type: NotificationType
     created_at: datetime
     updated_at: datetime
@@ -17,9 +18,9 @@ class NotificationRead(BaseModel):
 
 
 class NotificationCreate(BaseModel):
-    from_user_id: UUID | None
-    classe_id: UUID | None
-    to_user_id: UUID | None
+    from_user_id: UUID | None = None
+    classe_id: UUID | None = None
+    to_user_id: UUID | None = None
     message: str
     type: NotificationType
 

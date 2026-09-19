@@ -9,6 +9,7 @@ from app.modules.matiere.repository import SubjectRepository
 from app.modules.folder.service import FolderService
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
+from app.modules.notification.service import NotificationService
 
 
 class DocumentService:
@@ -18,11 +19,13 @@ class DocumentService:
         subject_repo: SubjectRepository,
         save_repo: DocumentSaveRepository,
         folder_service: FolderService,
+        notif_service: NotificationService,
     ):
         self.document_repo = document_repo
         self.subject_repo = subject_repo
         self.save_repo = save_repo
         self.folder_service = folder_service
+        self.notif_service = notif_service
 
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
@@ -106,6 +109,8 @@ class DocumentService:
         await self.save_repo.create(
             {"user_id": current_user.id, "document_id": document.id}
         )
+        if document.statut == DocumentStatus.public:
+            await self.notif_service.notify_new_document(current_user)
         return document
 
     async def get_stat_user(self, user_id: str | None, current_user_id: str | UUID):
@@ -210,10 +215,17 @@ class DocumentService:
                 status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
             )
 
-        return await self.document_repo.update(
+        document = await self.document_repo.update(
             document,
             {"statut": DocumentStatus.public, "validated_by_id": current_user.id},
         )
+
+        # ajouter les notfication
+
+        await self.notif_service.notify_valide_doc(document, current_user)
+        await self.notif_service.notify_new_document(current_user)
+
+        return document
 
     async def rejeter_document(
         self, document_id: UUID, current_user: Users
@@ -229,10 +241,13 @@ class DocumentService:
                 status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
             )
 
-        return await self.document_repo.update(
+        document = await self.document_repo.update(
             document,
             {"statut": DocumentStatus.rejete, "validated_by_id": current_user.id},
         )
+        # ajouter la notification de rejet
+        await self.notif_service.notify_reject_doc(document, current_user)
+        return document
 
     async def delete_document(self, document_id: UUID, current_user: Users) -> None:
         document = await self._get_document_or_404(document_id)
