@@ -23,8 +23,7 @@ def get_notification_service(db: AsyncSession = Depends(get_db)):
 
 
 @router.get(
-    "",
-    summary="Récupérer mes notifications",
+    "", summary="Récupérer mes notifications", response_model=Page[NotificationRead]
 )
 async def get_my_notifications(
     params: PaginationParams = Depends(),

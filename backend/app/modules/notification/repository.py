@@ -51,7 +51,7 @@ class NotificationRepository:
         visibility_filter = or_(
             # Notification personnelle
             Notification.to_user_id == user.id,
-            # Notification globale ou de classe
+            # Notification de classe ou globale
             and_(
                 Notification.to_user_id.is_(None),
                 or_(
@@ -61,6 +61,7 @@ class NotificationRepository:
             ),
         )
 
+        # Notifications paginées
         result = await self.db.execute(
             select(
                 Notification,
@@ -72,7 +73,16 @@ class NotificationRepository:
             .limit(limit)
         )
 
-        return result.all()
+        items = result.all()
+
+        # Nombre total
+        count_result = await self.db.execute(
+            select(func.count(Notification.id)).where(visibility_filter)
+        )
+
+        total = count_result.scalar_one()
+
+        return items, total
 
     async def get_by_id(
         self,

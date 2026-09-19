@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import HTTPException, status
 
-from app.core.pagination import PaginationParams
+from app.core.pagination import PaginationParams, make_page, Page
 from app.modules.documents.model import Document
 from app.modules.notification.model import NotificationType
 from app.modules.notification.repository import NotificationRepository
@@ -117,14 +117,14 @@ class NotificationService:
         self,
         user: Users,
         params: PaginationParams,
-    ):
-        rows = await self.repo.list_by_user(
+    ) -> Page[NotificationRead]:
+        rows, total = await self.repo.list_by_user(
             user,
             params.offset,
             params.limit,
         )
 
-        return [
+        items = [
             NotificationRead.model_validate(
                 {
                     **notification.__dict__,
@@ -133,6 +133,7 @@ class NotificationService:
             )
             for notification, is_read in rows
         ]
+        return make_page(items, total, params)
 
     async def get_unread_count(
         self,
