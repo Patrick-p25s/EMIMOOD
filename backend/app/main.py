@@ -18,6 +18,8 @@ from app.modules.folder.router import router as folder_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.modules.documents.storage import UPLOAD_DIR
+from app.modules.notification.router import router as notif_router
+from app.modules.notification.ssemanager.router import router as sse_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -87,6 +89,8 @@ app.add_middleware(
     allow_origins=["http://localhost:5173"],
 )
 # Inclusion des routeurs
+app.include_router(notif_router)
+app.include_router(sse_router)
 app.include_router(year_router)
 app.include_router(classe_router)
 app.include_router(auth_router)
