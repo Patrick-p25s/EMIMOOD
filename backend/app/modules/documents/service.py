@@ -181,6 +181,7 @@ class DocumentService:
         params: PaginationParams,
         search: str | None,
         document_type: DocumentType | None,
+        statut: DocumentStatus | None,
         classe_id: str | None,
     ):
         self._require_moderator(current_user)
@@ -190,6 +191,7 @@ class DocumentService:
             params.limit,
             search,
             document_type,
+            statut,
             classe_id,
         )
         return make_page(result, total, params)

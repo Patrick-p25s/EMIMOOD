@@ -41,6 +41,7 @@ export const getNotPrivateDocs = async ({
   search = null,
   typeDocument = null,
   classeId = null,
+  statut = null,
 } = {}) => {
   const result = await apiClient.get("/documents", {
     params: {
@@ -48,7 +49,8 @@ export const getNotPrivateDocs = async ({
       page_size: pageSize,
       document_type: typeDocument,
       classe_id: classeId,
-      search: search,
+      search,
+      statut,
     },
   });
   return result.data;

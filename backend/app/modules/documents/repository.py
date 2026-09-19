@@ -188,6 +188,7 @@ class DocumentRepository:
         limit: int = 20,
         search: str | None = None,
         document_type: DocumentType | None = None,
+        statut: DocumentStatus | None = None,
         classe_id: UUID | str | None = None,
     ):
         query = select(Document).where(Document.statut != DocumentStatus.prive)
@@ -197,6 +198,10 @@ class DocumentRepository:
             )
         if document_type is not None:
             query = query.where(Document.type_document == document_type)
+
+        if statut is not None:
+            query = query.where(Document.statut == statut)
+
         if classe_id is not None:
             query = query.where(Document.classe_id == normalized_id(classe_id))
         if search and len(search.strip()) >= 3:

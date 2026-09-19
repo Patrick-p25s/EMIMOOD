@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_moderator
 from app.core.pagination import Page, PaginationParams
-from app.modules.documents.model import DocumentType
+from app.modules.documents.model import DocumentType, DocumentStatus
 from app.modules.documents.repository import DocumentRepository, DocumentSaveRepository
 from app.modules.documents.schema import (
     DocumentCreate,
@@ -80,11 +80,12 @@ async def get_document_not_private(
     search: str | None = None,
     document_type: str | None = None,
     classe_id: str | None = None,
+    statut: DocumentStatus | None = None,
     current_user: Users = Depends(require_moderator),
     service: DocumentService = Depends(get_document_service),
 ) -> Page[DocumentOut]:
     return await service.get_not_private_document(
-        current_user, params, search, document_type, classe_id
+        current_user, params, search, document_type, statut, classe_id
     )
 
 
