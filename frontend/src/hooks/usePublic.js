@@ -3,6 +3,7 @@ import {
   getPublicDocuments,
   myDocument,
 } from "@/api/documentService";
+import { listSubjects } from "@/api/sujectService";
 import { useCallback, useEffect, useState } from "react";
 
 const initialFilters = {
@@ -17,6 +18,7 @@ export const usePublicDocument = (initialPage = 1, initialPageSize = 20) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState(initialFilters);
+  const [subjects, setSubjects] = useState([]);
 
   const [pagination, setPagination] = useState({
     page: initialPage,
@@ -24,6 +26,17 @@ export const usePublicDocument = (initialPage = 1, initialPageSize = 20) => {
     total: 0,
     pages: 1,
   });
+
+  const fetchClasseSubject = useCallback(async () => {
+    setError(null);
+    try {
+      const subjectList = await listSubjects();
+      setSubjects(subjectList.items);
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  }, []);
 
   const fetchDocuments = useCallback(async (page, pageSize, currentFilters) => {
     setLoading(true);
@@ -55,6 +68,10 @@ export const usePublicDocument = (initialPage = 1, initialPageSize = 20) => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchClasseSubject();
   }, []);
 
   useEffect(() => {
@@ -100,6 +117,7 @@ export const usePublicDocument = (initialPage = 1, initialPageSize = 20) => {
     filters,
     loading,
     error,
+    subjects,
     goToPage,
     refresh,
     updateFilters,

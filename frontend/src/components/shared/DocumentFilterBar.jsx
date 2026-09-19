@@ -20,6 +20,7 @@ export default function DocumentFilterBar({
   filters,
   onChange,
   classes = [],
+  matieres = [],
   showClasseFilter = false,
 }) {
   const hasActiveFilters =
@@ -55,6 +56,25 @@ export default function DocumentFilterBar({
           {TYPES_DOCUMENT.map((t) => (
             <SelectItem key={t.value} value={t.value}>
               {t.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={filters.matiereId || "all"}
+        onValueChange={(val) =>
+          onChange({ matiereId: val === "all" ? "" : val })
+        }
+      >
+        <SelectTrigger className="w-full sm:w-42.5">
+          <SelectValue placeholder="Type de document" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tous les matières</SelectItem>
+          {matieres.map((mat) => (
+            <SelectItem key={mat.id} value={mat.id}>
+              {mat.titre}
             </SelectItem>
           ))}
         </SelectContent>

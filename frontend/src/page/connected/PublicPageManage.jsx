@@ -16,13 +16,22 @@ export default function PublicPageManage() {
     updateFilters,
     documents,
     goToPage,
+    subjects,
   } = usePublicDocument(1, 2);
-
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Documents publics</h2>
 
-      <DocumentFilterBar filters={filters} onChange={updateFilters} />
+      <DocumentFilterBar
+        filters={filters}
+        onChange={updateFilters}
+        matieres={subjects}
+        classes={[
+          { mention: "DAII", niveau: "L1", id: 1 },
+          { mention: "DAII", niveau: "L1", id: 2 },
+        ]}
+        showClasseFilter
+      />
 
       {loading && (
         <p className="text-sm text-muted-foreground">Chargement...</p>
