@@ -8,7 +8,7 @@ import {
 } from "@/api/notificationService";
 import { useCallback, useEffect, useState } from "react";
 
-export const useNotification = (initialPage = 0, initialPageSize = 20) => {
+export const useNotification = (initialPage = 1, initialPageSize = 20) => {
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(null);
   const [error, setError] = useState(null);
