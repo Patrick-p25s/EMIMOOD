@@ -1,5 +1,6 @@
 from app.modules.auth.repository import RefreshSessionRepository
 from app.modules.auth.schema import (
+    AccessTokenResponse,
     AuthTokens,
     LoginRequest,
     LogoutRequest,
@@ -10,7 +11,7 @@ from app.modules.auth.service import AuthService
 from app.core.database import get_db
 from app.core.limiter import limiter
 from app.modules.users.repository import UserRepository
-from fastapi import APIRouter, Depends, Request, status, Response
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.cookies import set_refresh_cookie, clear_refresh_cookie
@@ -43,9 +44,10 @@ async def swagger_login(
 
 @router.post(
     "/login",
+    response_model=AccessTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Connexion utilisateur",
-    description="Authentifie un utilisateur via e-mail et mot de passe. Renvoie un couple de jetons (access token + refresh token). Limité à 5 requêtes par minute.",
+    description="Authentifie un utilisateur via e-mail et mot de passe. Renvoie un access token et pose le refresh token en cookie httpOnly. Limité à 5 requêtes par minute.",
 )
 @limiter.limit("5/minute")
 async def login(
@@ -53,36 +55,44 @@ async def login(
     response: Response,
     form_data: LoginRequest,
     service: AuthService = Depends(_get_service),
-):
+) -> AccessTokenResponse:
     tokens = await service.login(form_data)
     set_refresh_cookie(response, tokens.refreshToken)
-    return {"accessToken": tokens.accessToken}
+    return AccessTokenResponse(accessToken=tokens.accessToken)
 
 
 @router.post(
     "/refresh",
+    response_model=AccessTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Rafraîchir les jetons",
-    description="Périme l'ancien refresh token et génère une nouvelle paire de jetons d'accès et de rafraîchissement.",
+    description="Périme l'ancien refresh token et génère une nouvelle paire de jetons d'accès et de rafraîchissement. Limité à 20 requêtes par minute.",
 )
+@limiter.limit("20/minute")
 async def refresh(
     request: Request,
     response: Response,
     service: AuthService = Depends(_get_service),
-):
+) -> AccessTokenResponse:
     payload = RefreshRequest(refreshToken=request.cookies.get("refresh_token"))
     tokens = await service.refresh(payload)
     set_refresh_cookie(response, tokens.refreshToken)
-    return AuthTokens(accessToken=tokens.accessToken, refreshToken=None)
+    return AccessTokenResponse(accessToken=tokens.accessToken)
 
 
-@router.post("/auth/logout")
+@router.post(
+    "/logout",
+    response_model=LogoutResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Déconnexion",
+    description="Révoque le refresh token courant et supprime le cookie associé.",
+)
 async def logout(
     request: Request,
     response: Response,
-    auth_service: AuthService = Depends(_get_service),
-):
-    refresh_token = request.cookies.get("refresh_token")
-    await auth_service.logout(refresh_token)
+    service: AuthService = Depends(_get_service),
+) -> LogoutResponse:
+    payload = LogoutRequest(refreshToken=request.cookies.get("refresh_token"))
+    result = await service.logout(payload)
     clear_refresh_cookie(response)
-    return {"detail": "Déconnecté"}
+    return result

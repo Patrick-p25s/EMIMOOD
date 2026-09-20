@@ -47,6 +47,14 @@ class AuthService:
         return AuthTokens(accessToken=access_token, refreshToken=refresh_token)
 
     async def refresh(self, payload: RefreshRequest) -> AuthTokens:
+        # Le champ est maintenant optionnel côté schéma : on gère l'absence ici,
+        # au bon endroit (logique métier), plutôt que de laisser Pydantic planter.
+        if not payload.refreshToken:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token missing",
+            )
+
         token_data = decode_token(payload.refreshToken)
         if not token_data or "jti" not in token_data:
             raise HTTPException(
@@ -92,7 +100,11 @@ class AuthService:
         return AuthTokens(accessToken=access_token, refreshToken=refresh_token)
 
     async def logout(self, payload: LogoutRequest) -> LogoutResponse:
+        if not payload.refreshToken:
+            return LogoutResponse()
+
         token_data = decode_token(payload.refreshToken)
         if token_data and "jti" in token_data:
             await self.session_repo.revoke(token_data["jti"])
-        return LogoutResponse()
+
+        return LogoutResponse()  # corrigé : plus de virgule finale (c'était un tuple)

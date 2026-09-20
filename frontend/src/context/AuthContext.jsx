@@ -1,29 +1,34 @@
-import { tokenStorage } from "@/api/tokenStorage";
+import { authMemory } from "@/api/authMemory";
 import { createContext, useEffect, useState } from "react";
-import { loginApi, logoutApi } from "@/api/authService";
+import { loginApi, refreshTokenApi, logoutApi } from "@/api/authService";
 import {
   getProfile,
   register as registerApi,
   updateProfile,
 } from "@/api/userService";
-import { data } from "react-router-dom";
+
 export const AuthContext = createContext(null);
+
 export default function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+
+  // Remplace l'ancien initAuth basé sur tokenStorage.get() :
+  // au démarrage on n'a plus de token à lire (il vit en mémoire, donc
+  // perdu au refresh de page) — on tente un refresh silencieux via le cookie
   const initAuth = async () => {
-    const token = tokenStorage.get();
-    if (token) {
-      try {
-        const currentUser = await getProfile();
-        setUser(currentUser);
-      } catch (err) {
-        setError(err);
-        tokenStorage.clear();
-      }
+    try {
+      const { accessToken } = await refreshTokenApi();
+      authMemory.set(accessToken);
+      const currentUser = await getProfile();
+      setUser(currentUser);
+    } catch (err) {
+      authMemory.clear();
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -34,8 +39,9 @@ export default function AuthProvider({ children }) {
     setError(null);
     try {
       const data = await loginApi(email, password);
-      tokenStorage.set(data.accessToken);
-      await initAuth();
+      authMemory.set(data.accessToken);
+      const currentUser = await getProfile();
+      setUser(currentUser);
     } catch (err) {
       setError(err);
       throw err;
@@ -70,14 +76,13 @@ export default function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    const token = tokenStorage.get();
     try {
-      await logoutApi(token);
+      await logoutApi();
     } catch (err) {
       // on ignore l'erreur réseau/serveur, on déconnecte localement quand même
     } finally {
       setUser(null);
-      tokenStorage.clear();
+      authMemory.clear();
     }
   };
 

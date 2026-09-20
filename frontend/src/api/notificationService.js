@@ -31,6 +31,6 @@ export const readOnNotification = async (notifId) => {
 };
 
 export const countUnRead = async () => {
-  const res = await apiClient.patch("/notifications/unread-count");
+  const res = await apiClient.get("/notifications/unread-count");
   return res.data;
 };
