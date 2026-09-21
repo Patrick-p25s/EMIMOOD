@@ -2,7 +2,6 @@ import { downloadDocument } from "@/api/documentService";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentCard from "@/components/shared/DocumentCard";
 import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
-import FilterBar from "@/components/shared/FiterBar";
 import { usePublicDocument } from "@/hooks/usePublic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
@@ -17,7 +16,7 @@ export default function PublicPageManage() {
     documents,
     goToPage,
     subjects,
-  } = usePublicDocument(1, 2);
+  } = usePublicDocument();
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Documents publics</h2>

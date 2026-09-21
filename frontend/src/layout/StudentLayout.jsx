@@ -14,7 +14,7 @@ import ProfileManage from "@/page/connected/ProfileManage";
 import MyDocumentManage from "@/page/connected/MyDocumentManage";
 import PublicPageManage from "@/page/connected/PublicPageManage";
 import AnnonceManage from "@/page/connected/AnnonceManage";
-import NotificationManage from "@/page/connected/NotificationManage";
+import { NotificationManage } from "@/page/connected/NotificationManage";
 
 export default function StudentLayout({ matieres, onCreateDocument }) {
   const [activeTab, setActiveTab] = useState("dashboard");

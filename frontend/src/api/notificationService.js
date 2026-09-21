@@ -21,12 +21,12 @@ export const deleteOneNotification = async (notifId) => {
 };
 
 export const readAllNotification = async () => {
-  const res = await apiClient.patch("/notifications");
+  const res = await apiClient.patch("/notifications/read-all");
   return res.data;
 };
 
 export const readOnNotification = async (notifId) => {
-  const res = await apiClient.patch(`/notifications/${notifId}`);
+  const res = await apiClient.patch(`/notifications/${notifId}/read`);
   return res.data;
 };
 

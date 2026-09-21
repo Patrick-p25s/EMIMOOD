@@ -86,7 +86,7 @@ export const useNotification = (initialPage = 1, initialPageSize = 20) => {
       );
     });
 
-  const read = () =>
+  const read = (id) =>
     execute(async () => {
       await readOnNotification(id);
       setNotifications((prev) =>
