@@ -49,7 +49,6 @@ export const usePublicDocument = (initialPage = 1, initialPageSize = 20) => {
         search: currentFilters.search || undefined,
         matiereId: currentFilters.matiereId || undefined,
         typeDocument: currentFilters.typeDocument || undefined,
-        dossierId: currentFilters.dossierId || undefined,
       });
 
       setDocuments(data.items);

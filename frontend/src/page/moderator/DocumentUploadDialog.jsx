@@ -40,11 +40,6 @@ export default function DocumentUploadDialog({
     if (e && e.preventDefault) e.preventDefault();
     setError(null);
 
-    // if (!form.titre.trim() || !form.matiereId || !file) {
-    //   setError("Le titre, la matière et le fichier sont obligatoires.");
-    //   return;
-    // }
-
     setLoading(true);
 
     try {

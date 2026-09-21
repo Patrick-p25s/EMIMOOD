@@ -25,11 +25,6 @@ export default function PublicPageManage() {
         filters={filters}
         onChange={updateFilters}
         matieres={subjects}
-        classes={[
-          { mention: "DAII", niveau: "L1", id: 1 },
-          { mention: "DAII", niveau: "L1", id: 2 },
-        ]}
-        showClasseFilter
       />
 
       {loading && (

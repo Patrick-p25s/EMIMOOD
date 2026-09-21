@@ -61,6 +61,7 @@ export default function App() {
                 <Route path="etudiant" element={<UsersAdministration />} />
               </Route>
             </Route>
+            <Route path="/documents/:id" element={<DocumentLecture />} />
           </Routes>
         </BrowserRouter>
       </AnneeProvider>

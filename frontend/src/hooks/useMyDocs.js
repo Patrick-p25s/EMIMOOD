@@ -71,6 +71,8 @@ export const useMyDocuments = ({
     return fetchDocuments(pagination.page, pagination.pageSize, filters);
   };
 
+  const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
+
   const updateFilters = (newFilters) => {
     const merged = { ...filters, ...newFilters };
     setFilters(merged);
@@ -97,6 +99,7 @@ export const useMyDocuments = ({
 
   return {
     documents,
+    documentsSansDossier,
     pagination,
     filters,
     loading,

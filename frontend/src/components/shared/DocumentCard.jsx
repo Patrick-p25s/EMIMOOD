@@ -21,6 +21,7 @@ import {
 } from "@/api/documentService";
 import { ButtonStyled } from "./ButtonStyled";
 import useAuth from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const STATUT_CONFIG = {
   prive: { label: "Privé", className: "bg-muted text-muted-foreground" },
@@ -78,6 +79,7 @@ export default function DocumentCard({
   const [isSaved, setIsSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!document?.id) return;
@@ -174,7 +176,10 @@ export default function DocumentCard({
   return (
     <Card className="flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30">
       <CardContent className="pt-5 space-y-3">
-        <div className="flex items-start justify-between gap-2">
+        <div
+          className="flex items-start justify-between gap-2"
+          onClick={() => navigate(id)}
+        >
           <div className="flex items-center gap-2 min-w-0">
             <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
               <FileText className="h-4 w-4" />

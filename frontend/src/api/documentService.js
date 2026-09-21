@@ -28,9 +28,16 @@ export const getPublicDocuments = async ({
   pageSize = 20,
   search = null,
   matiereId = null,
+  typeDocument = null,
 } = {}) => {
   const result = await apiClient.get(`/documents/public`, {
-    params: { page, page_size: pageSize, matiere_id: matiereId, search },
+    params: {
+      page,
+      page_size: pageSize,
+      matiere_id: matiereId,
+      search,
+      type_document: typeDocument,
+    },
   });
   return result.data;
 };

@@ -20,9 +20,7 @@ export default function MyDocumentManage() {
     refresh,
   } = useFolder();
 
-  const { documents } = useMyDocuments();
-
-  const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
+  const { documents, documentsSansDossier } = useMyDocuments();
 
   const [selectedFolder, setSelectedFolder] = useState(null);
 

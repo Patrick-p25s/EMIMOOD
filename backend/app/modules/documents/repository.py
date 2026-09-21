@@ -224,6 +224,7 @@ class DocumentRepository:
         return documents, total
 
     async def delete(self, matiere: Document) -> None:
+
         await self.db.delete(matiere)
         await self.db.commit()
 
