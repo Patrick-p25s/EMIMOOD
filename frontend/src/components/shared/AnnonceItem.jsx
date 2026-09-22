@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { getFileUrl } from "@/utils/file";
 import { ButtonStyled } from "./ButtonStyled";
+import IconBadge from "./IconBadge";
 
 export default function AnnonceItem({
   annonce,
@@ -61,26 +62,16 @@ export default function AnnonceItem({
             <div className="space-y-2 min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 {important && (
-                  <Badge
-                    variant="outline"
-                    className="gap-1 border-warning/40 text-warning bg-warning/10 text-[11px]"
-                  >
-                    <AlertCircle className="h-3 w-3" />
+                  <IconBadge icon={AlertCircle} tone="primary">
                     Important
-                  </Badge>
+                  </IconBadge>
                 )}
                 {isArchivee ? (
-                  <Badge variant="secondary" className="gap-1 text-[11px]">
-                    <Archive className="h-3 w-3" />
-                    Archivée
-                  </Badge>
+                  <IconBadge icon={Archive} tone="muted">
+                    Archive
+                  </IconBadge>
                 ) : (
-                  <Badge
-                    variant="outline"
-                    className="text-success border-success/30 bg-success/10 text-[11px]"
-                  >
-                    Active
-                  </Badge>
+                  <IconBadge>Active</IconBadge>
                 )}
               </div>
 

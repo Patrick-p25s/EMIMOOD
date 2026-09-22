@@ -18,6 +18,7 @@ import MyDashboard from "./page/connected/Dashboard";
 import DocumentLecture from "./page/connected/DocumentLecture";
 import AnnoncesAdministration from "./page/administration/AnnonceAdministration";
 import UsersAdministration from "./page/administration/UsersAdministration";
+import SubjectAdministration from "./page/administration/SubjectModerator";
 export default function App() {
   return (
     <AuthProvider>
@@ -48,7 +49,7 @@ export default function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="year" element={<YearAdministration />} />
               <Route path="classe" element={<ClasseAdministration />} />
-              <Route path="matiere" element={<MatiereAdministration />} />
+              <Route path="matiere" element={<SubjectAdministration />} />
               <Route path="document" element={<DocumentAdministration />} />
               <Route
                 path="document/:documentId"

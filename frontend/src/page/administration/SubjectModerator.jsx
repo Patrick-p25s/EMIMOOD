@@ -5,15 +5,20 @@ import TextareaLabeled from "@/components/shared/TextareaLabeled";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import MatiereCard from "@/components/shared/MatiereCard";
+import { useSubject } from "@/hooks/useSubject";
 
-export default function SubjectModerator() {
+export default function SubjectAdministration() {
   const {
-    classMatieres = [],
-    userClasse,
-    createSubject,
-    deleteSubject,
-    updateSubject,
-  } = useOutletContext() || {};
+    subjects,
+    add,
+    remove,
+    update,
+    getById,
+    goToPage,
+    error,
+    loading,
+    pagination,
+  } = useSubject();
 
   const [open, setOpen] = useState(false);
   const [updated, setUpdated] = useState(null);
@@ -27,7 +32,7 @@ export default function SubjectModerator() {
   });
 
   const [erreur, setErreur] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingAct, setLoadAct] = useState(false);
 
   // Synchronisation du formulaire à l'ouverture en modification ou création
   useEffect(() => {
@@ -48,7 +53,6 @@ export default function SubjectModerator() {
     }
   }, [updated]);
 
-  // Réinitialiser l'état 'updated' lorsque le modal se ferme
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen);
     if (!isOpen) {
@@ -59,14 +63,14 @@ export default function SubjectModerator() {
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    setLoading(true);
+    setLoadAct(true);
     setErreur(null);
 
     try {
       if (isEditing) {
-        await updateSubject(updated.id, newData);
+        await update(updated.id, newData);
       } else {
-        await createSubject(newData, userClasse?.id);
+        await add(newData);
       }
 
       // Fermeture et réinitialisation UNIQUEMENT en cas de succès
@@ -81,18 +85,7 @@ export default function SubjectModerator() {
     } catch (err) {
       setErreur(`Erreur : ${err?.message || "Une erreur est survenue"}`);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    setLoading(true);
-    try {
-      await deleteSubject(id);
-    } catch (err) {
-      setErreur(err?.message || "Erreur lors de la suppression");
-    } finally {
-      setLoading(false);
+      setLoadAct(false);
     }
   };
 
@@ -126,7 +119,7 @@ export default function SubjectModerator() {
         onOpenChange={handleOpenChange}
         onSubmit={handleSubmit}
         error={erreur}
-        loading={loading}
+        loading={loadingAct}
         submitLabel={isEditing ? "Modifier" : "Créer"}
         title={
           isEditing ? "Modifier la matière" : "Ajouter une nouvelle matière"
@@ -170,11 +163,11 @@ export default function SubjectModerator() {
       </FormModal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classMatieres.map((matiere) => (
+        {subjects.map((matiere) => (
           <MatiereCard
             matiere={matiere}
             key={matiere.id}
-            onDelete={() => handleDelete(matiere.id)}
+            onDelete={() => remove(matiere.id)}
             onUpdate={() => handleUpdate(matiere)}
           />
         ))}

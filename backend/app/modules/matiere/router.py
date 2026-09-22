@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_admin
+from app.core.dependencies import get_current_user, require_moderator
 from app.modules.matiere.repository import SubjectRepository
 from app.modules.matiere.schema import SubjectCreate, SubjectOut
 from app.modules.matiere.service import SubjectService
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/subjects", tags=["Gestion des Matières"])
 async def create_subject(
     request: SubjectCreate,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
 ) -> SubjectOut:
     return await service.create_new_subject(classe_id=user.classe_id, request=request)
 
@@ -71,7 +71,7 @@ async def update_subject(
     subject_id: UUID,
     request: SubjectCreate,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
 ) -> SubjectOut:
     return await service.update_subject(subject_id, request)
 
@@ -85,6 +85,6 @@ async def update_subject(
 async def delete_subject(
     subject_id: UUID,
     service: SubjectService = Depends(get_subject_service),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
 ) -> None:
     return await service.delete_subject(subject_id)

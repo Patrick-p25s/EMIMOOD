@@ -42,6 +42,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { getFileUrl } from "@/utils/file";
+import IconBadge from "./IconBadge";
 
 const TYPE_CONFIG = {
   cours: { label: "Cours", icon: FileText },
@@ -274,19 +275,22 @@ export default function DocumentCard({
 
             <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent" />
 
-            <Badge className="absolute left-2.5 top-2.5 h-6 border-0 bg-background/90 px-2 text-[10px] font-semibold text-foreground shadow-sm backdrop-blur">
+            <IconBadge
+              className="absolute left-2.5 top-2.5 h-6 border-0 bg-background/90 font-semibold text-foreground shadow-sm "
+              tone="primary"
+            >
               {typeInfo.label}
-            </Badge>
+            </IconBadge>
 
-            <Badge
-              variant="outline"
+            <IconBadge
+              tone="success"
               className={cn(
                 "absolute right-2.5 top-2.5 h-6 px-2 text-[10px] font-medium shadow-sm",
                 statusInfo.className,
               )}
             >
               {statusInfo.label}
-            </Badge>
+            </IconBadge>
 
             {isVideo && thumbnail_url && (
               <div className="absolute inset-0 flex items-center justify-center">

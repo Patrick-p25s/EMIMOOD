@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
@@ -15,6 +14,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
 
 const menuGeneral = [
   {
@@ -104,24 +105,19 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* HEADER */}
         <header className="shrink-0 flex items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-background">
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="icon"
             className="md:hidden"
             onClick={() => setMobileOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+            icon={<Menu className="h-5 w-5" />}
+          />
 
           <div className="flex-1 md:flex-none" />
 
-          <Badge
-            variant="secondary"
-            className="gap-1.5 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-100"
-          >
-            <Calendar className="size-3.5" />
-            <span className="hidden sm:inline">Année active : </span>
-          </Badge>
+          <IconBadge tone="muted" icon={Calendar}>
+            Anné active
+          </IconBadge>
         </header>
 
         {/* PAGE ACTIVE */}
@@ -147,6 +143,11 @@ function SidebarContent({ onLogout, onNavigate, role }) {
           items={menuGeneral}
           onNavigate={onNavigate}
         />
+        <MenuSection
+          titre="Structure"
+          items={menuStructure}
+          onNavigate={onNavigate}
+        />
 
         {/* Année : uniquement ADMIN */}
         {role === "admin" && (
@@ -162,15 +163,6 @@ function SidebarContent({ onLogout, onNavigate, role }) {
           <MenuSection
             titre="Classes"
             items={menuClasse}
-            onNavigate={onNavigate}
-          />
-        )}
-
-        {/* Structure : pas MODERATEUR */}
-        {role !== "moderator" && (
-          <MenuSection
-            titre="Structure"
-            items={menuStructure}
             onNavigate={onNavigate}
           />
         )}
@@ -193,14 +185,14 @@ function SidebarContent({ onLogout, onNavigate, role }) {
       </div>
 
       <div className="px-4 py-4 border-t shrink-0">
-        <Button
+        <ButtonStyled
           variant="ghost"
           className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
           onClick={onLogout}
+          icon={<LogOut className="h-4 w-4" />}
         >
-          <LogOut className="h-4 w-4" />
           Déconnexion
-        </Button>
+        </ButtonStyled>
       </div>
     </>
   );

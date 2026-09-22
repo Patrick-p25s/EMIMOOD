@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, Plus, Star } from "lucide-react";
 import useAnnonce from "@/hooks/useAnnonce";
 import React, { useEffect, useMemo, useState } from "react";
+import AlertBox from "@/components/shared/AlertBox";
 
 export default function AnnoncesAdministration() {
   const {
@@ -107,9 +108,9 @@ export default function AnnoncesAdministration() {
       </div>
 
       {(error || actionError) && (
-        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
+        <AlertBox title="Un erreur se produit" variant="error">
           {actionError || error?.message}
-        </div>
+        </AlertBox>
       )}
 
       {/* Filtres */}
