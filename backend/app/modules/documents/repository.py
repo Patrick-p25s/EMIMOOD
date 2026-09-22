@@ -9,6 +9,7 @@ from app.modules.documents.model import (
 from sqlalchemy import func, or_, select, exists, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.matiere.model import Subject
+from sqlalchemy.orm import joinedload
 
 
 class DocumentRepository:
@@ -24,7 +25,9 @@ class DocumentRepository:
 
     async def get_by_id(self, document_id: UUID) -> Document | None:
         result = await self.db.execute(
-            select(Document).where(Document.id == normalized_id(document_id))
+            select(Document)
+            .options(joinedload(Document.owner))
+            .where(Document.id == normalized_id(document_id))
         )
         return result.scalar_one_or_none()
 
@@ -55,6 +58,7 @@ class DocumentRepository:
 
         query = (
             select(Document, DocumentSauvegarde.folder_id)
+            .options(joinedload(Document.owner))
             .outerjoin(
                 DocumentSauvegarde,
                 and_(
@@ -120,7 +124,10 @@ class DocumentRepository:
             select(func.count()).select_from(query.subquery())
         )
         result = await self.db.execute(
-            query.order_by(Document.created_at.desc()).offset(offset).limit(limit)
+            query.options(joinedload(Document.owner))
+            .order_by(Document.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return result.scalars().all(), total_result.scalar_one()
 
@@ -164,7 +171,10 @@ class DocumentRepository:
             select(func.count()).select_from(query.subquery())
         )
         result = await self.db.execute(
-            query.order_by(Document.created_at.desc()).offset(offset).limit(limit)
+            query.options(joinedload(Document.owner))
+            .order_by(Document.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return result.scalars().all(), total_result.scalar_one()
 
@@ -218,7 +228,10 @@ class DocumentRepository:
         total_result = await self.db.execute(total_query)
         total = total_result.scalar_one()
         result = await self.db.execute(
-            query.order_by(Document.created_at.desc()).offset(offset).limit(limit)
+            query.options(joinedload(Document.owner))
+            .order_by(Document.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         documents = result.scalars().all()
         return documents, total
@@ -277,6 +290,7 @@ class DocumentSaveRepository:
     async def list_by_folder(self, folder_id: UUID | str) -> list[Document]:
         result = await self.db.execute(
             select(Document)
+            .options(joinedload(Document.owner))
             .join(DocumentSauvegarde, DocumentSauvegarde.document_id == Document.id)
             .where(DocumentSauvegarde.folder_id == normalized_id(folder_id))
         )

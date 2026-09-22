@@ -58,7 +58,6 @@ export default function PublicPageManage() {
           </span>
           <ButtonStyled
             variant="outline"
-            size="sm"
             disabled={pagination.page >= pagination.pages}
             onClick={() => goToPage(pagination.page + 1)}
             icon={<ChevronRight className="h-4 w-4" />}

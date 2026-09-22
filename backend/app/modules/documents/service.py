@@ -128,6 +128,9 @@ class DocumentService:
         document = await self._get_document_or_404(document_id)
         if not self._peut_acceder(document, current_user):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+        await self.document_repo.update(
+            document, {"download_count": int(document.download_count) + 1}
+        )
         return document
 
     async def list_public_documents(
@@ -306,6 +309,10 @@ class DocumentService:
 
         if await self.save_repo.get_by_user_and_document(current_user.id, document.id):
             raise HTTPException(status.HTTP_409_CONFLICT, "Document déjà sauvegardé")
+
+        await self.document_repo.update(
+            document, {"save_count": int(document.save_count or 0) + 1}
+        )
 
         new_save = {
             "user_id": current_user.id,

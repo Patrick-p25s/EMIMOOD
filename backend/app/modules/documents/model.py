@@ -62,6 +62,9 @@ class Document(UuidStamp):
     storage_key: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     taille_octets: Mapped[int] = mapped_column(Integer, nullable=False)
+    download_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    save_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    vue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
 
     # relation
     owner_id: Mapped[uuid.UUID] = mapped_column(

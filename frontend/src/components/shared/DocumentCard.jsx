@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   FileText,
+  FileSpreadsheet,
+  FileImage,
+  Video,
+  Presentation,
   Download,
   Bookmark,
   BookmarkCheck,
@@ -12,6 +17,7 @@ import {
   X,
   AlertCircle,
   FolderInput,
+  Eye,
 } from "lucide-react";
 import {
   deleteDocumentSaved,
@@ -22,6 +28,7 @@ import {
 import { ButtonStyled } from "./ButtonStyled";
 import useAuth from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const STATUT_CONFIG = {
   prive: { label: "Privé", className: "bg-muted text-muted-foreground" },
@@ -39,14 +46,43 @@ const STATUT_CONFIG = {
   },
 };
 
-const TYPE_LABELS = {
-  cours: "Cours",
-  td: "TD",
-  tp: "TP",
-  examen: "Examen",
-  corrige: "Corrigé",
-  autre: "Autre",
+// Mapping type -> icône + couleur de vignette. C'est ce qui remplace
+// la vraie miniature en attendant une génération côté backend.
+const TYPE_CONFIG = {
+  cours: {
+    label: "Cours",
+    icon: FileText,
+    className: "bg-primary/10 text-primary",
+  },
+  td: {
+    label: "TD",
+    icon: FileText,
+    className: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  },
+  tp: {
+    label: "TP",
+    icon: FileSpreadsheet,
+    className: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  },
+  examen: {
+    label: "Examen",
+    icon: FileText,
+    className: "bg-destructive/10 text-destructive",
+  },
+  corrige: {
+    label: "Corrigé",
+    icon: FileText,
+    className: "bg-success/10 text-success",
+  },
+  autre: {
+    label: "Autre",
+    icon: FileText,
+    className: "bg-muted text-muted-foreground",
+  },
 };
+
+const IMAGE_MIME_PREFIX = "image/";
+const VIDEO_MIME_PREFIX = "video/";
 
 const MIME_EXTENSIONS = {
   "application/pdf": "pdf",
@@ -64,6 +100,29 @@ const getExtension = (mimeType, fichierPath) => {
 
 const slugifyTitre = (titre) =>
   titre?.replace(/[\\/:*?"<>|]/g, "_").trim() || "document";
+
+const formatRelativeDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffMin < 1) return "À l'instant";
+  if (diffMin < 60) return `il y a ${diffMin} min`;
+  if (diffHour < 24) return `il y a ${diffHour} h`;
+  if (diffDay === 1) return "hier";
+  if (diffDay < 7) return `il y a ${diffDay} j`;
+  return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+};
+
+// Formate un compteur potentiellement null en affichage court (0, 12, 1.2k)
+const formatCount = (value) => {
+  const n = value ?? 0;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+};
 
 export default function DocumentCard({
   document,
@@ -115,12 +174,31 @@ export default function DocumentCard({
     taille_octets,
     mime_type,
     fichier_path,
+    created_at,
+    owner,
+    vue_count,
+    download_count,
+    save_count,
   } = document;
 
   const statutInfo = STATUT_CONFIG[statut] || STATUT_CONFIG.prive;
+
+  // Priorité : mime type (image/vidéo réelle) > type_document déclaré > fallback
+  const isImage = mime_type?.startsWith(IMAGE_MIME_PREFIX);
+  const isVideo = mime_type?.startsWith(VIDEO_MIME_PREFIX);
+  const typeInfo = TYPE_CONFIG[type_document] || TYPE_CONFIG.autre;
+  const VignetteIcon = isVideo ? Video : isImage ? FileImage : typeInfo.icon;
+
   const tailleLisible = taille_octets
     ? `${(taille_octets / 1024 / 1024).toFixed(2)} Mo`
     : null;
+
+  const ownerName = owner
+    ? `${owner.first_name || ""} ${owner.last_name || ""}`.trim()
+    : "Utilisateur";
+  const ownerInitials = owner
+    ? `${owner.first_name?.[0] || ""}${owner.last_name?.[0] || ""}`.toUpperCase()
+    : "U";
 
   const handleDownload = async () => {
     setErreur(null);
@@ -150,12 +228,6 @@ export default function DocumentCard({
     setSaveLoading(true);
     try {
       if (isSaved) {
-        if (document.owner_id == user.id) {
-          if (window.confirm("Cette document va disparaitre ")) {
-            return await deleteDocumentSaved(id);
-          }
-          return;
-        }
         await deleteDocumentSaved(id);
         setIsSaved(false);
       } else {
@@ -174,27 +246,42 @@ export default function DocumentCard({
   };
 
   return (
-    <Card className="flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30">
-      <CardContent className="pt-5 space-y-3">
-        <div
-          className="flex items-start justify-between gap-2"
+    <Card className="group overflow-hidden flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30">
+      {/* Vignette : couleur + icône par type, en attendant une vraie miniature */}
+      <div
+        className={cn(
+          "relative h-28 flex items-center justify-center cursor-pointer",
+          typeInfo.className,
+        )}
+        onClick={() => navigate(id)}
+      >
+        <VignetteIcon className="h-9 w-9 opacity-40" />
+
+        <Badge
+          variant="secondary"
+          className="absolute top-2 left-2 text-[10px] h-5 px-1.5 bg-background/90"
+        >
+          {typeInfo.label}
+        </Badge>
+
+        <Badge
+          variant="outline"
+          className={cn(
+            "absolute top-2 right-2 text-[10px] h-5 px-1.5 bg-background/90",
+            statutInfo.className,
+          )}
+        >
+          {statutInfo.label}
+        </Badge>
+      </div>
+
+      <CardContent className="pt-4 space-y-2.5 flex-1">
+        <h3
+          className="font-semibold text-sm text-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors"
           onClick={() => navigate(id)}
         >
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
-              <FileText className="h-4 w-4" />
-            </div>
-            <h3 className="font-semibold text-sm text-foreground line-clamp-2">
-              {titre}
-            </h3>
-          </div>
-          <Badge
-            variant="outline"
-            className={`text-[11px] shrink-0 ${statutInfo.className}`}
-          >
-            {statutInfo.label}
-          </Badge>
-        </div>
+          {titre}
+        </h3>
 
         {description && (
           <p className="text-xs text-muted-foreground line-clamp-2">
@@ -202,11 +289,44 @@ export default function DocumentCard({
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="secondary" className="text-[11px]">
-            {TYPE_LABELS[type_document] || type_document}
-          </Badge>
-          {tailleLisible && <span>{tailleLisible}</span>}
+        {/* Auteur + date */}
+        <div className="flex items-center gap-2 pt-1">
+          <Avatar className="h-5 w-5">
+            <AvatarImage src={owner?.avatar_url} alt={ownerName} />
+            <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
+              {ownerInitials}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground truncate">
+            {ownerName}
+            {created_at && (
+              <span className="text-muted-foreground/70">
+                {" "}
+                · {formatRelativeDate(created_at)}
+              </span>
+            )}
+          </span>
+        </div>
+
+        {/* Stats sociales */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
+          <span className="flex items-center gap-1">
+            <Eye className="h-3.5 w-3.5" />
+            {formatCount(vue_count)}
+          </span>
+          <span className="flex items-center gap-1">
+            <Download className="h-3.5 w-3.5" />
+            {formatCount(download_count)}
+          </span>
+          <span className="flex items-center gap-1">
+            <Bookmark className="h-3.5 w-3.5" />
+            {formatCount(save_count)}
+          </span>
+          {tailleLisible && (
+            <span className="ml-auto text-muted-foreground/70">
+              {tailleLisible}
+            </span>
+          )}
         </div>
 
         {erreur && (
@@ -217,8 +337,7 @@ export default function DocumentCard({
         )}
       </CardContent>
 
-      <CardFooter className="pt-3 border-t border-border flex flex-col gap-2">
-        {/* Actions principales : télécharger / enregistrer */}
+      {/* <CardFooter className="pt-3 border-t border-border flex flex-col gap-2">
         <div className="flex items-center gap-2 w-full">
           <ButtonStyled
             variant="outline"
@@ -242,16 +361,16 @@ export default function DocumentCard({
             variant="outline"
             size="icon"
             disabled={checkingSaved}
-            className={`h-8 w-8 shrink-0 ${
-              isSaved ? "text-primary border-primary/40 bg-primary/5" : ""
-            }`}
+            className={cn(
+              "h-8 w-8 shrink-0",
+              isSaved && "text-primary border-primary/40 bg-primary/5",
+            )}
             onClick={handleToggleSave}
             loading={saveLoading}
             title={isSaved ? "Retirer des enregistrements" : "Enregistrer"}
           />
         </div>
 
-        {/* Actions de modération : valider / rejeter (si en attente) */}
         {statut === "en_attente" && (onValide || onRejete) && (
           <div className="flex items-center gap-2 w-full">
             {onValide && (
@@ -278,7 +397,6 @@ export default function DocumentCard({
           </div>
         )}
 
-        {/* Actions secondaires : déplacer / modifier / supprimer */}
         {(onMove || onEdit || onDelete) && (
           <div className="flex items-center justify-end gap-1 w-full">
             {onMove && (
@@ -313,7 +431,7 @@ export default function DocumentCard({
             )}
           </div>
         )}
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 }

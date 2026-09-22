@@ -5,6 +5,12 @@ from app.modules.documents.model import DocumentStatus, DocumentType
 from pydantic import BaseModel
 
 
+class OwnerResponse(BaseModel):
+    first_name: str
+    last_name: str | None
+    avatar_url: str | None = None
+
+
 class DocumentCreate(BaseModel):
     titre: str
     description: str | None = None
@@ -26,6 +32,10 @@ class DocumentOut(BaseModel):
     owner_id: UUID
     matiere_id: UUID | None
     validated_by_id: UUID | None
+    owner: OwnerResponse
+    download_count: int | None
+    save_count: int | None
+    vue_count: int | None
     created_at: datetime
     updated_at: datetime
 

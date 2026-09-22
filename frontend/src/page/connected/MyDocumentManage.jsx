@@ -9,6 +9,7 @@ import FolderCard from "@/components/special/FolderCard";
 import MoveToFolderDialog from "@/components/special/MoveToFolderModal";
 import { useMyDocuments } from "@/hooks/useMyDocs";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
+
 export default function MyDocumentManage() {
   const {
     folders,
@@ -17,12 +18,16 @@ export default function MyDocumentManage() {
     add: addFolder,
     remove: removeFolder,
     update: updateFolder,
-    refresh,
   } = useFolder();
 
-  const { documents, documentsSansDossier } = useMyDocuments();
+  const { documents, refresh: refreshMyDocuments } = useMyDocuments();
+
+  const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
 
   const [selectedFolder, setSelectedFolder] = useState(null);
+  // Incrémenté à chaque déplacement réussi pour forcer FolderDocumentsView
+  // à se remonter (donc à refetch), via la prop `key`
+  const [folderViewKey, setFolderViewKey] = useState(0);
 
   const [openFolderForm, setOpenFolderForm] = useState(false);
   const [editingFolder, setEditingFolder] = useState(null);
@@ -45,26 +50,34 @@ export default function MyDocumentManage() {
     setOpenMove(true);
   };
 
+  // Un seul point de rafraîchissement, utilisé partout après un déplacement :
+  // - recharge la liste globale (met à jour "Sans dossier")
+  // - force FolderDocumentsView à se remonter si on est dans un dossier
+  const handleDocumentMoved = () => {
+    refreshMyDocuments();
+    setFolderViewKey((k) => k + 1);
+  };
+
   if (selectedFolder) {
     return (
       <>
         <FolderDocumentsView
+          key={folderViewKey}
           folder={selectedFolder}
           onBack={() => setSelectedFolder(null)}
-          cardProps={{ onMove: () => openMoveDialog }}
+          cardProps={{ onMove: openMoveDialog }} // corrigé
         />
         <MoveToFolderDialog
           open={openMove}
           onOpenChange={setOpenMove}
           document={documentToMove}
           folders={folders}
-          onMoved={() => setSelectedFolder({ ...selectedFolder })}
+          onMoved={handleDocumentMoved} // corrigé
         />
       </>
     );
   }
 
-  // Vue racine : dossiers + documents sans dossier
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -81,7 +94,6 @@ export default function MyDocumentManage() {
         </ButtonStyled>
       </div>
 
-      {/* Dossiers */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">Dossiers</h2>
         {foldersLoading ? (
@@ -115,6 +127,7 @@ export default function MyDocumentManage() {
           </div>
         )}
       </section>
+
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">
           Sans dossier
@@ -150,7 +163,7 @@ export default function MyDocumentManage() {
         onOpenChange={setOpenMove}
         document={documentToMove}
         folders={folders}
-        onMoved={() => {}}
+        onMoved={handleDocumentMoved} // corrigé (avant : () => {})
       />
     </div>
   );
