@@ -3,7 +3,7 @@ import { LayoutDashboard, Globe, BookOpen, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import DocumentCard from "@/components/shared/DocumentCard";
-import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "@/components/special/DocumentUploadDialog";
 export default function StudentLayout({
   user,
   classe,

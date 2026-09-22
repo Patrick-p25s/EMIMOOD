@@ -5,6 +5,12 @@ from app.modules.annonce.model import AnnonceStatut
 from pydantic import BaseModel
 
 
+class AuthorResponse(BaseModel):
+    first_name: str
+    last_name: str | None
+    avatar_url: str | None
+
+
 class AnnonceCreate(BaseModel):
     titre: str
     contenu: str
@@ -25,6 +31,7 @@ class AnnonceOut(BaseModel):
     statut: AnnonceStatut
     classe_id: UUID | None
     auteur_id: UUID
+    auteur: AuthorResponse
     created_at: datetime
     updated_at: datetime
 

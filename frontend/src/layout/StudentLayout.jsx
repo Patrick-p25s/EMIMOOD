@@ -8,7 +8,7 @@ import {
   Clock,
   Bell,
 } from "lucide-react";
-import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "@/components/special/DocumentUploadDialog";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import ProfileManage from "@/page/connected/ProfileManage";
 import MyDocumentManage from "@/page/connected/MyDocumentManage";

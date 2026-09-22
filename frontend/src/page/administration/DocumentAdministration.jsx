@@ -1,7 +1,7 @@
 import DocumentCard from "@/components/shared/DocumentCard";
 import React, { useEffect, useState } from "react";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "../moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
 import useDocument from "@/hooks/useDocument";
 import FormModal from "@/components/shared/FormModal";

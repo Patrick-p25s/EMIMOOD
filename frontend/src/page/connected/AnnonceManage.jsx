@@ -1,6 +1,20 @@
 import { listActiveAnnonce } from "@/api/announceService";
 import AnnonceItem from "@/components/shared/AnnonceItem";
-import { Megaphone } from "lucide-react";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+
+import { Megaphone, AlertCircle, BellRing } from "lucide-react";
+
 import React, { useCallback, useEffect, useState } from "react";
 
 export default function AnnonceManage() {
@@ -15,49 +29,148 @@ export default function AnnonceManage() {
     pages: 0,
   });
 
-  const fetchData = useCallback(
-    async (page, pageSize) => {
-      setLoading(true);
-      setErreur(null);
-      try {
-        const data = await listActiveAnnonce({ page, pageSize });
-        setAnnonces(data.items);
-        setPagination({
-          page: data.page,
-          pageSize: data.page_size,
-          total: data.total,
-          pages: data.pages,
-        });
-      } catch (err) {
-        setErreur(err.message?.toString());
-      } finally {
-        setLoading(false);
-      }
-    },
-    [pagination.page, pagination.pageSize],
-  );
+  const fetchData = useCallback(async (page, pageSize) => {
+    setLoading(true);
+    setErreur(null);
+
+    try {
+      const data = await listActiveAnnonce({
+        page,
+        pageSize,
+      });
+
+      setAnnonces(data.items);
+
+      setPagination({
+        page: data.page,
+        pageSize: data.page_size,
+        total: data.total,
+        pages: data.pages,
+      });
+    } catch (err) {
+      setErreur(
+        err.message?.toString() || "Impossible de récupérer les annonces.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchData(pagination.page, pagination.pageSize);
-  }, []);
+  }, [fetchData, pagination.page, pagination.pageSize]);
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Megaphone className="h-5 w-5" />
+            </div>
+
+            <Badge variant="secondary" className="font-normal">
+              Informations
+            </Badge>
+          </div>
+
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Annonces</h1>
+
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Retrouvez les dernières informations et annonces importantes de
+              votre classe.
+            </p>
+          </div>
+        </div>
+
+        {!loading && annonces.length > 0 && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <BellRing className="h-4 w-4" />
+
+            <span>
+              {pagination.total} {pagination.total > 1 ? "annonces" : "annonce"}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Error */}
       {erreur && (
-        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
-          {erreur}
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+
+          <AlertDescription>{erreur}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading */}
+      {loading && annonces.length === 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardHeader className="space-y-3">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardHeader>
+
+              <CardContent>
+                <Skeleton className="h-12 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : annonces.length === 0 ? (
+        <Card className="border-dashed shadow-none">
+          <CardContent className="flex min-h-770 flex-col items-center justify-center px-6 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Megaphone className="h-7 w-7" />
+            </div>
+
+            <h2 className="text-base font-semibold">
+              Aucune annonce disponible
+            </h2>
+
+            <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
+              Les nouvelles informations publiées par votre établissement ou
+              votre classe apparaîtront ici.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Annonces */
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+
+            <h2 className="text-sm font-medium">Dernières annonces</h2>
+
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {annonces.map((annonce) => (
+              <AnnonceItem
+                annonce={annonce}
+                key={annonce.id}
+                loading={loading}
+              />
+            ))}
+          </div>
         </div>
       )}
-      {annonces.length <= 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center border border-dashed rounded-xl text-muted-foreground">
-          <Megaphone className="h-8 w-8" />
-          <p className="text-sm">Aucune annonce disponible.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {annonces.map((annonce) => (
-            <AnnonceItem annonce={annonce} key={annonce.id} loading={loading} />
-          ))}
+
+      {/* Footer décoratif */}
+      {!loading && annonces.length > 0 && (
+        <div className="flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
+          <div className="h-px w-12 bg-border" />
+
+          <span>Restez informé des actualités de votre espace</span>
+
+          <div className="h-px w-12 bg-border" />
         </div>
       )}
     </div>

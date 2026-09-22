@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Button } from "@/components/ui/button";
+import { ButtonStyled } from "./ButtonStyled";
 
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import {
+  AlertCircle,
   Bookmark,
   BookmarkCheck,
   Check,
@@ -39,35 +40,16 @@ import {
   saveDocument,
 } from "@/api/documentService";
 
-import useAuth from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { getFileUrl } from "@/utils/file";
 
 const TYPE_CONFIG = {
-  cours: {
-    label: "Cours",
-    icon: FileText,
-  },
-  td: {
-    label: "TD",
-    icon: FileText,
-  },
-  tp: {
-    label: "TP",
-    icon: FileSpreadsheet,
-  },
-  examen: {
-    label: "EXAM",
-    icon: FileText,
-  },
-  corrige: {
-    label: "Corrigé",
-    icon: FileText,
-  },
-  autre: {
-    label: "Document",
-    icon: FileText,
-  },
+  cours: { label: "Cours", icon: FileText },
+  td: { label: "TD", icon: FileText },
+  tp: { label: "TP", icon: FileSpreadsheet },
+  examen: { label: "EXAM", icon: FileText },
+  corrige: { label: "Corrigé", icon: FileText },
+  autre: { label: "Document", icon: FileText },
 };
 
 const STATUS_CONFIG = {
@@ -78,17 +60,16 @@ const STATUS_CONFIG = {
   },
   en_attente: {
     label: "En attente",
-    className:
-      "border-yellow-200 bg-yellow-50/90 text-yellow-700 backdrop-blur",
+    className: "border-warning/30 bg-warning/10 text-warning backdrop-blur",
   },
   public: {
     label: "Public",
-    className:
-      "border-emerald-200 bg-emerald-50/90 text-emerald-700 backdrop-blur",
+    className: "border-success/30 bg-success/10 text-success backdrop-blur",
   },
   rejete: {
     label: "Rejeté",
-    className: "border-red-200 bg-red-50/90 text-red-700 backdrop-blur",
+    className:
+      "border-destructive/30 bg-destructive/10 text-destructive backdrop-blur",
   },
 };
 
@@ -108,22 +89,14 @@ const MIME_EXTENSIONS = {
 };
 
 const formatCount = (value = 0) => {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}k`;
-  }
-
-  return value;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`;
+  return String(value);
 };
 
 const formatDate = (date) => {
   if (!date) return "";
-
   const diff = Date.now() - new Date(date).getTime();
-
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
@@ -140,13 +113,11 @@ const formatDate = (date) => {
   });
 };
 
-const getExtension = (mimeType, filePath) => {
-  return MIME_EXTENSIONS[mimeType] || filePath?.split(".").pop() || "bin";
-};
+const getExtension = (mimeType, filePath) =>
+  MIME_EXTENSIONS[mimeType] || filePath?.split(".").pop() || "bin";
 
-const cleanFilename = (value) => {
-  return value?.replace(/[\\/:*?"<>|]/g, "_").trim() || "document";
-};
+const cleanFilename = (value) =>
+  value?.replace(/[\\/:*?"<>|]/g, "_").trim() || "document";
 
 export default function DocumentCard({
   document,
@@ -157,8 +128,8 @@ export default function DocumentCard({
   onMove,
 }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
+  const [erreur, setErreur] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -182,15 +153,12 @@ export default function DocumentCard({
   } = document;
 
   const typeInfo = TYPE_CONFIG[type_document] || TYPE_CONFIG.autre;
-
   const statusInfo = STATUS_CONFIG[statut] || STATUS_CONFIG.prive;
-
   const TypeIcon = typeInfo.icon;
 
   const ownerName =
     `${owner?.first_name || ""} ${owner?.last_name || ""}`.trim() ||
     "Utilisateur";
-
   const ownerInitials =
     `${owner?.first_name?.[0] || ""}${owner?.last_name?.[0] || ""}`.toUpperCase() ||
     "U";
@@ -200,63 +168,53 @@ export default function DocumentCard({
 
   useEffect(() => {
     if (!id) return;
-
     let mounted = true;
 
     const checkSaved = async () => {
+      setCheckingSaved(true);
       try {
         const saved = await getSaveById(id);
-
-        if (mounted) {
-          setIsSaved(Boolean(saved));
-        }
-      } catch {
-        if (mounted) {
-          setIsSaved(false);
-        }
+        if (mounted) setIsSaved(Boolean(saved));
+      } catch (err) {
+        if (mounted)
+          setErreur("Impossible de vérifier l'état d'enregistrement.");
       } finally {
-        if (mounted) {
-          setCheckingSaved(false);
-        }
+        if (mounted) setCheckingSaved(false);
       }
     };
 
     checkSaved();
-
     return () => {
       mounted = false;
     };
   }, [id]);
 
   const handleDownload = async () => {
+    setErreur(null);
     setDownloadLoading(true);
-
     try {
       const blob = await downloadDocument(id);
       const url = window.URL.createObjectURL(blob);
-
       const extension = getExtension(mime_type, fichier_path);
-
       const filename = `${cleanFilename(titre)}.${extension}`;
 
       const link = window.document.createElement("a");
-
       link.href = url;
       link.download = filename;
-
       window.document.body.appendChild(link);
       link.click();
       link.remove();
-
       window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setErreur("Le téléchargement a échoué.");
     } finally {
       setDownloadLoading(false);
     }
   };
 
   const handleToggleSave = async () => {
+    setErreur(null);
     setSaveLoading(true);
-
     try {
       if (isSaved) {
         await deleteDocumentSaved(id);
@@ -265,23 +223,27 @@ export default function DocumentCard({
         await saveDocument(id);
         setIsSaved(true);
       }
+    } catch (err) {
+      setErreur(
+        isSaved
+          ? "Impossible de retirer des enregistrements."
+          : "Impossible d'enregistrer le document.",
+      );
     } finally {
       setSaveLoading(false);
     }
   };
 
-  const hasActions =
-    onEdit ||
-    onDelete ||
-    onMove ||
-    onValide ||
-    onRejete ||
-    handleDownload ||
-    handleToggleSave;
+  // Actions "de gestion" (celles qui dépendent du rôle/contexte) — le
+  // téléchargement et l'enregistrement sont toujours proposés, donc pas
+  // à inclure dans ce calcul.
+  const hasManagementActions = Boolean(
+    onEdit || onDelete || onMove || onValide || onRejete,
+  );
 
   return (
     <Card className="group overflow-hidden border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
-      {/* Thumbnail */}
+      {/* Vignette */}
       <button
         type="button"
         onClick={() => navigate(id)}
@@ -337,21 +299,26 @@ export default function DocumentCard({
         </AspectRatio>
       </button>
 
-      <CardContent className="p-3">
-        {/* Title */}
-        <button type="button" onClick={() => navigate(id)}>
-          {titre}
+      <CardContent className="p-3 space-y-2.5">
+        {/* Titre */}
+        <button
+          type="button"
+          onClick={() => navigate(id)}
+          className="block w-full text-left"
+        >
+          <h3 className="font-semibold text-sm text-foreground line-clamp-2 hover:text-primary transition-colors">
+            {titre}
+          </h3>
         </button>
 
-        {/* Subject */}
         {matiere?.nom && (
-          <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+          <p className="line-clamp-1 text-xs text-muted-foreground">
             {matiere.nom}
           </p>
         )}
 
-        {/* Owner */}
-        <div className="mt-2.5 flex items-center gap-2">
+        {/* Auteur */}
+        <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
             <AvatarImage src={getFileUrl(owner?.avatar_url)} alt={ownerName} />
             <AvatarFallback className="bg-primary/10 text-[9px] font-medium text-primary">
@@ -359,133 +326,140 @@ export default function DocumentCard({
             </AvatarFallback>
           </Avatar>
 
-          <div className="min-w-0 text-xs text-muted-foreground">
+          <div className="min-w-0 text-xs text-muted-foreground truncate">
             <span className="font-medium text-foreground/80">{ownerName}</span>
-
-            <span className="mx-1">•</span>
-
+            <span className="mx-1">·</span>
             <span>{formatDate(created_at)}</span>
           </div>
         </div>
 
-        {/* Stats + menu */}
-        <div className="mt-3 flex items-center justify-between">
+        {/* Stats + actions rapides + menu */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5" />
               {formatCount(vue_count)}
             </span>
-
             <span className="flex items-center gap-1">
               <Download className="h-3.5 w-3.5" />
               {formatCount(download_count)}
             </span>
-
             <span className="flex items-center gap-1">
               <Bookmark className="h-3.5 w-3.5" />
               {formatCount(save_count)}
             </span>
           </div>
 
-          {hasActions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 shrink-0 rounded-full"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                  <span className="sr-only">Actions du document</span>
-                </Button>
-              </DropdownMenuTrigger>
+          <div className="flex items-center gap-1">
+            <ButtonStyled
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0"
+              icon={
+                isSaved ? (
+                  <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
+                ) : (
+                  <Bookmark className="h-3.5 w-3.5" />
+                )
+              }
+              onClick={handleToggleSave}
+              loading={saveLoading}
+              disabled={checkingSaved}
+              title={isSaved ? "Retirer des enregistrés" : "Enregistrer"}
+            />
 
-              <DropdownMenuContent align="end" side="top" className="w-48">
-                <DropdownMenuItem
-                  onClick={handleToggleSave}
-                  disabled={checkingSaved || saveLoading}
-                >
-                  {isSaved ? (
-                    <BookmarkCheck className="mr-2 h-4 w-4" />
-                  ) : (
-                    <Bookmark className="mr-2 h-4 w-4" />
+            <ButtonStyled
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0"
+              icon={<Download className="h-3.5 w-3.5" />}
+              onClick={handleDownload}
+              loading={downloadLoading}
+              title="Télécharger"
+            />
+
+            {hasManagementActions && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <ButtonStyled
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0"
+                    icon={<MoreVertical className="h-4 w-4" />}
+                    title="Plus d'actions"
+                  />
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" side="top" className="w-48">
+                  {onEdit && (
+                    <DropdownMenuItem onClick={onEdit}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Modifier
+                    </DropdownMenuItem>
                   )}
 
-                  {isSaved ? "Retirer des enregistrés" : "Enregistrer"}
-                </DropdownMenuItem>
+                  {onMove && (
+                    <DropdownMenuItem onClick={() => onMove(document)}>
+                      <FolderInput className="mr-2 h-4 w-4" />
+                      Déplacer
+                    </DropdownMenuItem>
+                  )}
 
-                <DropdownMenuItem
-                  onClick={handleDownload}
-                  disabled={downloadLoading}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Télécharger
-                </DropdownMenuItem>
+                  {statut === "en_attente" && (onValide || onRejete) && (
+                    <>
+                      {(onEdit || onMove) && <DropdownMenuSeparator />}
 
-                {(onEdit || onMove) && <DropdownMenuSeparator />}
+                      {onValide && (
+                        <DropdownMenuItem
+                          onClick={onValide}
+                          className="text-success focus:text-success"
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          Valider
+                        </DropdownMenuItem>
+                      )}
 
-                {onEdit && (
-                  <DropdownMenuItem onClick={onEdit}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Modifier
-                  </DropdownMenuItem>
-                )}
+                      {onRejete && (
+                        <DropdownMenuItem
+                          onClick={onRejete}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Rejeter
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  )}
 
-                {onMove && (
-                  <DropdownMenuItem onClick={() => onMove(document)}>
-                    <FolderInput className="mr-2 h-4 w-4" />
-                    Déplacer
-                  </DropdownMenuItem>
-                )}
-
-                {statut === "en_attente" && (onValide || onRejete) && (
-                  <>
-                    <DropdownMenuSeparator />
-
-                    {onValide && (
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={onValide}
-                        className="text-emerald-600 focus:text-emerald-600"
-                      >
-                        <Check className="mr-2 h-4 w-4" />
-                        Valider
-                      </DropdownMenuItem>
-                    )}
-
-                    {onRejete && (
-                      <DropdownMenuItem
-                        onClick={onRejete}
+                        onClick={() => onDelete(id)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <X className="mr-2 h-4 w-4" />
-                        Rejeter
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Supprimer
                       </DropdownMenuItem>
-                    )}
-                  </>
-                )}
-
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      onClick={() => onDelete(id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Supprimer
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {description && (
-          <p className="mt-2 line-clamp-2 text-xs leading-4 text-muted-foreground">
+          <p className="line-clamp-2 text-xs leading-4 text-muted-foreground">
             {description}
           </p>
+        )}
+
+        {erreur && (
+          <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {erreur}
+          </div>
         )}
       </CardContent>
     </Card>

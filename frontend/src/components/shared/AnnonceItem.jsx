@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   AlertCircle,
   Archive,
@@ -17,10 +16,11 @@ import {
   Edit,
   Clock,
 } from "lucide-react";
+import { getFileUrl } from "@/utils/file";
+import { ButtonStyled } from "./ButtonStyled";
 
 export default function AnnonceItem({
   annonce,
-  auteur,
   onArchive,
   onUnarchive,
   onDelete,
@@ -28,7 +28,7 @@ export default function AnnonceItem({
 }) {
   const { titre, contenu, important, statut, created_at } = annonce || {};
   const isArchivee = statut === "archivee";
-
+  const auteur = annonce.auteur;
   const formattedDate = created_at
     ? new Date(created_at).toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -92,51 +92,47 @@ export default function AnnonceItem({
             {/* Actions compactes */}
             <div className="flex items-center gap-1 shrink-0">
               {onEdit && (
-                <Button
+                <ButtonStyled
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-foreground"
                   onClick={onEdit}
                   title="Modifier"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                  icon={<Edit className="h-4 w-4" />}
+                />
               )}
 
               {isArchivee
                 ? onUnarchive && (
-                    <Button
+                    <ButtonStyled
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-success hover:bg-success/10"
                       onClick={onUnarchive}
                       title="Réactiver"
-                    >
-                      <ArchiveRestore className="h-4 w-4" />
-                    </Button>
+                      icon={<ArchiveRestore className="h-4 w-4" />}
+                    />
                   )
                 : onArchive && (
-                    <Button
+                    <ButtonStyled
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-foreground"
                       onClick={onArchive}
                       title="Archiver"
-                    >
-                      <Archive className="h-4 w-4" />
-                    </Button>
+                      icon={<Archive className="h-4 w-4" />}
+                    />
                   )}
 
               {onDelete && (
-                <Button
+                <ButtonStyled
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-destructive/80 hover:text-destructive hover:bg-destructive/10"
                   onClick={onDelete}
                   title="Supprimer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                  icon={<Trash2 className="h-4 w-4" />}
+                />
               )}
             </div>
           </div>
@@ -152,7 +148,10 @@ export default function AnnonceItem({
       <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6 border border-border">
-            <AvatarImage src={auteur?.avatar_url} alt={authorName} />
+            <AvatarImage
+              src={getFileUrl(auteur?.avatar_url)}
+              alt={authorName}
+            />
             <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-medium">
               {authorInitials}
             </AvatarFallback>

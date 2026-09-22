@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import useAuth from "@/hooks/useAuth";
-import useDocument from "@/hooks/useDocument";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +18,7 @@ import {
 } from "lucide-react";
 
 import AnnouncementDialog from "./AnnouncementDialog";
-import DocumentUploadDialog from "./DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 
 import StatCard from "@/components/shared/StatCard";
 import { useOutletContext } from "react-router-dom";
