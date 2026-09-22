@@ -17,7 +17,8 @@ from app.modules.annonce.router import router as annonce_router
 from app.modules.folder.router import router as folder_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.modules.documents.storage import UPLOAD_DIR
+from app.modules.documents.storage import UPLOAD_DIR, UPLOAD_PICTURE
+from app.core.thumbnails import THUMBNAIL_DIR
 from app.modules.notification.router import router as notif_router
 from app.modules.notification.ssemanager.router import router as sse_router
 
@@ -81,6 +82,8 @@ app = FastAPI(
     swagger_ui_parameters={"persistAuthorization": True},
 )
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+app.mount("/uplaods/profile", StaticFiles(directory=UPLOAD_PICTURE), name="profile")
+app.mount("/thumbnails", StaticFiles(directory=THUMBNAIL_DIR), name="profile")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

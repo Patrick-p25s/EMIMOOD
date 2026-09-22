@@ -36,6 +36,7 @@ class DocumentOut(BaseModel):
     download_count: int | None
     save_count: int | None
     vue_count: int | None
+    thumbnail_url: str | None
     created_at: datetime
     updated_at: datetime
 

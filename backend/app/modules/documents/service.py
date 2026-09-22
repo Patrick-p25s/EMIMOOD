@@ -10,6 +10,7 @@ from app.modules.folder.service import FolderService
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
 from app.modules.notification.service import NotificationService
+from app.core.thumbnails import generate_thumbnail
 
 
 class DocumentService:
@@ -80,6 +81,10 @@ class DocumentService:
                 )
 
         fichier_path, taille_octets = await save_upload_file(file)
+        mime_type = file.content_type or "application/octet-stream"
+
+        # Génère la miniature à partir du fichier déjà sauvegardé sur disque
+        thumbnail_path = await generate_thumbnail(fichier_path, mime_type)
 
         if current_user.role in (UserRole.moderator, UserRole.admin):
             statut = DocumentStatus.public
@@ -96,8 +101,9 @@ class DocumentService:
             "statut": statut,
             "original_filename": file.filename or "document",
             "storage_key": fichier_path,
-            "mime_type": file.content_type or "application/octet-stream",
+            "mime_type": mime_type,
             "taille_octets": taille_octets,
+            "thumbnail_url": thumbnail_path,  # None si pas de miniature générée
             "owner_id": current_user.id,
             "matiere_id": matiere_id,
             "classe_id": current_user.classe_id,

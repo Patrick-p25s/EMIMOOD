@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getFileUrl } from "@/utils/file";
 
 export default function StudentCard({
   student,
@@ -47,7 +48,10 @@ export default function StudentCard({
             >
               {/* Avatar de l'étudiant / modérateur */}
               <Avatar className="h-10 w-10 border border-border shrink-0">
-                <AvatarImage src={student.avatar_url} alt={fullName} />
+                <AvatarImage
+                  src={getFileUrl(student?.avatar_url)}
+                  alt={fullName}
+                />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
                   {initials}
                 </AvatarFallback>

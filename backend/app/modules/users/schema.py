@@ -41,6 +41,7 @@ class UserOut(BaseModel):
     last_name: str | None
     phone_number: str | None
     matricule: str | None
+    avatar_url: str | None
     email: EmailStr
     role: str
     created_at: datetime
@@ -57,5 +58,6 @@ class UserRead(BaseModel):
     email: EmailStr
     role: str
     matricule: str | None
+    avatar_url: str | None
     classe_id: UUID | None = None
     model_config = {"from_attributes": True}

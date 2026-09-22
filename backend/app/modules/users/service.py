@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.exc import IntegrityError
 
 from app.core.pagination import Page, PaginationParams, make_page
@@ -15,6 +15,8 @@ from app.modules.users.schema import (
     UserOut,
     ModeratorCreate,
 )
+import os
+from app.modules.documents.storage import save_profile_picture
 from app.core.normalised_id import normalized_id
 
 
@@ -117,6 +119,18 @@ class UserService:
             )
         data = {"password_hash": hash_password(request.new_password)}
         return await self.user_repo.update(user, data)
+
+    async def upload_profile_picture(
+        self, current_user: Users, file: UploadFile
+    ) -> UserOut:
+        url = current_user.avatar_url
+        if url is not None:
+            if os.path.exists(url):
+                os.remove(url)
+
+        destination = await save_profile_picture(file)
+
+        return await self.user_repo.update(current_user, {"avatar_url": destination})
 
     async def get_all_users(self, params: PaginationParams) -> Page[UserOut]:
         users, total = await self.user_repo.list_all(

@@ -17,6 +17,7 @@ import {
   Hash,
   Layers,
 } from "lucide-react";
+import { getFileUrl } from "@/utils/file";
 
 export default function ProfileStudent({
   user,
@@ -122,7 +123,7 @@ export default function ProfileStudent({
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
             <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background shrink-0 ring-1 ring-border/50 transition-transform hover:scale-[1.02]">
               <AvatarImage
-                src={avatar_url}
+                src={getFileUrl(avatar_url)}
                 alt={fullName}
                 className="object-cover"
               />

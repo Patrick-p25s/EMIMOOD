@@ -65,7 +65,7 @@ class Document(UuidStamp):
     download_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
     save_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
     vue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
-
+    thumbnail_url: Mapped[str | None] = mapped_column(String(100), nullable=True)
     # relation
     owner_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
