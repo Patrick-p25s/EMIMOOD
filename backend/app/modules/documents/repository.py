@@ -204,7 +204,10 @@ class DocumentRepository:
         query = select(Document).where(Document.statut != DocumentStatus.prive)
         if current_user_classe_id is not None:
             query = query.where(
-                Document.classe_id == normalized_id(current_user_classe_id)
+                or_(
+                    Document.classe_id == normalized_id(current_user_classe_id),
+                    Document.classe_id == None,
+                )
             )
         if document_type is not None:
             query = query.where(Document.type_document == document_type)

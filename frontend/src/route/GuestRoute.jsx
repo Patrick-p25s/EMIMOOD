@@ -8,7 +8,7 @@ export default function GuestRoute() {
     return <h1>Chargement ...</h1>;
   }
   if (isAuthenticated) {
-    return role === "admin" ? (
+    return role !== "student" ? (
       <Navigate to="/admin" replace />
     ) : (
       <Navigate to="/dashboard" replace />

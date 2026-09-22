@@ -21,7 +21,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
 
-      user?.role === "admin"
+      user?.role !== "student"
         ? navigate("/admin", { replace: true })
         : navigate("/dashboard", { replace: true });
     } catch (e) {

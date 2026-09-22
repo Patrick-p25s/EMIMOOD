@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { useYear } from "../context/AnneeContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   Megaphone,
@@ -18,24 +17,61 @@ import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
 
 const menuGeneral = [
-  { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, end: true },
-  { to: "/admin/annonces", label: "Annonces", icon: Megaphone },
+  {
+    to: "/admin",
+    label: "Tableau de bord",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/admin/annonces",
+    label: "Annonces",
+    icon: Megaphone,
+  },
 ];
 
-const menuAnnee = [{ to: "/admin/year", label: "Années", icon: Calendar }];
+const menuAnnee = [
+  {
+    to: "/admin/year",
+    label: "Années",
+    icon: Calendar,
+  },
+];
+
+const menuClasse = [
+  {
+    to: "/admin/classe",
+    label: "Classes",
+    icon: School,
+  },
+];
 
 const menuStructure = [
-  { to: "/admin/classe", label: "Classes", icon: School },
-  { to: "/admin/etudiant", label: "Étudiants", icon: User },
+  {
+    to: "/admin/etudiant",
+    label: "Étudiants",
+    icon: User,
+  },
+];
+
+const menuMatiere = [
+  {
+    to: "/admin/matiere",
+    label: "Matières",
+    icon: School,
+  },
 ];
 
 const menuContenu = [
-  { to: "/admin/document", label: "Documents", icon: FileText },
+  {
+    to: "/admin/document",
+    label: "Documents",
+    icon: FileText,
+  },
 ];
 
 export default function AdminLayout() {
-  const { getActiveYear } = useYear();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -47,29 +83,27 @@ export default function AdminLayout() {
   };
 
   return (
-    // h-screen + overflow-hidden : le layout ne scrolle jamais entièrement,
-    // seule la zone <main> pourra scroller
     <div className="flex h-screen overflow-hidden">
-      {/* SIDEBAR — fixe, visible uniquement à partir de md */}
+      {/* SIDEBAR DESKTOP */}
       <aside className="hidden md:flex w-56 shrink-0 border-r flex-col">
-        <SidebarContent onLogout={handleLogout} />
+        <SidebarContent onLogout={handleLogout} role={role} />
       </aside>
 
-      {/* SIDEBAR MOBILE — tiroir shadcn, ouvert via le bouton du header */}
+      {/* SIDEBAR MOBILE */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-64 p-0 flex flex-col">
           <SidebarContent
             onLogout={handleLogout}
             onNavigate={() => setMobileOpen(false)}
+            role={role}
           />
         </SheetContent>
       </Sheet>
 
       {/* CONTENU PRINCIPAL */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* HEADER — fixe (shrink-0), ne scrolle jamais */}
+        {/* HEADER */}
         <header className="shrink-0 flex items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-background">
-          {/* Bouton menu, visible uniquement sur mobile */}
           <Button
             variant="ghost"
             size="icon"
@@ -87,11 +121,10 @@ export default function AdminLayout() {
           >
             <Calendar className="size-3.5" />
             <span className="hidden sm:inline">Année active : </span>
-            {getActiveYear.label}
           </Badge>
         </header>
 
-        {/* PAGE ACTIVE — seule zone qui scroll */}
+        {/* PAGE ACTIVE */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
@@ -100,32 +133,58 @@ export default function AdminLayout() {
   );
 }
 
-// --- Contenu de la sidebar, partagé entre desktop (aside) et mobile (Sheet) ---
-
-function SidebarContent({ onLogout, onNavigate }) {
+function SidebarContent({ onLogout, onNavigate, role }) {
   return (
     <>
       <div className="text-sm font-medium px-5 py-4 border-b shrink-0">
         EMIMOOD
       </div>
 
-      {/* zone scrollable indépendamment si le menu devient trop long un jour */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-1">
+        {/* Général : tout le monde */}
         <MenuSection
           titre="Général"
           items={menuGeneral}
           onNavigate={onNavigate}
         />
-        <MenuSection
-          titre="Année universitaire"
-          items={menuAnnee}
-          onNavigate={onNavigate}
-        />
-        <MenuSection
-          titre="Structure"
-          items={menuStructure}
-          onNavigate={onNavigate}
-        />
+
+        {/* Année : uniquement ADMIN */}
+        {role === "admin" && (
+          <MenuSection
+            titre="Année universitaire"
+            items={menuAnnee}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Classes : pas MODERATEUR */}
+        {role !== "moderator" && (
+          <MenuSection
+            titre="Classes"
+            items={menuClasse}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Structure : pas MODERATEUR */}
+        {role !== "moderator" && (
+          <MenuSection
+            titre="Structure"
+            items={menuStructure}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Matières : pas ADMIN */}
+        {role !== "admin" && (
+          <MenuSection
+            titre="Matières"
+            items={menuMatiere}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Contenu : tout le monde */}
         <MenuSection
           titre="Contenu"
           items={menuContenu}
@@ -153,6 +212,7 @@ function MenuSection({ titre, items, onNavigate }) {
       <div className="text-xs text-muted-foreground px-2 pt-3 pb-1">
         {titre}
       </div>
+
       {items.map((item) => (
         <MenuItem key={item.to} {...item} onNavigate={onNavigate} />
       ))}

@@ -100,10 +100,10 @@ async def upload_profile_picture(
 )
 async def get_all_users(
     params: PaginationParams = Depends(),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
     service: UserService = Depends(_get_user_service),
 ) -> Page[UserRead]:
-    return await service.get_all_users(params)
+    return await service.get_all_users(user, params)
 
 
 @router.post(

@@ -11,5 +11,5 @@ export default function ProtectedRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return role === "admin" ? <Navigate to="/admin" replace /> : <Outlet />;
+  return role === "student" ? <Outlet /> : <Navigate to="/admin" replace />;
 }

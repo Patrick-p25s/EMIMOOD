@@ -8,5 +8,5 @@ export default function AdminRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return role === "admin" ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  return role !== "student" ? <Outlet /> : <Navigate to="/dashboard" replace />;
 }
