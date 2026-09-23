@@ -5,7 +5,6 @@ export default function MyDashboard() {
   const handleCreate = async (data) => {
     try {
       const res = await createDocument(data);
-      console.log(res);
     } catch (error) {
       console.log("Erreur ", error.message);
     }

@@ -9,10 +9,10 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getFileUrl } from "@/utils/file";
+import IconBadge from "./IconBadge";
 
 export default function StudentCard({
   student,
@@ -47,7 +47,10 @@ export default function StudentCard({
             >
               {/* Avatar de l'étudiant / modérateur */}
               <Avatar className="h-10 w-10 border border-border shrink-0">
-                <AvatarImage src={student.avatar_url} alt={fullName} />
+                <AvatarImage
+                  src={getFileUrl(student?.avatar_url)}
+                  alt={fullName}
+                />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
                   {initials}
                 </AvatarFallback>
@@ -65,13 +68,12 @@ export default function StudentCard({
             </div>
 
             {/* Badge de Rôle */}
-            <Badge
-              variant={student.role === "moderator" ? "default" : "secondary"}
-              className="gap-1 capitalize shrink-0 text-[10px]"
+            <IconBadge
+              icon={Shield}
+              tone={student.role === "moderator" ? "success" : "primary"}
             >
-              <Shield className="h-3 w-3" />
               {student.role || "étudiant"}
-            </Badge>
+            </IconBadge>
           </div>
         </CardHeader>
 
@@ -100,12 +102,9 @@ export default function StudentCard({
           {(student.niveau || student.mention) && (
             <div className="flex items-center justify-between text-muted-foreground">
               <span>Parcours :</span>
-              <Badge
-                variant="outline"
-                className="font-medium text-[11px] border-primary/20 text-primary"
-              >
+              <IconBadge>
                 {[student.niveau, student.mention].filter(Boolean).join(" · ")}
-              </Badge>
+              </IconBadge>
             </div>
           )}
         </CardContent>
@@ -125,15 +124,15 @@ export default function StudentCard({
           )}
 
           {onDelete && (
-            <Button
+            <ButtonStyled
               variant="destructive"
               size="sm"
               className="gap-1.5 h-8 text-xs"
               onClick={() => onDelete(student)}
+              icon={<Trash2 className="h-3.5 w-3.5" />}
             >
-              <Trash2 className="h-3.5 w-3.5" />
               Supprimer
-            </Button>
+            </ButtonStyled>
           )}
         </CardFooter>
       )}

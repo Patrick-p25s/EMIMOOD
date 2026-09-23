@@ -17,7 +17,7 @@ export const listAnnonces = async ({ page = 1, pageSize = 20 } = {}) => {
 };
 
 export const listActiveAnnonce = async ({ page = 1, pageSize = 20 } = {}) => {
-  const result = await apiClient.get("/annonces/active", {
+  const result = await apiClient.get("/annonces/actives", {
     params: { page, page_size: pageSize },
   });
   return result.data;

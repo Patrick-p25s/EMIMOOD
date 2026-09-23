@@ -8,11 +8,13 @@ import {
   Clock,
   Bell,
 } from "lucide-react";
-import DocumentUploadDialog from "@/page/moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "@/components/special/DocumentUploadDialog";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import ProfileManage from "@/page/connected/ProfileManage";
 import MyDocumentManage from "@/page/connected/MyDocumentManage";
 import PublicPageManage from "@/page/connected/PublicPageManage";
+import AnnonceManage from "@/page/connected/AnnonceManage";
+import { NotificationManage } from "@/page/connected/NotificationManage";
 
 export default function StudentLayout({ matieres, onCreateDocument }) {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -94,14 +96,14 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
       {/* Vue 2 : Espace Public */}
       {activeTab === "public" && (
         <div className="space-y-4">
-          <MyDocumentManage />
+          <PublicPageManage />
         </div>
       )}
 
       {/* Vue 3 : Cours par Matière */}
-      {activeTab === "courses" && <PublicPageManage />}
-      {activeTab === "annonces" && <PublicPageManage />}
-      {activeTab === "notification" && <PublicPageManage />}
+      {activeTab === "courses" && <MyDocumentManage />}
+      {activeTab === "annonces" && <AnnonceManage />}
+      {activeTab === "notification" && <NotificationManage />}
 
       {/* Modal d'upload */}
       <DocumentUploadDialog

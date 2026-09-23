@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { useYear } from "../context/AnneeContext";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   Megaphone,
@@ -16,26 +14,65 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
 
 const menuGeneral = [
-  { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, end: true },
-  { to: "/admin/annonces", label: "Annonces", icon: Megaphone },
+  {
+    to: "/admin",
+    label: "Tableau de bord",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/admin/annonces",
+    label: "Annonces",
+    icon: Megaphone,
+  },
 ];
 
-const menuAnnee = [{ to: "/admin/year", label: "Années", icon: Calendar }];
+const menuAnnee = [
+  {
+    to: "/admin/year",
+    label: "Années",
+    icon: Calendar,
+  },
+];
+
+const menuClasse = [
+  {
+    to: "/admin/classe",
+    label: "Classes",
+    icon: School,
+  },
+];
 
 const menuStructure = [
-  { to: "/admin/classe", label: "Classes", icon: School },
-  { to: "/admin/etudiant", label: "Étudiants", icon: User },
+  {
+    to: "/admin/etudiant",
+    label: "Étudiants",
+    icon: User,
+  },
+];
+
+const menuMatiere = [
+  {
+    to: "/admin/matiere",
+    label: "Matières",
+    icon: School,
+  },
 ];
 
 const menuContenu = [
-  { to: "/admin/document", label: "Documents", icon: FileText },
+  {
+    to: "/admin/document",
+    label: "Documents",
+    icon: FileText,
+  },
 ];
 
 export default function AdminLayout() {
-  const { getActiveYear } = useYear();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -47,51 +84,43 @@ export default function AdminLayout() {
   };
 
   return (
-    // h-screen + overflow-hidden : le layout ne scrolle jamais entièrement,
-    // seule la zone <main> pourra scroller
     <div className="flex h-screen overflow-hidden">
-      {/* SIDEBAR — fixe, visible uniquement à partir de md */}
+      {/* SIDEBAR DESKTOP */}
       <aside className="hidden md:flex w-56 shrink-0 border-r flex-col">
-        <SidebarContent onLogout={handleLogout} />
+        <SidebarContent onLogout={handleLogout} role={role} />
       </aside>
 
-      {/* SIDEBAR MOBILE — tiroir shadcn, ouvert via le bouton du header */}
+      {/* SIDEBAR MOBILE */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-64 p-0 flex flex-col">
           <SidebarContent
             onLogout={handleLogout}
             onNavigate={() => setMobileOpen(false)}
+            role={role}
           />
         </SheetContent>
       </Sheet>
 
       {/* CONTENU PRINCIPAL */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* HEADER — fixe (shrink-0), ne scrolle jamais */}
+        {/* HEADER */}
         <header className="shrink-0 flex items-center justify-between gap-3 px-4 md:px-6 py-3 border-b bg-background">
-          {/* Bouton menu, visible uniquement sur mobile */}
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="icon"
             className="md:hidden"
             onClick={() => setMobileOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+            icon={<Menu className="h-5 w-5" />}
+          />
 
           <div className="flex-1 md:flex-none" />
 
-          <Badge
-            variant="secondary"
-            className="gap-1.5 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-100"
-          >
-            <Calendar className="size-3.5" />
-            <span className="hidden sm:inline">Année active : </span>
-            {getActiveYear.label}
-          </Badge>
+          <IconBadge tone="muted" icon={Calendar}>
+            Anné active
+          </IconBadge>
         </header>
 
-        {/* PAGE ACTIVE — seule zone qui scroll */}
+        {/* PAGE ACTIVE */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
@@ -100,25 +129,18 @@ export default function AdminLayout() {
   );
 }
 
-// --- Contenu de la sidebar, partagé entre desktop (aside) et mobile (Sheet) ---
-
-function SidebarContent({ onLogout, onNavigate }) {
+function SidebarContent({ onLogout, onNavigate, role }) {
   return (
     <>
       <div className="text-sm font-medium px-5 py-4 border-b shrink-0">
         EMIMOOD
       </div>
 
-      {/* zone scrollable indépendamment si le menu devient trop long un jour */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-1">
+        {/* Général : tout le monde */}
         <MenuSection
           titre="Général"
           items={menuGeneral}
-          onNavigate={onNavigate}
-        />
-        <MenuSection
-          titre="Année universitaire"
-          items={menuAnnee}
           onNavigate={onNavigate}
         />
         <MenuSection
@@ -126,6 +148,35 @@ function SidebarContent({ onLogout, onNavigate }) {
           items={menuStructure}
           onNavigate={onNavigate}
         />
+
+        {/* Année : uniquement ADMIN */}
+        {role === "admin" && (
+          <MenuSection
+            titre="Année universitaire"
+            items={menuAnnee}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Classes : pas MODERATEUR */}
+        {role !== "moderator" && (
+          <MenuSection
+            titre="Classes"
+            items={menuClasse}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Matières : pas ADMIN */}
+        {role !== "admin" && (
+          <MenuSection
+            titre="Matières"
+            items={menuMatiere}
+            onNavigate={onNavigate}
+          />
+        )}
+
+        {/* Contenu : tout le monde */}
         <MenuSection
           titre="Contenu"
           items={menuContenu}
@@ -134,14 +185,14 @@ function SidebarContent({ onLogout, onNavigate }) {
       </div>
 
       <div className="px-4 py-4 border-t shrink-0">
-        <Button
+        <ButtonStyled
           variant="ghost"
           className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
           onClick={onLogout}
+          icon={<LogOut className="h-4 w-4" />}
         >
-          <LogOut className="h-4 w-4" />
           Déconnexion
-        </Button>
+        </ButtonStyled>
       </div>
     </>
   );
@@ -153,6 +204,7 @@ function MenuSection({ titre, items, onNavigate }) {
       <div className="text-xs text-muted-foreground px-2 pt-3 pb-1">
         {titre}
       </div>
+
       {items.map((item) => (
         <MenuItem key={item.to} {...item} onNavigate={onNavigate} />
       ))}

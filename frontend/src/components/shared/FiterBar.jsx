@@ -1,14 +1,10 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SelectLabeled from "./SelectLabeled";
+import { label } from "framer-motion/client";
+import { ButtonStyled } from "./ButtonStyled";
 
 const TYPES_DOCUMENT = [
   { value: "cours", label: "Cours" },
@@ -23,6 +19,7 @@ export default function FilterBar({
   onChange,
   matieres = [],
   dossiers = [],
+  classes = [],
 }) {
   const hasActiveFilters =
     filters.search ||
@@ -48,75 +45,74 @@ export default function FilterBar({
       </div>
 
       {/* Matière */}
-      <Select
-        value={filters.matiereId || "all"}
-        onValueChange={(val) =>
-          onChange({ matiereId: val === "all" ? "" : val })
-        }
-      >
-        <SelectTrigger className="w-full sm:w-40">
-          <SelectValue placeholder="Matière" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Toutes les matières</SelectItem>
-          {matieres.map((m) => (
-            <SelectItem key={m.id} value={String(m.id)}>
-              {m.nom}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {matieres.length > 0 && (
+        <SelectLabeled
+          value={filters.matiereId}
+          id="matiereId"
+          setValue={onChange}
+          options={[
+            { value: "all", label: "Tous les matière" },
+            ...matieres.map((f) => ({ value: f.id, label: f.name })),
+          ]}
+          label="Matière"
+        />
+      )}
+
+      {/* classes */}
+      {classes.length > 0 && (
+        <SelectLabeled
+          value={filters.classeId}
+          setValue={onChange}
+          id="classeId"
+          options={[
+            { value: "all", label: "Tous les classe" },
+            ...classes.map((cl) => ({
+              value: cl.id,
+              label: `${cl.mention} ${cl.niveau}`,
+            })),
+          ]}
+          placeholder="Classe"
+        />
+      )}
 
       {/* Type */}
-      <Select
+      <SelectLabeled
         value={filters.typeDocument || "all"}
-        onValueChange={(val) =>
-          onChange({ typeDocument: val === "all" ? "" : val })
-        }
-      >
-        <SelectTrigger className="w-full sm:w-35">
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tous les types</SelectItem>
-          {TYPES_DOCUMENT.map((t) => (
-            <SelectItem key={t.value} value={t.value}>
-              {t.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        setValue={onChange}
+        id="typeDocument"
+        options={[
+          { value: "all", label: "Tous les types" },
+          ...TYPES_DOCUMENT.map((f) => ({ value: f.id, label: f.name })),
+        ]}
+        label="Matière"
+        placeholder="Matière"
+      />
 
       {/* Dossier */}
-      <Select
-        value={filters.dossierId || "all"}
-        onValueChange={(val) =>
-          onChange({ dossierId: val === "all" ? "" : val })
-        }
-      >
-        <SelectTrigger className="w-full sm:w-40">
-          <SelectValue placeholder="Dossier" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tous les dossiers</SelectItem>
-          {dossiers.map((d) => (
-            <SelectItem key={d.id} value={String(d.id)}>
-              {d.nom}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {dossiers.length > 0 && (
+        <SelectLabeled
+          value={filters.dossierId}
+          setValue={onChange}
+          id="dossierId"
+          options={[
+            {
+              value: "all",
+              label: "Tous les dossier",
+              ...dossiers.map((d) => ({ value: d.id, label: d.name })),
+            },
+          ]}
+        />
+      )}
 
       {hasActiveFilters && (
-        <Button
+        <ButtonStyled
           variant="ghost"
-          size="sm"
           className="gap-1.5"
           onClick={resetFilters}
+          icon={<X className="h-3.5 w-3.5" />}
         >
-          <X className="h-3.5 w-3.5" />
           Réinitialiser
-        </Button>
+        </ButtonStyled>
       )}
     </div>
   );

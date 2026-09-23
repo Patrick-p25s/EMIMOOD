@@ -1,17 +1,18 @@
 import DocumentCard from "@/components/shared/DocumentCard";
 import React, { useEffect, useState } from "react";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "../moderator/DocumentUploadDialog";
+import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
 import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
 import useDocument from "@/hooks/useDocument";
 import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
 import SelectLabeled from "@/components/shared/SelectLabeled";
 import TextareaLabeled from "@/components/shared/TextareaLabeled";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
+import { filter } from "framer-motion/client";
+import { Button } from "@/components/ui/button";
 
 export default function DocumentAdministration({ classes = [] }) {
   const {
@@ -27,7 +28,7 @@ export default function DocumentAdministration({ classes = [] }) {
     update,
     reject,
     approve,
-  } = useDocument();
+  } = useDocument(1, 3);
 
   const { user } = useAuth();
   const isSuperAdmin = user?.role === "admin";
@@ -77,16 +78,6 @@ export default function DocumentAdministration({ classes = [] }) {
     }
   };
 
-  const handleDownload = async (documentId) => {
-    console.log(documentId);
-    return documentId;
-  };
-
-  const handleSave = async (documentId) => {
-    console.log(documentId);
-    return documentId;
-  };
-
   const handleRejete = async (document) => {
     setErreur(null);
     const documentId = document?.id || document;
@@ -116,8 +107,6 @@ export default function DocumentAdministration({ classes = [] }) {
       }
     }
   };
-
-  console.log(documents[0]);
 
   return (
     <div className="space-y-6">
@@ -172,8 +161,6 @@ export default function DocumentAdministration({ classes = [] }) {
               onValide={() => handleValide(document)}
               key={document.id}
               document={document}
-              onDownload={handleDownload}
-              onSave={handleSave}
               onEdit={() => {
                 setEdited(document);
                 setOpenEdit(true);
@@ -186,25 +173,23 @@ export default function DocumentAdministration({ classes = [] }) {
 
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page <= 1}
             onClick={() => goToPage(pagination.page - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+            icon={<ChevronLeft className="h-4 w-4" />}
+          />
           <span className="text-sm text-muted-foreground">
             Page {pagination.page} sur {pagination.pages}
           </span>
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page >= pagination.pages}
             onClick={() => goToPage(pagination.page + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+            icon={<ChevronRight className="h-4 w-4" />}
+          />
         </div>
       )}
 

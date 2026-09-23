@@ -61,7 +61,6 @@ export const useMyDocuments = ({
 
   useEffect(() => {
     fetchDocuments(initialPage, initialPageSize, filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDocuments, initialPage, initialPageSize]);
 
   const goToPage = (page) => {
@@ -71,6 +70,8 @@ export const useMyDocuments = ({
   const refresh = () => {
     return fetchDocuments(pagination.page, pagination.pageSize, filters);
   };
+
+  const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
 
   const updateFilters = (newFilters) => {
     const merged = { ...filters, ...newFilters };
@@ -98,6 +99,7 @@ export const useMyDocuments = ({
 
   return {
     documents,
+    documentsSansDossier,
     pagination,
     filters,
     loading,

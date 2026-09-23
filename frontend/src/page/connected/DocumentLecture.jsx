@@ -1,13 +1,12 @@
 import { getDocumentById } from "@/api/documentService";
 import { DocumentViewerPage } from "@/components/special/DocumentViewer";
-import { getFileUrl } from "@/utils/file";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export default function DocumentLecture() {
   const { documentId } = useParams();
   const [doc, setDoc] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
@@ -19,6 +18,7 @@ export default function DocumentLecture() {
       try {
         const res = await getDocumentById(documentId);
         setDoc(res);
+        console.log(res);
       } catch (err) {
         setErreur(err.message);
       } finally {

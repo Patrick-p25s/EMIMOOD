@@ -11,6 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ButtonStyled } from "../shared/ButtonStyled";
+import IconBadge from "../shared/IconBadge";
 
 export default function ClasseCard({
   classe,
@@ -32,9 +33,7 @@ export default function ClasseCard({
               {classe.mention}
             </h3>
           </div>
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {classe.niveau}
-          </Badge>
+          <IconBadge>{classe.niveau}</IconBadge>
         </div>
 
         {/* Code d'invitation */}
@@ -70,7 +69,7 @@ export default function ClasseCard({
 
       {/* Actions */}
       <CardFooter className="pt-3 border-t border-border flex items-center justify-between gap-2">
-        <Button
+        <ButtonStyled
           variant="outline"
           size="sm"
           className="gap-1.5 text-xs"
@@ -78,13 +77,13 @@ export default function ClasseCard({
             e.stopPropagation();
             onAddModerateur(classe);
           }}
+          icon={<UserPlus className="h-3.5 w-3.5" />}
         >
-          <UserPlus className="h-3.5 w-3.5" />
           Modérateur
-        </Button>
+        </ButtonStyled>
 
         <div className="flex items-center gap-1.5">
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="icon"
             className="h-8 w-8"
@@ -92,10 +91,9 @@ export default function ClasseCard({
               e.stopPropagation();
               onEdit(classe);
             }}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <Button
+            icon={<Pencil className="h-3.5 w-3.5" />}
+          />
+          <ButtonStyled
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
@@ -103,9 +101,8 @@ export default function ClasseCard({
               e.stopPropagation();
               onDelete(classe.id);
             }}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+          />
         </div>
       </CardFooter>
     </Card>

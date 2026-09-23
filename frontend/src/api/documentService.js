@@ -26,17 +26,39 @@ export const createDocument = async (documentData) => {
 export const getPublicDocuments = async ({
   page = 1,
   pageSize = 20,
+  search = null,
   matiereId = null,
+  typeDocument = null,
 } = {}) => {
   const result = await apiClient.get(`/documents/public`, {
-    params: { page, page_size: pageSize, matiere_id: matiereId },
+    params: {
+      page,
+      page_size: pageSize,
+      matiere_id: matiereId,
+      search,
+      type_document: typeDocument,
+    },
   });
   return result.data;
 };
 
-export const getNotPrivateDocs = async ({ page = 1, pageSize = 20 } = {}) => {
+export const getNotPrivateDocs = async ({
+  page = 1,
+  pageSize = 20,
+  search = null,
+  typeDocument = null,
+  classeId = null,
+  statut = null,
+} = {}) => {
   const result = await apiClient.get("/documents", {
-    params: { page, page_size: pageSize },
+    params: {
+      page,
+      page_size: pageSize,
+      document_type: typeDocument,
+      classe_id: classeId,
+      search,
+      statut,
+    },
   });
   return result.data;
 };
@@ -45,6 +67,7 @@ export const pendingDocuments = async ({
   page = 1,
   pageSize = 20,
   matiereId = null,
+  search = null,
   typeDocument = null,
 } = {}) => {
   const result = await apiClient.get("/documents/moderation/pending", {
@@ -53,6 +76,7 @@ export const pendingDocuments = async ({
       page_size: pageSize,
       matiere_id: matiereId,
       type_document: typeDocument,
+      search,
     },
   });
   return result.data;
@@ -120,5 +144,22 @@ export const downloadDocument = async (documentId) => {
   const result = await apiClient.get(`/documents/${documentId}/download`, {
     responseType: "blob",
   });
+  return result.data;
+};
+
+export const getSaveById = async (doucmentId) => {
+  const result = await apiClient.get(`/documents/${doucmentId}/saves`);
+  return result.data;
+};
+
+export const moveDocument = async (documentId, folderId) => {
+  const result = await apiClient.patch(`/documents/${documentId}/move`, {
+    folder_id: folderId,
+  });
+  return result.data;
+};
+
+export const getSavedByFolder = async (folderId) => {
+  const result = await apiClient.get(`/documents/${folderId}/documents`);
   return result.data;
 };

@@ -13,7 +13,6 @@ import { Search, X } from "lucide-react";
 const TYPES_DOCUMENT = [
   { value: "cours", label: "Cours" },
   { value: "td", label: "Travaux dirigés" },
-  { value: "tp", label: "Travaux pratiques" },
   { value: "examen", label: "Examen" },
 ];
 
@@ -21,6 +20,7 @@ export default function DocumentFilterBar({
   filters,
   onChange,
   classes = [],
+  matieres = [],
   showClasseFilter = false,
 }) {
   const hasActiveFilters =
@@ -32,7 +32,7 @@ export default function DocumentFilterBar({
 
   return (
     <div className="flex flex-col sm:flex-row gap-2 sm:items-center flex-wrap">
-      <div className="relative flex-1 min-w-[200px]">
+      <div className="relative flex-1 min-w-50">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Rechercher un document..."
@@ -48,7 +48,7 @@ export default function DocumentFilterBar({
           onChange({ typeDocument: val === "all" ? "" : val })
         }
       >
-        <SelectTrigger className="w-full sm:w-[170px]">
+        <SelectTrigger className="w-full sm:w-42.5">
           <SelectValue placeholder="Type de document" />
         </SelectTrigger>
         <SelectContent>
@@ -61,6 +61,25 @@ export default function DocumentFilterBar({
         </SelectContent>
       </Select>
 
+      <Select
+        value={filters.matiereId || "all"}
+        onValueChange={(val) =>
+          onChange({ matiereId: val === "all" ? "" : val })
+        }
+      >
+        <SelectTrigger className="w-full sm:w-42.5">
+          <SelectValue placeholder="Type de document" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tous les matières</SelectItem>
+          {matieres.map((mat) => (
+            <SelectItem key={mat.id} value={mat.id}>
+              {mat.titre}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       {showClasseFilter && (
         <Select
           value={filters.classeId || "all"}
@@ -68,7 +87,7 @@ export default function DocumentFilterBar({
             onChange({ classeId: val === "all" ? "" : val })
           }
         >
-          <SelectTrigger className="w-full sm:w-[170px]">
+          <SelectTrigger className="w-full sm:w-42.5">
             <SelectValue placeholder="Classe" />
           </SelectTrigger>
           <SelectContent>

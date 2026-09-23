@@ -9,9 +9,9 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
 import { useNavigate } from "react-router-dom";
+import IconBadge from "./IconBadge";
 
 export default function MatiereCard({ matiere, onUpdate, onDelete }) {
   if (!matiere) return null;
@@ -39,21 +39,17 @@ export default function MatiereCard({ matiere, onUpdate, onDelete }) {
             </div>
 
             {/* Badge Semestre */}
-            {matiere.smester && (
-              <Badge
-                variant="outline"
-                className="gap-1 border-primary/20 text-primary"
-              >
-                <Layers className="h-3 w-3" />
+            {matiere.semester && (
+              <IconBadge icon={Layers} tone="primary">
                 Semestre {matiere.semester || "S1"}
-              </Badge>
+              </IconBadge>
             )}
           </div>
         </CardHeader>
 
         <CardContent className="space-y-3">
           {/* Description */}
-          <CardDescription className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+          <CardDescription className="text-xs text-muted-foreground line-clamp-2 min-h-10">
             {matiere.description ||
               "Aucune description fournie pour cette matière."}
           </CardDescription>
@@ -61,9 +57,9 @@ export default function MatiereCard({ matiere, onUpdate, onDelete }) {
           {/* Coefficient */}
           <div className="flex items-center gap-2 pt-2 border-t border-border/60">
             <span className="text-xs text-muted-foreground">Coefficient :</span>
-            <Badge variant="secondary" className="font-semibold text-xs">
+            <IconBadge tone="muted">
               {matiere.coefficient ?? matiere.coef ?? 1}
-            </Badge>
+            </IconBadge>
           </div>
         </CardContent>
       </div>
@@ -87,8 +83,8 @@ export default function MatiereCard({ matiere, onUpdate, onDelete }) {
               size="sm"
               className="gap-1.5 h-8 text-xs"
               onClick={onDelete}
+              icon={<Trash2 className="h-3.5 w-3.5" />}
             >
-              <Trash2 className="h-3.5 w-3.5" />
               Supprimer
             </ButtonStyled>
           )}

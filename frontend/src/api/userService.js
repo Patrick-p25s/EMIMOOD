@@ -33,7 +33,7 @@ export const updateProfile = async (userId = null, newData) => {
   return result.data;
 };
 
-export const updatePassword = async (password, newPassword) => {
+export const updatePassword = async ({ password, newPassword }) => {
   const result = await apiClient.patch("/users/me/password", {
     new_password: newPassword,
     password: password,
@@ -68,6 +68,13 @@ export const deleteUser = async (id) => {
 export const getUserClasse = async (userId = null) => {
   const result = await apiClient.get("/users/classe", {
     params: { user_id: userId },
+  });
+  return result.data;
+};
+
+export const updateClasse = async (userId, codeInvitation) => {
+  const result = await apiClient.patch(`/users/${userId}/new-classe`, {
+    code_invitation: codeInvitation,
   });
   return result.data;
 };

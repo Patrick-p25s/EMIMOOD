@@ -113,7 +113,15 @@ function YearItem({ year, onDelete, onActive }) {
   const isDeleting = activeAction === "delete";
   const isActiveLoading = activeAction === "active";
   const isLoading = activeAction !== null;
-
+  const formattedDate = (date) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
     <div className="flex flex-col justify-between p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all gap-4">
       {/* En-tête : Titre et Badge de statut */}
@@ -138,14 +146,13 @@ function YearItem({ year, onDelete, onActive }) {
         </span>
       </div>
 
-      {/* Période / Dates */}
       <div className="flex items-center justify-between text-xs text-card-foreground bg-slate-50 p-2.5 rounded-lg border border-slate-100">
         <div className="flex flex-col">
           <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
             Début
           </span>
           <span className="font-medium text-foreground mt-0.5">
-            {year.start_at}
+            {formattedDate(year.start_at)}
           </span>
         </div>
         <span className="text-slate-300">→</span>
@@ -154,7 +161,7 @@ function YearItem({ year, onDelete, onActive }) {
             Fin
           </span>
           <span className="font-medium text-foreground mt-0.5">
-            {year.end_at}
+            {formattedDate(year.end_at)}
           </span>
         </div>
       </div>

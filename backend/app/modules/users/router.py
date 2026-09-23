@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -83,6 +83,15 @@ async def update_my_password(
     return UserRead.model_validate(updated_user)
 
 
+@router.patch("/profile-picture", response_model=UserRead)
+async def upload_profile_picture(
+    file: UploadFile = File(...),
+    current_user: Users = Depends(get_current_user),
+    service: UserService = Depends(_get_user_service),
+):
+    return await service.upload_profile_picture(current_user, file)
+
+
 @router.get(
     "",
     response_model=Page[UserRead],
@@ -91,10 +100,10 @@ async def update_my_password(
 )
 async def get_all_users(
     params: PaginationParams = Depends(),
-    user: Users = Depends(require_admin),
+    user: Users = Depends(require_moderator),
     service: UserService = Depends(_get_user_service),
 ) -> Page[UserRead]:
-    return await service.get_all_users(params)
+    return await service.get_all_users(user, params)
 
 
 @router.post(
@@ -135,3 +144,14 @@ async def get_user_classe(
     service: UserService = Depends(_get_user_service),
 ):
     return await service.get_classe_user(user_id, current_user_id=user.id)
+
+
+@router.patch("/{user_id}/new-classe", response_model=UserRead)
+async def new_classe_user(
+    user_id: str,
+    code_invitation: str,
+    current_user: Users = Depends(require_moderator),
+    service: UserService = Depends(_get_user_service),
+):
+    user = await service.new_classe(user_id, current_user, code_invitation)
+    return UserRead.model_validate(user)

@@ -1,3 +1,4 @@
+import { getStats } from "@/api/documentService";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
@@ -5,20 +6,17 @@ import TextareaLabeled from "@/components/shared/TextareaLabeled";
 import ProfileStudent from "@/components/special/ProfileStudent";
 import useAuth from "@/hooks/useAuth";
 import { useMe } from "@/hooks/useMe";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function ProfileManage() {
-  const { user } = useAuth();
-  const {
-    classe,
-    updatePassword,
-    updateProfile,
-    // envoyerSignalement,
-    error,
-    loading,
-  } = useMe();
+  const { user, update } = useAuth();
 
-  // Un état d'ouverture PAR modal — c'est ça qui manquait
+  const { classe, updatePassword, updateProfile, error, loading, stats } =
+    useMe();
+
+  const [actError, setActError] = useState(null);
+  const [actLoading, setActLoading] = useState(false);
+
   const [openProfile, setOpenProfile] = useState(false);
   const [openPassword, setOpenPassword] = useState(false);
   const [openSignal, setOpenSignal] = useState(false);
@@ -40,9 +38,7 @@ export default function ProfileManage() {
     contenus: "",
     contact: "",
   });
-  const me = useMemo(() => {
-    return user;
-  }, [user]);
+
   useEffect(() => {
     if (user) {
       setProfile({
@@ -55,14 +51,33 @@ export default function ProfileManage() {
   }, [user]);
 
   const handleUpdateProfile = async () => {
-    await updateProfile(profile);
-    setOpenProfile(false);
+    setActError(null);
+    setActLoading(true);
+    try {
+      await update(profile);
+      setOpenProfile(false);
+    } catch (err) {
+      setActError(err.message?.toString());
+    } finally {
+      setActLoading(false);
+    }
   };
 
   const handleUpdatePassword = async () => {
-    await updatePassword(password);
-    setPassword({ password: "", newPassword: "" });
-    setOpenPassword(false);
+    setActError(null);
+    setActLoading(true);
+    try {
+      await updatePassword({
+        password: password.password,
+        newPassword: password.newPassword,
+      });
+      setPassword({ password: "", newPassword: "" });
+      setOpenPassword(false);
+    } catch (err) {
+      setActError(err.message?.toString());
+    } finally {
+      setActLoading(false);
+    }
   };
 
   const handleEnvoyerSignal = async () => {
@@ -74,9 +89,15 @@ export default function ProfileManage() {
 
   return (
     <div>
+      {(error || actError) && (
+        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
+          {actError || error?.message}
+        </div>
+      )}
       <ProfileStudent
-        user={me}
+        user={user}
         classe={classe}
+        stats={stats}
         onEditProfile={() => setOpenProfile(true)}
         onEditPassword={() => setOpenPassword(true)}
         onSignaler={() => setOpenSignal(true)}
@@ -86,8 +107,8 @@ export default function ProfileManage() {
         open={openProfile}
         onOpenChange={setOpenProfile}
         onSubmit={handleUpdateProfile}
-        loading={loading}
-        error={error}
+        loading={actLoading}
+        error={actError}
         title="Modifier mon profil"
         submitLabel="Enregistrer"
       >
@@ -123,8 +144,8 @@ export default function ProfileManage() {
         open={openPassword}
         onOpenChange={setOpenPassword}
         onSubmit={handleUpdatePassword}
-        loading={loading}
-        error={error}
+        loading={actLoading}
+        error={actError}
         title="Modifier le mot de passe"
         submitLabel="Mettre à jour"
       >
@@ -149,8 +170,8 @@ export default function ProfileManage() {
         open={openSignal}
         onOpenChange={setOpenSignal}
         onSubmit={handleEnvoyerSignal}
-        loading={loading}
-        error={error}
+        loading={actLoading}
+        error={actError}
         title="Signaler un problème"
         submitLabel="Envoyer"
       >

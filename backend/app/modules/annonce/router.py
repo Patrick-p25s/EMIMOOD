@@ -16,6 +16,8 @@ from app.modules.users.model import Users
 from app.modules.users.repository import UserRepository
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.modules.notification.repository import NotificationRepository
+from app.modules.notification.service import NotificationService
 
 
 def get_annonce_service(db: AsyncSession = Depends(get_db)) -> AnnonceService:
@@ -23,6 +25,7 @@ def get_annonce_service(db: AsyncSession = Depends(get_db)) -> AnnonceService:
         repo=AnnonceRepository(db),
         lecture_repo=AnnonceLectureRepository(db),
         user_repo=UserRepository(db),
+        notif_service=NotificationService(NotificationRepository(db)),
     )
 
 

@@ -6,8 +6,11 @@ from app.core.pagination import Page, PaginationParams, make_page
 from app.modules.documents.schema import DocumentCreate, DocumentUpdate
 from app.modules.documents.storage import save_upload_file
 from app.modules.matiere.repository import SubjectRepository
+from app.modules.folder.service import FolderService
 from app.modules.users.model import UserRole, Users
 from fastapi import HTTPException, UploadFile, status
+from app.modules.notification.service import NotificationService
+from app.core.thumbnails import generate_thumbnail
 
 
 class DocumentService:
@@ -16,10 +19,14 @@ class DocumentService:
         document_repo: DocumentRepository,
         subject_repo: SubjectRepository,
         save_repo: DocumentSaveRepository,
+        folder_service: FolderService,
+        notif_service: NotificationService,
     ):
         self.document_repo = document_repo
         self.subject_repo = subject_repo
         self.save_repo = save_repo
+        self.folder_service = folder_service
+        self.notif_service = notif_service
 
     def _peut_acceder(self, document: Document, current_user: Users) -> bool:
         if document.statut == DocumentStatus.public:
@@ -74,6 +81,10 @@ class DocumentService:
                 )
 
         fichier_path, taille_octets = await save_upload_file(file)
+        mime_type = file.content_type or "application/octet-stream"
+
+        # Génère la miniature à partir du fichier déjà sauvegardé sur disque
+        thumbnail_path = await generate_thumbnail(fichier_path, mime_type)
 
         if current_user.role in (UserRole.moderator, UserRole.admin):
             statut = DocumentStatus.public
@@ -90,8 +101,9 @@ class DocumentService:
             "statut": statut,
             "original_filename": file.filename or "document",
             "storage_key": fichier_path,
-            "mime_type": file.content_type or "application/octet-stream",
+            "mime_type": mime_type,
             "taille_octets": taille_octets,
+            "thumbnail_url": thumbnail_path,  # None si pas de miniature générée
             "owner_id": current_user.id,
             "matiere_id": matiere_id,
             "classe_id": current_user.classe_id,
@@ -99,14 +111,20 @@ class DocumentService:
             if statut == DocumentStatus.public
             else None,
         }
-        return await self.document_repo.create(data)
+        document = await self.document_repo.create(data)
+        await self.save_repo.create(
+            {"user_id": current_user.id, "document_id": document.id}
+        )
+        if document.statut == DocumentStatus.public:
+            await self.notif_service.notify_new_document(current_user)
+        return document
 
     async def get_stat_user(self, user_id: str | None, current_user_id: str | UUID):
-        docs = await self.document_repo.stat_document(user_id)
-        save = await self.save_repo.stats_save(user_id)
-        if user_id is None:
-            docs = await self.document_repo.stat_document(current_user_id)
-            save = await self.save_repo.stats_save(current_user_id)
+        docs = await self.document_repo.stat_document(current_user_id)
+        save = await self.save_repo.stats_save(current_user_id)
+        if user_id is not None:
+            docs = await self.document_repo.stat_document(user_id)
+            save = await self.save_repo.stats_save(user_id)
 
         return docs | save
 
@@ -116,11 +134,15 @@ class DocumentService:
         document = await self._get_document_or_404(document_id)
         if not self._peut_acceder(document, current_user):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Accès refusé")
+        await self.document_repo.update(
+            document, {"download_count": int(document.download_count) + 1}
+        )
         return document
 
     async def list_public_documents(
         self,
         current_user: Users,
+        search: str | None,
         params: PaginationParams,
         matiere_id: UUID | None = None,
         document_type: DocumentType | None = None,
@@ -129,6 +151,7 @@ class DocumentService:
             current_user.classe_id,
             matiere_id,
             document_type,
+            search,
             params.offset,
             params.limit,
         )
@@ -147,6 +170,7 @@ class DocumentService:
     async def list_pending_documents(
         self,
         current_user: Users,
+        search: str | None,
         params: PaginationParams,
         matiere_id: UUID | None = None,
     ) -> Page:
@@ -154,17 +178,30 @@ class DocumentService:
         documents, total = await self.document_repo.list_pending(
             None if current_user.role == UserRole.admin else current_user.classe_id,
             matiere_id,
+            search,
             params.offset,
             params.limit,
         )
         return make_page(documents, total, params)
 
     async def get_not_private_document(
-        self, current_user: Users, params: PaginationParams
+        self,
+        current_user: Users,
+        params: PaginationParams,
+        search: str | None,
+        document_type: DocumentType | None,
+        statut: DocumentStatus | None,
+        classe_id: str | None,
     ):
         self._require_moderator(current_user)
         result, total = await self.document_repo.not_private_doc(
-            current_user.classe_id, params.offset, params.limit
+            current_user.classe_id,
+            params.offset,
+            params.limit,
+            search,
+            document_type,
+            statut,
+            classe_id,
         )
         return make_page(result, total, params)
 
@@ -189,10 +226,17 @@ class DocumentService:
                 status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
             )
 
-        return await self.document_repo.update(
+        document = await self.document_repo.update(
             document,
             {"statut": DocumentStatus.public, "validated_by_id": current_user.id},
         )
+
+        # ajouter les notfication
+
+        await self.notif_service.notify_valide_doc(document, current_user)
+        await self.notif_service.notify_new_document(current_user)
+
+        return document
 
     async def rejeter_document(
         self, document_id: UUID, current_user: Users
@@ -208,10 +252,13 @@ class DocumentService:
                 status.HTTP_400_BAD_REQUEST, "Document n'est pas en attente"
             )
 
-        return await self.document_repo.update(
+        document = await self.document_repo.update(
             document,
             {"statut": DocumentStatus.rejete, "validated_by_id": current_user.id},
         )
+        # ajouter la notification de rejet
+        await self.notif_service.notify_reject_doc(document, current_user)
+        return document
 
     async def delete_document(self, document_id: UUID, current_user: Users) -> None:
         document = await self._get_document_or_404(document_id)
@@ -256,36 +303,84 @@ class DocumentService:
     SERVICE POUR TOUS LES SAUVEGARDE DEPUIS ICI
     """
 
-    async def sauvegarde_document(self, document_id: str | UUID, current_user: Users):
+    async def sauvegarde_document(
+        self, document_id: str | UUID, folder_id: str | None, current_user: Users
+    ):
         document = await self._get_document_or_404(document_id)
-        if document.statut != DocumentStatus.public:
+        if (
+            document.statut != DocumentStatus.public
+            and document.owner_id != current_user.id
+        ):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Erreur lors de sauvegarde")
 
         if await self.save_repo.get_by_user_and_document(current_user.id, document.id):
             raise HTTPException(status.HTTP_409_CONFLICT, "Document déjà sauvegardé")
 
-        new_save = {"user_id": current_user.id, "document_id": document.id}
+        await self.document_repo.update(
+            document, {"save_count": int(document.save_count or 0) + 1}
+        )
+
+        new_save = {
+            "user_id": current_user.id,
+            "document_id": document.id,
+            "folder_id": folder_id,
+        }
         return await self.save_repo.create(new_save)
 
-    async def get_save_by_id(self, id: str, current_user: Users):
-        saved = await self.save_repo.get_by_id(id)
-        if saved is None:
+    async def get_save_by_document_id(self, document_id: str, current_user: Users):
+        document = await self.document_repo.get_by_id(document_id)
+        if document is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Document non trouvé")
-        if saved.user_id != current_user.id:
-            raise HTTPException(
-                status.HTTP_403_FORBIDDEN, "Vous n'avez acces a cette document"
+
+        save = await self.save_repo.get_by_document_id(document.id, current_user.id)
+        if save is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Aucune sauvegarde trouvé")
+        if save.user_id != current_user.id:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Acces a ce document réfusé")
+
+        return save
+
+    async def already_save(
+        self, document_id: str | UUID, current_user_id: str | UUID
+    ) -> bool:
+        return await self.save_repo.already_saved(document_id, current_user_id)
+
+    async def delete_save_document(self, document_id: str | UUID, current_user: Users):
+        saved = await self.get_save_by_document_id(document_id, current_user)
+        await self.save_repo.delete(saved)
+
+        document = await self.get_document_by_id(document_id, current_user)
+        if document.owner_id == current_user.id:
+            return await self.document_repo.delete(document)
+
+        return {"success": True}
+
+    async def list_my_documents(self, user: Users, params: PaginationParams):
+        rows, total = await self.document_repo.list_my_documents(
+            user.id, params.offset, params.limit
+        )
+        documents = []
+        for document, folder_id in rows:
+            documents.append(
+                {
+                    **document.__dict__,
+                    "folder_id": folder_id,
+                }
             )
 
-        return saved
-
-    async def delete_save_document(self, id: str, current_user: Users):
-        saved = await self.get_save_by_id(id, current_user)
-        return await self.save_repo.delete(saved)
-
-    async def list_my_documents(
-        self, current_user: Users, params: PaginationParams
-    ) -> Page:
-        documents, total = await self.document_repo.list_by_owner(
-            current_user.id, params.offset, params.limit
-        )
         return make_page(documents, total, params)
+
+    async def get_document_by_folder(self, folder_id: str, user: Users):
+        folder = await self.folder_service.get_folder_by_id(folder_id, user)
+        return await self.save_repo.list_by_folder(folder.id)
+
+    async def move_document_on_folder(
+        self, folder_id: str | None, document_id: str, user: Users
+    ):
+        folder = None
+        if folder_id is not None:
+            folder = await self.folder_service.get_folder_by_id(folder_id, user)
+        document = await self.get_save_by_document_id(document_id, user)
+        return await self.save_repo.update(
+            document, {"folder_id": folder.id if folder is not None else None}
+        )

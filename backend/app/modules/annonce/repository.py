@@ -4,6 +4,7 @@ from app.modules.annonce.model import Annonce, AnnonceLecture, AnnonceStatut
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.normalised_id import normalized_id
+from sqlalchemy.orm import joinedload
 
 
 class AnnonceRepository:
@@ -31,13 +32,18 @@ class AnnonceRepository:
         if classe_id is not None:
             query = query.where(Annonce.classe_id == normalized_id(classe_id))
         result = await self.db.execute(
-            query.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
+            query.options(joinedload(Annonce.auteur))
+            .order_by(Annonce.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return result.scalars().all(), total
 
     async def get_by_id(self, annonce_id: UUID) -> Annonce | None:
         result = await self.db.execute(
-            select(Annonce).where(Annonce.id == normalized_id(annonce_id))
+            select(Annonce)
+            .options(joinedload(Annonce.auteur))
+            .where(Annonce.id == normalized_id(annonce_id))
         )
         return result.scalar_one_or_none()
 
@@ -67,7 +73,10 @@ class AnnonceRepository:
             select(func.count()).select_from(statement.subquery())
         )
         result = await self.db.execute(
-            statement.order_by(Annonce.created_at.desc()).offset(offset).limit(limit)
+            statement.options(joinedload(Annonce.auteur))
+            .order_by(Annonce.created_at.desc())
+            .offset(offset)
+            .limit(limit)
         )
         return result.scalars().all(), total_result.scalar_one()
 

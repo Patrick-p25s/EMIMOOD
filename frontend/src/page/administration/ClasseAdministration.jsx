@@ -6,7 +6,6 @@ import ClasseCard from "@/components/special/ClasseCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, School } from "lucide-react";
 import { useClasse } from "@/hooks/useClasse";
-import { userData } from "@/mocks/user";
 import { ChampUsersCreate } from "../RegisterPage";
 
 const emptyClasse = { mention: "", niveau: "" };

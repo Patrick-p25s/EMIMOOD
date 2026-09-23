@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Folder(UuidStamp):
     __tablename__ = "folders"
     name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    desciption: Mapped[str] = mapped_column(String(200), nullable=True, index=True)
+    description: Mapped[str] = mapped_column(String(200), nullable=True, index=True)
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id"), nullable=False, index=True
     )

@@ -10,6 +10,7 @@ from app.modules.annonce.schema import (
 )
 from app.modules.users.model import UserRole, Users
 from app.modules.users.repository import UserRepository
+from app.modules.notification.service import NotificationService
 from app.core.pagination import Page, PaginationParams, make_page
 from fastapi import HTTPException, status
 
@@ -20,10 +21,12 @@ class AnnonceService:
         repo: AnnonceRepository,
         lecture_repo: AnnonceLectureRepository,
         user_repo: UserRepository,
+        notif_service: NotificationService,
     ):
         self.repo = repo
         self.lecture_repo = lecture_repo
         self.user_repo = user_repo
+        self.notif_service = notif_service
 
     # Utilitaire
     def _peut_gerer_annonce(self, annonce: Annonce, current_user: Users) -> bool:
@@ -93,6 +96,10 @@ class AnnonceService:
             "classe_id": classe_id,
             "auteur_id": current_user.id,
         }
+
+        # ajouter une notification
+        await self.notif_service.notify_new_annonce(current_user)
+
         return await self.repo.create(data)
 
     # lecture et consultation
@@ -124,11 +131,8 @@ class AnnonceService:
     async def list_active_for_user(
         self, current_user: Users, params: PaginationParams
     ) -> Page:
-        classe_id = (
-            None if current_user.role == UserRole.admin else current_user.classe_id
-        )
         annonces, total = await self.repo.list_by_status(
-            AnnonceStatut.active, classe_id, params.offset, params.limit
+            AnnonceStatut.active, current_user.classe_id, params.offset, params.limit
         )
         return make_page(annonces, total, params)
 

@@ -18,7 +18,7 @@ export default function UsersAdministration() {
     error,
     goToPage,
     register,
-    updateProfile, // ← à confirmer : le nom exposé par useStudent pour la modification
+    updateProfile,
     fetchStat,
     deleteUser,
   } = useStudent();
@@ -124,8 +124,6 @@ export default function UsersAdministration() {
     setOpen(true);
   };
 
-  // On reçoit directement l'étudiant (déjà en mémoire dans `users`),
-  // pas besoin de le re-fetch — seuls classe + stats viennent de l'API
   const handleProfile = async (student) => {
     if (!student) return;
 

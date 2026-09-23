@@ -62,7 +62,10 @@ class Document(UuidStamp):
     storage_key: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     taille_octets: Mapped[int] = mapped_column(Integer, nullable=False)
-
+    download_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    save_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    vue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    thumbnail_url: Mapped[str | None] = mapped_column(String(100), nullable=True)
     # relation
     owner_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
@@ -93,9 +96,7 @@ class Document(UuidStamp):
     matiere: Mapped["Subject | None"] = relationship(
         "Subject", back_populates="documents"
     )
-    classe: Mapped["Classe | None"] = relationship(
-        "Classe", back_populates="documents"
-    )
+    classe: Mapped["Classe | None"] = relationship("Classe", back_populates="documents")
     sauvegardes: Mapped[list["DocumentSauvegarde"]] = relationship(
         "DocumentSauvegarde", back_populates="document", passive_deletes=True
     )
@@ -127,9 +128,7 @@ class DocumentSauvegarde(UuidStamp):
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),
     )
 
-    user: Mapped["Users"] = relationship(
-        "Users", back_populates="document_sauvegardes"
-    )
+    user: Mapped["Users"] = relationship("Users", back_populates="document_sauvegardes")
     document: Mapped["Document"] = relationship(
         "Document", back_populates="sauvegardes"
     )
