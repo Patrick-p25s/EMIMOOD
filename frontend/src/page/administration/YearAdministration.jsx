@@ -5,6 +5,8 @@ import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
 import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/shared/EmptyCard";
+import { Calendar } from "lucide-react";
 
 export default function YearAdministration() {
   const [open, setOpen] = useState(false);
@@ -28,14 +30,18 @@ export default function YearAdministration() {
       <YearForm onCreate={add} open={open} onOpen={setOpen} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {years.map((year) => (
-          <YearItem
-            year={year}
-            key={year.id}
-            onDelete={remove}
-            onActive={activate}
-          />
-        ))}
+        {years.length > 0 ? (
+          years.map((year) => (
+            <YearItem
+              year={year}
+              key={year.id}
+              onDelete={remove}
+              onActive={activate}
+            />
+          ))
+        ) : (
+          <EmptyCard icon={Calendar} title="Aucune année pour le moment" />
+        )}
       </div>
     </div>
   );

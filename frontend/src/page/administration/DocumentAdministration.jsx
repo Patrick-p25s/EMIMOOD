@@ -14,6 +14,7 @@ import useAuth from "@/hooks/useAuth";
 import { filter } from "framer-motion/client";
 import { Button } from "@/components/ui/button";
 import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 export default function DocumentAdministration({ classes = [] }) {
   const {
@@ -150,12 +151,10 @@ export default function DocumentAdministration({ classes = [] }) {
           {error.message}
         </AlertBox>
       ) : documents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center border border-dashed rounded-xl text-muted-foreground">
-          <FileText className="h-8 w-8" />
-          <p className="text-sm">
-            Aucun document ne correspond à ces critères.
-          </p>
-        </div>
+        <EmptyCard
+          title="Aucun document ne correspond à ces critères."
+          icon={FileText}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((document) => (

@@ -77,6 +77,13 @@ export const getUserClasse = async (userId = null) => {
   return result.data;
 };
 
+export const uploadeProfilePicture = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const result = await apiClient.patch("/users/profile-picture", formData);
+  return result.data;
+};
+
 export const updateClasse = async (userId, codeInvitation) => {
   const result = await apiClient.patch(`/users/${userId}/new-classe`, {
     code_invitation: codeInvitation,

@@ -33,9 +33,10 @@ class UserRepository:
         user = Users(**data)
         self.db.add(user)
         await self.db.commit()
-        resulr = self.db.execute(
+        result = self.db.execute(
             select(Users).options(joinedload(Users.classe)).where(Users.id == user.id)
         )
+        return result
 
     async def get_by_matricule(self, matricule: str):
         result = await self.db.execute(

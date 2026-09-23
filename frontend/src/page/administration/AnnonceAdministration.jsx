@@ -12,6 +12,7 @@ import { Megaphone, Plus, Star } from "lucide-react";
 import useAnnonce from "@/hooks/useAnnonce";
 import React, { useEffect, useMemo, useState } from "react";
 import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 export default function AnnoncesAdministration() {
   const {
@@ -158,12 +159,10 @@ export default function AnnoncesAdministration() {
           ))}
         </div>
       ) : filteredAnnonces.length <= 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center border border-dashed rounded-xl text-muted-foreground">
-          <Megaphone className="h-8 w-8" />
-          <p className="text-sm">
-            Aucune annonce disponible dans cette catégorie.
-          </p>
-        </div>
+        <EmptyCard
+          icon={Megaphone}
+          description="Aucune annonce disponible dans cette catégorie."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAnnonces.map((annonce) => (

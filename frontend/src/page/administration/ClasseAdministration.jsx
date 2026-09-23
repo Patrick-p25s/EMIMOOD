@@ -8,6 +8,7 @@ import { Plus, School } from "lucide-react";
 import { useClasse } from "@/hooks/useClasse";
 import { ChampUsersCreate } from "../RegisterPage";
 import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 const emptyClasse = { mention: "", niveau: "" };
 
@@ -192,12 +193,10 @@ export default function ClasseAdministration() {
           ))}
         </div>
       ) : classes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center text-muted-foreground">
-          <School className="h-8 w-8" />
-          <p className="text-sm">
-            Aucune classe pour cette année. Commence par en créer une.
-          </p>
-        </div>
+        <EmptyCard
+          icon={School}
+          title="Aucune classe pour cette année. Commence par en créer une."
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {classes.map((classe) => (

@@ -2,8 +2,9 @@ import { downloadDocument } from "@/api/documentService";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import DocumentCard from "@/components/shared/DocumentCard";
 import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 import { usePublicDocument } from "@/hooks/usePublic";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Book, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
 export default function PublicPageManage() {
@@ -34,7 +35,7 @@ export default function PublicPageManage() {
         <p className="text-sm text-destructive">Erreur : {error.message}</p>
       )}
       {!loading && documents.length === 0 && (
-        <p className="text-sm text-muted-foreground">Aucun document trouvé.</p>
+        <EmptyCard icon={Book} description="Aucune document trouvé " />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -12,6 +12,7 @@ import { getUserClasse } from "@/api/userService";
 import AlertBox from "@/components/shared/AlertBox";
 import UserFilterBar from "@/components/shared/UserFilterBar";
 import useAuth from "@/hooks/useAuth";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 export default function UsersAdministration() {
   const { role } = useAuth();
@@ -224,12 +225,14 @@ export default function UsersAdministration() {
           ))}
         </div>
       ) : error ? (
-        <p className="text-sm text-destructive">Erreur : {error.message}</p>
+        <AlertBox variant="error" title="Erreur">
+          {error.message}
+        </AlertBox>
       ) : users.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center border border-dashed rounded-xl text-muted-foreground">
-          <Users className="h-8 w-8" />
-          <p className="text-sm">Aucun étudiant inscrit pour le moment.</p>
-        </div>
+        <EmptyCard
+          icon={Users}
+          title="Aucun étudiant inscrit pour le moment."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {users.map((student) => (
@@ -246,25 +249,23 @@ export default function UsersAdministration() {
 
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page <= 1}
             onClick={() => goToPage(pagination.page - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+            icon={<ChevronLeft className="h-4 w-4" />}
+          />
           <span className="text-sm text-muted-foreground">
             Page {pagination.page} sur {pagination.pages}
           </span>
-          <Button
+          <ButtonStyled
             variant="outline"
             size="sm"
             disabled={pagination.page >= pagination.pages}
             onClick={() => goToPage(pagination.page + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+            icon={<ChevronRight className="h-4 w-4" />}
+          />
         </div>
       )}
     </div>

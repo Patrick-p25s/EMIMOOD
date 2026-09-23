@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotification } from "@/hooks/useNotification";
+import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 export function NotificationManage() {
   const {
@@ -74,50 +77,38 @@ export function NotificationManage() {
           <TabsList className="h-9">
             <TabsTrigger value="all" className="h-7 gap-1.5 px-3 text-xs">
               Tout
-              <Badge
-                variant="secondary"
-                className="h-5 min-w-5 justify-center px-1 text-[10px]"
-              >
-                {notifications.length}
-              </Badge>
+              <IconBadge>{notifications.length}</IconBadge>
             </TabsTrigger>
 
             <TabsTrigger value="unread" className="h-7 gap-1.5 px-3 text-xs">
               Non lues
-              {unreadCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="h-5 min-w-5 justify-center px-1 text-[10px]"
-                >
-                  {unreadCount}
-                </Badge>
-              )}
+              {unreadCount > 0 && <IconBadge>{notifications.length}</IconBadge>}
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="flex items-center gap-1">
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="sm"
             className="h-8 gap-1.5 px-2.5 text-xs text-muted-foreground"
             onClick={readAll}
             disabled={loading || unreadCount === 0}
+            icon={<CheckCheck className="h-3.5 w-3.5" />}
           >
-            <CheckCheck className="h-3.5 w-3.5" />
             Tout marquer lu
-          </Button>
+          </ButtonStyled>
 
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="sm"
             className="h-8 gap-1.5 px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={deleteAll}
             disabled={loading || notifications.length === 0}
+            icon={<Trash2 className="h-3.5 w-3.5" />}
           >
-            <Trash2 className="h-3.5 w-3.5" />
             Tout supprimer
-          </Button>
+          </ButtonStyled>
         </div>
       </div>
 
@@ -134,7 +125,19 @@ export function NotificationManage() {
         {loading ? (
           <NotificationSkeletonList />
         ) : filteredNotifications.length === 0 ? (
-          <EmptyState filter={filter} />
+          <EmptyCard
+            icon={Bell}
+            title={
+              filter === "unread"
+                ? "Aucune notification non lue"
+                : "Aucune notification"
+            }
+            description={
+              filter === "unread"
+                ? "Tu es à jour sur tout."
+                : "Les nouvelles notifications apparaîtront ici."
+            }
+          />
         ) : (
           filteredNotifications.map((notification) => (
             <NotificationItem
@@ -155,18 +158,18 @@ export function NotificationManage() {
           </span>
 
           <div className="flex items-center gap-1">
-            <Button
+            <ButtonStyled
               variant="outline"
               size="sm"
               className="h-8 gap-1 px-2.5 text-xs"
               disabled={pagination.page <= 1 || loading}
               onClick={() => goToPage(pagination.page - 1)}
+              icon={<ChevronLeft className="h-3.5 w-3.5" />}
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
               Précédent
-            </Button>
+            </ButtonStyled>
 
-            <Button
+            <ButtonStyled
               variant="outline"
               size="sm"
               className="h-8 gap-1 px-2.5 text-xs"
@@ -174,8 +177,7 @@ export function NotificationManage() {
               onClick={() => goToPage(pagination.page + 1)}
             >
               Suivant
-              <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
+            </ButtonStyled>
           </div>
         </div>
       )}
@@ -190,7 +192,7 @@ function NotificationItem({ notification, onRead, onDelete }) {
     <Card
       className={cn(
         "group transition-colors",
-        !is_read && "border-primary/30 bg-primary/[0.025]",
+        !is_read && "border-primary/30 bg-primary/2.5",
       )}
     >
       <CardContent className="flex items-center gap-3 px-4 py-3">
@@ -233,51 +235,25 @@ function NotificationItem({ notification, onRead, onDelete }) {
           )}
         >
           {!is_read && (
-            <Button
+            <ButtonStyled
               variant="ghost"
               size="icon"
               className="h-8 w-8"
               onClick={() => onRead(id)}
               title="Marquer comme lu"
-            >
-              <Check className="h-4 w-4" />
-            </Button>
+              icon={<Check className="h-4 w-4" />}
+            />
           )}
 
-          <Button
+          <ButtonStyled
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => onDelete(id)}
             title="Supprimer"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            icon={<Trash2 className="h-4 w-4" />}
+          />
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function EmptyState({ filter }) {
-  return (
-    <Card className="border-dashed">
-      <CardContent className="flex min-h-48 flex-col items-center justify-center text-center">
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-muted">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-        </div>
-
-        <p className="text-sm font-medium">
-          {filter === "unread"
-            ? "Aucune notification non lue"
-            : "Aucune notification"}
-        </p>
-
-        <p className="mt-1 text-xs text-muted-foreground">
-          {filter === "unread"
-            ? "Tu es à jour sur tout."
-            : "Les nouvelles notifications apparaîtront ici."}
-        </p>
       </CardContent>
     </Card>
   );

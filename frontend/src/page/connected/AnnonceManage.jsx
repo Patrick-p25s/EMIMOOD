@@ -16,6 +16,9 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, AlertCircle, BellRing } from "lucide-react";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { EmptyCard } from "@/components/shared/EmptyCard";
+import AlertBox from "@/components/shared/AlertBox";
+import IconBadge from "@/components/shared/IconBadge";
 
 export default function AnnonceManage() {
   const [annonces, setAnnonces] = useState([]);
@@ -70,9 +73,7 @@ export default function AnnonceManage() {
               <Megaphone className="h-5 w-5" />
             </div>
 
-            <Badge variant="secondary" className="font-normal">
-              Informations
-            </Badge>
+            <IconBadge tone="success">Informations</IconBadge>
           </div>
 
           <div>
@@ -88,7 +89,6 @@ export default function AnnonceManage() {
         {!loading && annonces.length > 0 && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <BellRing className="h-4 w-4" />
-
             <span>
               {pagination.total} {pagination.total > 1 ? "annonces" : "annonce"}
             </span>
@@ -97,13 +97,7 @@ export default function AnnonceManage() {
       </div>
 
       {/* Error */}
-      {erreur && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-
-          <AlertDescription>{erreur}</AlertDescription>
-        </Alert>
-      )}
+      {erreur && <AlertBox variant="error">{erreur}</AlertBox>}
 
       {/* Loading */}
       {loading && annonces.length === 0 ? (
@@ -124,22 +118,12 @@ export default function AnnonceManage() {
           ))}
         </div>
       ) : annonces.length === 0 ? (
-        <Card className="border-dashed shadow-none">
-          <CardContent className="flex min-h-770 flex-col items-center justify-center px-6 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Megaphone className="h-7 w-7" />
-            </div>
-
-            <h2 className="text-base font-semibold">
-              Aucune annonce disponible
-            </h2>
-
-            <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
-              Les nouvelles informations publiées par votre établissement ou
-              votre classe apparaîtront ici.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyCard
+          title="Aucune annonce disponible"
+          description="Les nouvelles informations publiées par votre établissement ou
+              votre classe apparaîtront ici."
+          icon={Megaphone}
+        />
       ) : (
         /* Annonces */
         <div className="space-y-4">

@@ -3,12 +3,14 @@ import { useFolder } from "@/hooks/useFolder";
 import DocumentCard from "@/components/shared/DocumentCard";
 import FolderDocumentsView from "@/components/special/FolderDocumentsView";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, FolderArchive } from "lucide-react";
 import FolderFormModal from "@/components/special/FolderFormModal";
 import FolderCard from "@/components/special/FolderCard";
 import MoveToFolderDialog from "@/components/special/MoveToFolderModal";
 import { useMyDocuments } from "@/hooks/useMyDocs";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/shared/EmptyCard";
 
 export default function MyDocumentManage() {
   const {
@@ -50,9 +52,6 @@ export default function MyDocumentManage() {
     setOpenMove(true);
   };
 
-  // Un seul point de rafraîchissement, utilisé partout après un déplacement :
-  // - recharge la liste globale (met à jour "Sans dossier")
-  // - force FolderDocumentsView à se remonter si on est dans un dossier
   const handleDocumentMoved = () => {
     refreshMyDocuments();
     setFolderViewKey((k) => k + 1);
@@ -103,13 +102,14 @@ export default function MyDocumentManage() {
             ))}
           </div>
         ) : foldersError ? (
-          <p className="text-sm text-destructive">
-            Erreur : {foldersError.message}
-          </p>
+          <AlertBox variant="error" title="Erreur">
+            {foldersError.message}
+          </AlertBox>
         ) : folders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Aucun dossier pour l'instant.
-          </p>
+          <EmptyCard
+            icon={FolderArchive}
+            description="Aucune dossier pour le moment"
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {folders.map((folder) => (
@@ -133,10 +133,10 @@ export default function MyDocumentManage() {
           Sans dossier
         </h2>
         {documentsSansDossier.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-12 text-center border border-dashed rounded-xl text-muted-foreground">
-            <FileText className="h-7 w-7" />
-            <p className="text-sm">Tous tes documents sont déjà classés.</p>
-          </div>
+          <EmptyCard
+            icon={FileText}
+            description="Tous tes documents sont déjà classés."
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {documentsSansDossier.map((doc) => (

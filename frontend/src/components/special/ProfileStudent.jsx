@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+
 import {
   Mail,
   Phone,
@@ -16,8 +15,13 @@ import {
   Flag,
   Hash,
   Layers,
+  Camera,
 } from "lucide-react";
 import { getFileUrl } from "@/utils/file";
+import { ButtonStyled } from "../shared/ButtonStyled";
+import IconBadge from "../shared/IconBadge";
+import AlertBox from "../shared/AlertBox";
+import { uploadeProfilePicture } from "@/api/userService";
 
 export default function ProfileStudent({
   user,
@@ -30,7 +34,21 @@ export default function ProfileStudent({
   onEditProfile,
   onEditPassword,
   onSignaler,
+  onUploadAvatar,
 }) {
+  const fileInputRef = useRef(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState(null);
+
+  // Nettoie l'URL locale de prévisualisation à chaque changement/démontage,
+  // sinon on accumule des object URLs jamais libérées en mémoire.
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
   if (!user) return null;
 
   const {
@@ -52,27 +70,17 @@ export default function ProfileStudent({
   const getRoleBadge = (roleName) => {
     switch (roleName?.toLowerCase()) {
       case "admin":
-        return {
-          label: "Administrateur",
-          className: "bg-purple-500/10 text-purple-600 border-purple-500/30",
-        };
+        return { label: "Administrateur", tone: "primary" };
       case "moderateur":
-        return {
-          label: "Modérateur",
-          className: "bg-blue-500/10 text-blue-600 border-blue-500/30",
-        };
+        return { label: "Modérateur", tone: "primary" };
       case "etudiant":
       default:
-        return {
-          label: "Étudiant",
-          className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
-        };
+        return { label: "Étudiant", tone: "success" };
     }
   };
 
   const roleInfo = getRoleBadge(role);
 
-  // Regroupe les actions disponibles selon les handlers reçus en props
   const actions = [
     onEditProfile && {
       key: "profile",
@@ -94,56 +102,98 @@ export default function ProfileStudent({
     },
   ].filter(Boolean);
 
+  const openFilePicker = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarError(null);
+    const localPreview = URL.createObjectURL(file);
+    setAvatarPreview(localPreview);
+    setAvatarUploading(true);
+
+    try {
+      await uploadeProfilePicture?.(file);
+    } catch (err) {
+      setAvatarError("L'envoi de la photo a échoué. Réessaie.");
+      setAvatarPreview(null);
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const displayedAvatarSrc = avatarPreview || getFileUrl(avatar_url);
+
   return (
     <Card className="relative overflow-hidden border border-border shadow-sm bg-card">
-      {/* Couverture / Fond supérieur décoratif */}
       <div className="h-28 md:h-36 bg-linear-to-r from-primary/20 via-primary/10 to-background border-b border-border/50" />
 
-      {/* Actions — flottent au-dessus de la couverture, toujours visibles */}
       {actions.length > 0 && (
         <div className="absolute top-4 right-4 flex items-center gap-2">
           {actions.map(({ key, label, icon: Icon, onClick }) => (
-            <Button
+            <ButtonStyled
               key={key}
               variant="secondary"
               size="sm"
               className="gap-1.5 text-xs bg-background/80 backdrop-blur-sm border border-border/60 hover:bg-background shadow-sm"
               onClick={onClick}
+              icon={<Icon className="h-3.5 w-3.5" />}
             >
-              <Icon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{label}</span>
-            </Button>
+            </ButtonStyled>
           ))}
         </div>
       )}
 
       <CardContent className="relative px-4 pb-6 md:px-8 -mt-12 md:-mt-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          {/* Bloc Photo + Infos Principales */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background shrink-0 ring-1 ring-border/50 transition-transform hover:scale-[1.02]">
-              <AvatarImage
-                src={getFileUrl(avatar_url)}
-                alt={fullName}
-                className="object-cover"
+            {/* Avatar + overlay upload */}
+            <div className="relative shrink-0 group/avatar">
+              <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background ring-1 ring-border/50 transition-transform hover:scale-[1.02]">
+                <AvatarImage
+                  src={displayedAvatarSrc}
+                  alt={fullName}
+                  className={`object-cover ${avatarUploading ? "opacity-50" : ""}`}
+                />
+                <AvatarFallback className="text-xl md:text-2xl font-bold bg-primary/10 text-primary rounded-2xl">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
               />
-              <AvatarFallback className="text-xl md:text-2xl font-bold bg-primary/10 text-primary rounded-2xl">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
+
+              <ButtonStyled
+                variant="secondary"
+                size="icon"
+                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-card shadow-md"
+                onClick={openFilePicker}
+                loading={avatarUploading}
+                icon={<Camera className="h-3.5 w-3.5" />}
+                title="Changer la photo de profil"
+              />
+            </div>
 
             <div className="space-y-1.5 pb-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                   {fullName}
                 </h2>
-                <Badge
-                  variant="outline"
-                  className={`text-xs font-semibold ${roleInfo.className}`}
+                <IconBadge
+                  icon={ShieldCheck}
+                  tone={roleInfo.tone}
+                  className="font-semibold"
                 >
-                  <ShieldCheck className="h-3 w-3 mr-1" />
                   {roleInfo.label}
-                </Badge>
+                </IconBadge>
               </div>
 
               <div className="flex items-center gap-3 justify-center sm:justify-start text-xs md:text-sm text-muted-foreground flex-wrap">
@@ -193,7 +243,12 @@ export default function ProfileStudent({
           </div>
         </div>
 
-        {/* Grille de Statistiques Générales */}
+        {avatarError && (
+          <div className="mt-4">
+            <AlertBox variant="error">{avatarError}</AlertBox>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-8 pt-6 border-t border-border">
           <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
             <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
@@ -210,7 +265,7 @@ export default function ProfileStudent({
           </div>
 
           <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
-            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-500 shrink-0">
+            <div className="p-2.5 rounded-lg bg-warning/10 text-warning shrink-0">
               <Bookmark className="h-5 w-5" />
             </div>
             <div>
@@ -224,7 +279,7 @@ export default function ProfileStudent({
           </div>
 
           <div className="col-span-2 md:col-span-1 flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
-            <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-500 shrink-0">
+            <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
               <User className="h-5 w-5" />
             </div>
             <div>
