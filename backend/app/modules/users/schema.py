@@ -4,6 +4,12 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 
+class ClasseResponse(BaseModel):
+    mention: str
+    niveau: str
+    model_config = {"from_attributes": True}
+
+
 class UserCreate(BaseModel):
     first_name: str
     last_name: str
@@ -44,6 +50,7 @@ class UserOut(BaseModel):
     avatar_url: str | None
     email: EmailStr
     role: str
+    classe: ClasseResponse | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -60,4 +67,5 @@ class UserRead(BaseModel):
     matricule: str | None
     avatar_url: str | None
     classe_id: UUID | None = None
+    classe: ClasseResponse | None = None
     model_config = {"from_attributes": True}

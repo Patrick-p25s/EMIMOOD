@@ -5,6 +5,7 @@ import {
   listAnnonces,
   updateAnnonce,
   archiveAnnonce,
+  getStatsAnnonce,
 } from "@/api/announceService";
 import { useCallback, useState, useEffect } from "react";
 
@@ -18,6 +19,7 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState(null);
 
   const fetchAnnonce = useCallback(
     async (page = pagination.page, pageSize = pagination.pageSize) => {
@@ -47,6 +49,16 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
 
   const goToPage = (newPage) => {
     fetchAnnonce(newPage, pagination.pageSize);
+  };
+
+  const getReadingStat = async (id) => {
+    setError(null);
+    try {
+      const statistique = await getStatsAnnonce(id);
+      setStats(statistique);
+    } catch (err) {
+      setError(err);
+    }
   };
 
   const activeAnnonce = annonces.filter(
@@ -140,8 +152,10 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
     archivedAnnonce,
     loading,
     error,
+    stats,
     goToPage,
     refresh: () => fetchAnnonce(pagination.page, pagination.pageSize),
+    getReadingStat,
     add,
     remove,
     update,

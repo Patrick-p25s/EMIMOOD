@@ -26,6 +26,7 @@ export default function AnnonceItem({
   onUnarchive,
   onDelete,
   onEdit,
+  onGetStat,
 }) {
   const { titre, contenu, important, statut, created_at } = annonce || {};
   const isArchivee = statut === "archivee";
@@ -59,7 +60,10 @@ export default function AnnonceItem({
       <div>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-2 min-w-0 flex-1">
+            <div
+              className="space-y-2 min-w-0 flex-1 cursor-pointer"
+              onClick={() => onGetStat(annonce.id)}
+            >
               <div className="flex items-center gap-2 flex-wrap">
                 {important && (
                   <IconBadge icon={AlertCircle} tone="primary">

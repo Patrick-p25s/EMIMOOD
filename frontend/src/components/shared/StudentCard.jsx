@@ -20,6 +20,7 @@ export default function StudentCard({
   onDelete,
   onProfile,
 }) {
+  const studentClasse = student.classe;
   if (!student) return null;
 
   // Formatage du nom complet
@@ -99,11 +100,13 @@ export default function StudentCard({
           </div>
 
           {/* Mention et Niveau (ex: L1 - Informatique) */}
-          {(student.niveau || student.mention) && (
+          {studentClasse && (
             <div className="flex items-center justify-between text-muted-foreground">
               <span>Parcours :</span>
               <IconBadge>
-                {[student.niveau, student.mention].filter(Boolean).join(" · ")}
+                {[studentClasse.niveau, studentClasse.mention]
+                  .filter(Boolean)
+                  .join(" · ")}
               </IconBadge>
             </div>
           )}

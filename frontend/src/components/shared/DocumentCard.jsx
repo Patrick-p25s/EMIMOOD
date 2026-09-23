@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ButtonStyled } from "./ButtonStyled";
+import IconBadge from "./IconBadge";
+import AlertBox from "./AlertBox";
 
 import {
   DropdownMenu,
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import {
-  AlertCircle,
   Bookmark,
   BookmarkCheck,
   Check,
@@ -28,9 +28,14 @@ import {
   FolderInput,
   MoreVertical,
   Pencil,
+  Play,
   Trash2,
   Video,
   X,
+  Lock,
+  Clock,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 import {
@@ -42,36 +47,53 @@ import {
 
 import { cn } from "@/lib/utils";
 import { getFileUrl } from "@/utils/file";
-import IconBadge from "./IconBadge";
 
+// Chaque type a sa propre identité visuelle : icône, teinte de badge,
+// et dégradé de vignette (utilisé seulement quand pas de vraie miniature)
 const TYPE_CONFIG = {
-  cours: { label: "Cours", icon: FileText },
-  td: { label: "TD", icon: FileText },
-  tp: { label: "TP", icon: FileSpreadsheet },
-  examen: { label: "EXAM", icon: FileText },
-  corrige: { label: "Corrigé", icon: FileText },
-  autre: { label: "Document", icon: FileText },
+  cours: {
+    label: "Cours",
+    icon: FileText,
+    tone: "primary",
+    gradient: "from-primary/25 to-primary/5",
+  },
+  td: {
+    label: "TD",
+    icon: FileText,
+    tone: "primary",
+    gradient: "from-blue-500/25 to-blue-500/5",
+  },
+  tp: {
+    label: "TP",
+    icon: FileSpreadsheet,
+    tone: "primary",
+    gradient: "from-purple-500/25 to-purple-500/5",
+  },
+  examen: {
+    label: "Examen",
+    icon: FileText,
+    tone: "destructive",
+    gradient: "from-destructive/25 to-destructive/5",
+  },
+  corrige: {
+    label: "Corrigé",
+    icon: FileText,
+    tone: "success",
+    gradient: "from-success/25 to-success/5",
+  },
+  autre: {
+    label: "Document",
+    icon: FileText,
+    tone: "muted",
+    gradient: "from-muted-foreground/15 to-muted-foreground/5",
+  },
 };
 
 const STATUS_CONFIG = {
-  prive: {
-    label: "Privé",
-    className:
-      "border-border/60 bg-background/90 text-foreground backdrop-blur",
-  },
-  en_attente: {
-    label: "En attente",
-    className: "border-warning/30 bg-warning/10 text-warning backdrop-blur",
-  },
-  public: {
-    label: "Public",
-    className: "border-success/30 bg-success/10 text-success backdrop-blur",
-  },
-  rejete: {
-    label: "Rejeté",
-    className:
-      "border-destructive/30 bg-destructive/10 text-destructive backdrop-blur",
-  },
+  prive: { label: "Privé", icon: Lock, tone: "muted" },
+  en_attente: { label: "En attente", icon: Clock, tone: "warning" },
+  public: { label: "Public", icon: CheckCircle2, tone: "success" },
+  rejete: { label: "Rejeté", icon: XCircle, tone: "destructive" },
 };
 
 const MIME_EXTENSIONS = {
@@ -190,6 +212,8 @@ export default function DocumentCard({
     };
   }, [id]);
 
+  const goToDocument = () => navigate(id);
+
   const handleDownload = async () => {
     setErreur(null);
     setDownloadLoading(true);
@@ -235,85 +259,80 @@ export default function DocumentCard({
     }
   };
 
-  // Actions "de gestion" (celles qui dépendent du rôle/contexte) — le
-  // téléchargement et l'enregistrement sont toujours proposés, donc pas
-  // à inclure dans ce calcul.
   const hasManagementActions = Boolean(
     onEdit || onDelete || onMove || onValide || onRejete,
   );
 
   return (
-    <Card className="group overflow-hidden border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
+    <Card className="group overflow-hidden border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/40">
       {/* Vignette */}
-      <button
-        type="button"
-        onClick={() => navigate(id)}
-        className="block w-full text-left"
-      >
+      <div className="relative cursor-pointer" onClick={goToDocument}>
         <AspectRatio ratio={16 / 9}>
-          <div className="relative h-full w-full overflow-hidden bg-muted">
+          <div className="relative h-full w-full overflow-hidden">
             {thumbnail_url ? (
               <img
                 src={getFileUrl(thumbnail_url)}
                 alt={titre}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-muted">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl border bg-background shadow-sm">
-                  {isVideo ? (
-                    <Video className="h-7 w-7 text-muted-foreground" />
-                  ) : isImage ? (
-                    <FileImage className="h-7 w-7 text-muted-foreground" />
-                  ) : (
-                    <TypeIcon className="h-7 w-7 text-muted-foreground" />
-                  )}
-                </div>
+              <div
+                className={cn(
+                  "flex h-full w-full items-center justify-center bg-linear-to-br transition-transform duration-500 group-hover:scale-105",
+                  typeInfo.gradient,
+                )}
+              >
+                {isVideo ? (
+                  <Video className="h-10 w-10 text-foreground/30" />
+                ) : isImage ? (
+                  <FileImage className="h-10 w-10 text-foreground/30" />
+                ) : (
+                  <TypeIcon className="h-10 w-10 text-foreground/30" />
+                )}
               </div>
             )}
 
-            <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent" />
+            {/* Voile au survol pour faire ressortir les badges + lisibilité */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            <IconBadge
-              className="absolute left-2.5 top-2.5 h-6 border-0 bg-background/90 font-semibold text-foreground shadow-sm "
-              tone="primary"
-            >
-              {typeInfo.label}
-            </IconBadge>
+            <div className="absolute left-2.5 top-2.5">
+              <IconBadge
+                icon={TypeIcon}
+                tone={typeInfo.tone}
+                className="border-0 bg-background/90 shadow-sm backdrop-blur"
+              >
+                {typeInfo.label}
+              </IconBadge>
+            </div>
 
-            <IconBadge
-              tone="success"
-              className={cn(
-                "absolute right-2.5 top-2.5 h-6 px-2 text-[10px] font-medium shadow-sm",
-                statusInfo.className,
-              )}
-            >
-              {statusInfo.label}
-            </IconBadge>
+            <div className="absolute right-2.5 top-2.5">
+              <IconBadge
+                icon={statusInfo.icon}
+                tone={statusInfo.tone}
+                className="bg-background/90 shadow-sm backdrop-blur"
+              >
+                {statusInfo.label}
+              </IconBadge>
+            </div>
 
-            {isVideo && thumbnail_url && (
+            {isVideo && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background/95 shadow-md">
-                  <Video className="ml-0.5 h-4 w-4 text-foreground" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-background/95 shadow-md scale-90 group-hover:scale-100 transition-transform">
+                  <Play className="ml-0.5 h-4 w-4 text-foreground fill-foreground" />
                 </div>
               </div>
             )}
           </div>
         </AspectRatio>
-      </button>
+      </div>
 
       <CardContent className="p-3 space-y-2.5">
-        {/* Titre */}
-        <button
-          type="button"
-          onClick={() => navigate(id)}
-          className="block w-full text-left"
-        >
+        <div className="cursor-pointer" onClick={goToDocument}>
           <h3 className="font-semibold text-sm text-foreground line-clamp-2 hover:text-primary transition-colors">
             {titre}
           </h3>
-        </button>
+        </div>
 
         {matiere?.nom && (
           <p className="line-clamp-1 text-xs text-muted-foreground">
@@ -323,7 +342,7 @@ export default function DocumentCard({
 
         {/* Auteur */}
         <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-6 w-6 ring-2 ring-background shadow-sm">
             <AvatarImage src={getFileUrl(owner?.avatar_url)} alt={ownerName} />
             <AvatarFallback className="bg-primary/10 text-[9px] font-medium text-primary">
               {ownerInitials}
@@ -337,8 +356,8 @@ export default function DocumentCard({
           </div>
         </div>
 
-        {/* Stats + actions rapides + menu */}
-        <div className="flex items-center justify-between">
+        {/* Stats + actions */}
+        <div className="flex items-center justify-between pt-0.5">
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5" />
@@ -354,14 +373,17 @@ export default function DocumentCard({
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <ButtonStyled
               variant="ghost"
               size="icon"
-              className="h-7 w-7 shrink-0"
+              className={cn(
+                "h-7 w-7 shrink-0",
+                isSaved && "text-primary hover:text-primary",
+              )}
               icon={
                 isSaved ? (
-                  <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
+                  <BookmarkCheck className="h-3.5 w-3.5" />
                 ) : (
                   <Bookmark className="h-3.5 w-3.5" />
                 )
@@ -459,12 +481,7 @@ export default function DocumentCard({
           </p>
         )}
 
-        {erreur && (
-          <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5">
-            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-            {erreur}
-          </div>
-        )}
+        {erreur && <AlertBox variant="error">{erreur}</AlertBox>}
       </CardContent>
     </Card>
   );

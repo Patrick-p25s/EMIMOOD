@@ -9,13 +9,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import useStudent from "@/hooks/useStudent";
 import { getUserClasse } from "@/api/userService";
+import AlertBox from "@/components/shared/AlertBox";
+import UserFilterBar from "@/components/shared/UserFilterBar";
+import useAuth from "@/hooks/useAuth";
 
 export default function UsersAdministration() {
+  const { role } = useAuth();
   const {
     users,
     pagination,
     loading,
     error,
+    filters,
+    updateFilters,
     goToPage,
     register,
     updateProfile,
@@ -168,11 +174,19 @@ export default function UsersAdministration() {
         </ButtonStyled>
       </div>
 
-      {erreur && (
-        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
-          {erreur}
-        </div>
-      )}
+      <UserFilterBar
+        filters={filters}
+        onChange={updateFilters}
+        classes={[{ niveau: "L1", mention: "DAII", id: 1 }]}
+        showClasseFilter={role === "admin"}
+      />
+
+      {erreur ||
+        (error && (
+          <AlertBox variant="error" title="Un erreur se produit">
+            {error || error.message?.toString()}
+          </AlertBox>
+        ))}
 
       <UserProfileModal
         open={openProfile}

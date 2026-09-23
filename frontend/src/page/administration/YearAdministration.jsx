@@ -4,13 +4,13 @@ import { useState } from "react";
 import InputLabeled from "@/components/shared/InputLabeled";
 import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import FormModal from "@/components/shared/FormModal";
+import AlertBox from "@/components/shared/AlertBox";
 
 export default function YearAdministration() {
   const [open, setOpen] = useState(false);
   const { loading, error, add, remove, activate, years } = userYearHook();
 
   if (loading) return <p>Chargement...</p>;
-  if (error) return <p>Erreur : {error.message}</p>;
 
   return (
     <div className="space-y-6">
@@ -18,6 +18,12 @@ export default function YearAdministration() {
         <h1 className="text-xl font-bold">Anné universitaire blog </h1>
         <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
       </div>
+
+      {error && (
+        <AlertBox variant="error" title="Un erreur se produit">
+          {error.message}
+        </AlertBox>
+      )}
 
       <YearForm onCreate={add} open={open} onOpen={setOpen} />
 
@@ -86,7 +92,11 @@ function YearForm({ onCreate, open, onOpen }) {
         name="endAt"
         setValue={setYearData}
       />
-      {erreur && <p className="text-red-500">{erreur}</p>}
+      {erreur && (
+        <AlertBox variant="error" title="Un erreur se produit">
+          {erreur}
+        </AlertBox>
+      )}
     </FormModal>
   );
 }
@@ -168,9 +178,9 @@ function YearItem({ year, onDelete, onActive }) {
 
       {/* Message d'erreur */}
       {error && (
-        <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-600 font-medium">
+        <AlertBox variant="error" title="Un erreur se produit">
           {error}
-        </div>
+        </AlertBox>
       )}
 
       {/* Actions */}

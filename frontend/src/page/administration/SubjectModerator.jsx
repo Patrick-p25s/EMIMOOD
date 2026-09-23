@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import MatiereCard from "@/components/shared/MatiereCard";
 import { useSubject } from "@/hooks/useSubject";
+import AlertBox from "@/components/shared/AlertBox";
 
 export default function SubjectAdministration() {
   const {
@@ -83,7 +84,7 @@ export default function SubjectAdministration() {
         semester: "",
       });
     } catch (err) {
-      setErreur(`Erreur : ${err?.message || "Une erreur est survenue"}`);
+      setErreur(err.message?.toString());
     } finally {
       setLoadAct(false);
     }
@@ -108,11 +109,12 @@ export default function SubjectAdministration() {
         </ButtonStyled>
       </div>
 
-      {erreur && (
-        <div className="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
-          {erreur}
-        </div>
-      )}
+      {erreur ||
+        (error && (
+          <AlertBox variant="error" title="Un erreur se produit">
+            {error || error.message?.toString()}
+          </AlertBox>
+        ))}
 
       <FormModal
         open={open}

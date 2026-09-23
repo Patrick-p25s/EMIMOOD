@@ -6,7 +6,10 @@ import {
   register as registerApi,
   updateProfile as updateProfileApi,
 } from "@/api/userService";
+import { filter } from "framer-motion/client";
 import { useState, useEffect, useCallback } from "react";
+
+const InitialFilters = { search: "", classeId: "" };
 
 export default function useStudent(initialPage = 1, initialPageSize = 20) {
   const [users, setUsers] = useState([]);
@@ -16,15 +19,26 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     total: 0,
     pages: 1,
   });
+  const [filters, setFilters] = useState(InitialFilters);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchUser = useCallback(
-    async (page = pagination.page, pageSize = pagination.page_size) => {
+    async (
+      page = pagination.page,
+      pageSize = pagination.page_size,
+      currentFilter,
+    ) => {
       setLoading(true);
       setError(null);
       try {
-        const data = await listUsers({ page, pageSize });
+        const data = await listUsers({
+          page,
+          pageSize,
+          search: currentFilter.search,
+          classeId: currentFilter.classeId,
+        });
         setUsers(data.items);
         setPagination({
           page: data.page,
@@ -38,7 +52,7 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
         setLoading(false);
       }
     },
-    [pagination.page, pagination.page_size],
+    [],
   );
 
   const fetchStat = async (userId = null) => {
@@ -56,11 +70,18 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
   };
 
   useEffect(() => {
-    fetchUser(initialPage, initialPageSize);
-  }, []);
+    fetchUser(initialPage, initialPageSize, filters);
+  }, [initialPage, initialPageSize, fetchUser]);
 
   const goToPage = (newPage) => {
-    fetchUser(newPage, pagination.page_size);
+    fetchUser(newPage, pagination.page_size, filters);
+  };
+
+  const updateFilters = (newFilters) => {
+    const merged = { ...filters, ...newFilters };
+    setFilters(merged);
+    console.log(filters);
+    fetchUser(1, pagination.page_size, merged);
   };
 
   const register = async (newData) => {
@@ -113,7 +134,9 @@ export default function useStudent(initialPage = 1, initialPageSize = 20) {
     error,
     goToPage,
     pagination,
-    refresh: () => fetchUser(pagination.page, pagination.pageSize),
+    filters,
+    updateFilters,
+    refresh: () => fetchUser(pagination.page, pagination.page_size, filters),
     register,
     fetchStat,
     updateProfile,

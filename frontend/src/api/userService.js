@@ -41,9 +41,14 @@ export const updatePassword = async ({ password, newPassword }) => {
   return result.data;
 };
 
-export const listUsers = async ({ page = 0, pageSize = 20 } = {}) => {
+export const listUsers = async ({
+  page = 0,
+  pageSize = 20,
+  search = "",
+  classeId = "",
+} = {}) => {
   const result = await apiClient.get("/users", {
-    params: { page, page_size: pageSize },
+    params: { page, page_size: pageSize, search, classe_id: classeId },
   });
   return result.data;
 };

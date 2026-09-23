@@ -133,11 +133,17 @@ class UserService:
         return await self.user_repo.update(current_user, {"avatar_url": destination})
 
     async def get_all_users(
-        self, current_user: Users, params: PaginationParams
+        self,
+        current_user: Users,
+        search: str | None,
+        classe_id: str | None,
+        params: PaginationParams,
     ) -> Page[UserOut]:
         users, total = await self.user_repo.list_all(
             current_user.id,
             current_user.classe_id,
+            search,
+            classe_id,
             limit=params.limit,
             offset=params.offset,
         )

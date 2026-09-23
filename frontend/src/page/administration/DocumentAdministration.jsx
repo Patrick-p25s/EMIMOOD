@@ -13,6 +13,7 @@ import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
 import { filter } from "framer-motion/client";
 import { Button } from "@/components/ui/button";
+import AlertBox from "@/components/shared/AlertBox";
 
 export default function DocumentAdministration({ classes = [] }) {
   const {
@@ -145,7 +146,9 @@ export default function DocumentAdministration({ classes = [] }) {
           ))}
         </div>
       ) : error ? (
-        <p className="text-sm text-destructive">Erreur : {error.message}</p>
+        <AlertBox variant="error" title="Une erreur se produit">
+          {error.message}
+        </AlertBox>
       ) : documents.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center border border-dashed rounded-xl text-muted-foreground">
           <FileText className="h-8 w-8" />

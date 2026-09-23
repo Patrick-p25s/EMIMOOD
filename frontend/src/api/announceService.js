@@ -63,3 +63,8 @@ export const activeAnnounce = async (id) => {
   const result = await apiClient.patch(`/annonces/${id}/actives`);
   return result.data;
 };
+
+export const getStatsAnnonce = async (id) => {
+  const result = await apiClient.get(`/annonces/${id}/lecteurs`);
+  return result.data;
+};

@@ -1,7 +1,7 @@
 import useAnnonce from "@/hooks/useAnnonce";
 
 import useStudent from "@/hooks/useStudent";
-import useMatiere from "@/hooks/useMatiere";
+import useMatiere from "@/hooks/useSubject";
 import StatCard from "@/components/shared/StatCard";
 import { useClasse } from "@/hooks/useClasse";
 

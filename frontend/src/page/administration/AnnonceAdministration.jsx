@@ -20,6 +20,8 @@ export default function AnnoncesAdministration() {
     archivedAnnonce,
     loading,
     error,
+    stats,
+    getReadingStat,
     add,
     update,
     remove,
@@ -38,6 +40,8 @@ export default function AnnoncesAdministration() {
     if (filter === "archive") return archivedAnnonce;
     return annonces;
   }, [filter, annonces, activeAnnonce, archivedAnnonce]);
+
+  console.log(stats);
 
   const cancelUpdate = () => {
     setUpdated(null);
@@ -166,6 +170,7 @@ export default function AnnoncesAdministration() {
             <AnnonceItem
               annonce={annonce}
               key={annonce.id}
+              onGetStat={getReadingStat}
               loading={actionLoading}
               onDelete={() => handleDelete(annonce)}
               onArchive={() => handleArchive(annonce.id)}

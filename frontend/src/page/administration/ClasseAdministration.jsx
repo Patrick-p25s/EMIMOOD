@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, School } from "lucide-react";
 import { useClasse } from "@/hooks/useClasse";
 import { ChampUsersCreate } from "../RegisterPage";
+import AlertBox from "@/components/shared/AlertBox";
 
 const emptyClasse = { mention: "", niveau: "" };
 
@@ -120,9 +121,7 @@ export default function ClasseAdministration() {
       </div>
 
       {(error || erreur) && (
-        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
-          {erreur || error?.message}
-        </div>
+        <AlertBox variant="error">{erreur || error}</AlertBox>
       )}
 
       {/* Modal : créer une classe */}
@@ -192,8 +191,6 @@ export default function ClasseAdministration() {
             <Skeleton key={i} className="h-40 rounded-xl" />
           ))}
         </div>
-      ) : error ? (
-        <p className="text-sm text-destructive">erreur : {error.message}</p>
       ) : classes.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center text-muted-foreground">
           <School className="h-8 w-8" />

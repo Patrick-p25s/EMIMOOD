@@ -99,11 +99,13 @@ async def upload_profile_picture(
     description="Récupère la liste globale de tous les utilisateurs inscrits (Réservé aux administrateurs).",
 )
 async def get_all_users(
+    search: str | None = None,
+    classeId: str | None = None,
     params: PaginationParams = Depends(),
     user: Users = Depends(require_moderator),
     service: UserService = Depends(_get_user_service),
 ) -> Page[UserRead]:
-    return await service.get_all_users(user, params)
+    return await service.get_all_users(user, search, classeId, params)
 
 
 @router.post(

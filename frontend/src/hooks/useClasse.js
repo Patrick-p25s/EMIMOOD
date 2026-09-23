@@ -33,7 +33,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
           pages: data.pages,
         });
       } catch (err) {
-        setError(err);
+        setError(err.response?.data?.detail[0].msg);
       } finally {
         setLoading(false);
       }
@@ -55,7 +55,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       const moderator = await createModerator(userData, classeId);
       return moderator;
     } catch (err) {
-      setError(err);
+      setError(err.response?.data?.detail[0].msg);
     }
   };
 
@@ -66,8 +66,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       setClasses((prev) => [...prev, created]);
       return created;
     } catch (err) {
-      setError(err);
-      throw err;
+      console.log(err.response?.data);
+      setError(err.response?.data?.detail[0].msg);
     }
   };
 
@@ -78,8 +78,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       setClasses((prev) => prev.map((cl) => (cl.id === id ? updated : cl)));
       return updated;
     } catch (err) {
-      setError(err);
-      throw err;
+      setError(err.request?.data?.detail[0].msg);
     }
   };
 
@@ -89,8 +88,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       await deleteClasse(id);
       setClasses((prev) => prev.filter((cl) => cl.id !== id));
     } catch (err) {
-      setError(err);
-      throw err;
+      setError(err.response?.data?.detail[0].msg);
     }
   };
 
@@ -107,8 +105,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       );
       return updated;
     } catch (err) {
-      setError(err);
-      throw err;
+      setError(err.response?.data?.detail[0]?.msg);
     }
   };
 

@@ -1,18 +1,21 @@
 import { getStats } from "@/api/documentService";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import { updatePassword } from "@/api/userService";
+import AlertBox from "@/components/shared/AlertBox";
 import FormModal from "@/components/shared/FormModal";
 import InputLabeled from "@/components/shared/InputLabeled";
 import TextareaLabeled from "@/components/shared/TextareaLabeled";
 import ProfileStudent from "@/components/special/ProfileStudent";
 import useAuth from "@/hooks/useAuth";
-import { useMe } from "@/hooks/useMe";
 import React, { useEffect, useState } from "react";
 
 export default function ProfileManage() {
   const { user, update } = useAuth();
 
-  const { classe, updatePassword, updateProfile, error, loading, stats } =
-    useMe();
+  const [stats, setStats] = useState({
+    documentsCount: 0,
+    savedCount: 0,
+    pendingCount: 0,
+  });
 
   const [actError, setActError] = useState(null);
   const [actLoading, setActLoading] = useState(false);
@@ -38,6 +41,28 @@ export default function ProfileManage() {
     contenus: "",
     contact: "",
   });
+
+  const getStatiStique = async (userId = null) => {
+    setActError(null);
+    setActLoading(true);
+    try {
+      const response = await getStats(userId);
+      setStats({
+        documentsCount: response.document,
+        savedCount: response.saved,
+        pendingCount: response.pending,
+      });
+      return response;
+    } catch (err) {
+      setActError(err);
+    } finally {
+      setActLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getStatiStique();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -89,19 +114,29 @@ export default function ProfileManage() {
 
   return (
     <div>
-      {(error || actError) && (
-        <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
+      {actError && (
+        <AlertBox variant="error" title="Un erreur se produit">
           {actError || error?.message}
-        </div>
+        </AlertBox>
       )}
       <ProfileStudent
         user={user}
-        classe={classe}
+        classe={user.classe}
         stats={stats}
-        onEditProfile={() => setOpenProfile(true)}
-        onEditPassword={() => setOpenPassword(true)}
-        onSignaler={() => setOpenSignal(true)}
+        onEditProfile={() => {
+          setOpenProfile(true);
+          setActError(null);
+        }}
+        onEditPassword={() => {
+          setOpenPassword(true);
+          setActError(null);
+        }}
+        onSignaler={() => {
+          setOpenSignal(true);
+          setActError(null);
+        }}
       />
+
       {/* Modal : modifier le profil */}
       <FormModal
         open={openProfile}
