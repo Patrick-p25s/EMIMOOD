@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 
 const NAV_ITEMS = [
   { to: "/app/documents", label: "Documents", icon: Globe },
@@ -72,6 +73,7 @@ export default function MainLayout() {
               {label}
             </NavLink>
           ))}
+          <ModeToggle />
         </nav>
 
         <Separator />

@@ -19,49 +19,52 @@ import DocumentLecture from "./page/connected/DocumentLecture";
 import AnnoncesAdministration from "./page/administration/AnnonceAdministration";
 import UsersAdministration from "./page/administration/UsersAdministration";
 import SubjectAdministration from "./page/administration/SubjectModerator";
+import { ThemeProvider } from "./layout/theme-provider";
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<MainLayout />}>
-            {/* Route pour tous le monde sans exeption  */}
-            <Route path="/" element={<LandingPage />} />
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<MainLayout />}>
+              {/* Route pour tous le monde sans exeption  */}
+              <Route path="/" element={<LandingPage />} />
 
-            {/* Route pour tous sauf ce qui est connecté  */}
-            <Route element={<GuestRoute />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              {/* Route pour tous sauf ce qui est connecté  */}
+              <Route element={<GuestRoute />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Route pour tous ce qui est connecté  */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<MyDashboard />} />
-            <Route
-              path="/dashboard/:documentId"
-              element={<DocumentLecture />}
-            />
-          </Route>
-
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<AdminRoute />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="year" element={<YearAdministration />} />
-              <Route path="classe" element={<ClasseAdministration />} />
-              <Route path="matiere" element={<SubjectAdministration />} />
-              <Route path="document" element={<DocumentAdministration />} />
+            {/* Route pour tous ce qui est connecté  */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<MyDashboard />} />
               <Route
-                path="document/:documentId"
+                path="/dashboard/:documentId"
                 element={<DocumentLecture />}
               />
-              <Route path="annonces" element={<AnnoncesAdministration />} />
-              <Route path="etudiant" element={<UsersAdministration />} />
             </Route>
-          </Route>
-          <Route path="/documents/:id" element={<DocumentLecture />} />
-        </Routes>
-      </BrowserRouter>
+
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="year" element={<YearAdministration />} />
+                <Route path="classe" element={<ClasseAdministration />} />
+                <Route path="matiere" element={<SubjectAdministration />} />
+                <Route path="document" element={<DocumentAdministration />} />
+                <Route
+                  path="document/:documentId"
+                  element={<DocumentLecture />}
+                />
+                <Route path="annonces" element={<AnnoncesAdministration />} />
+                <Route path="etudiant" element={<UsersAdministration />} />
+              </Route>
+            </Route>
+            <Route path="/documents/:id" element={<DocumentLecture />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

@@ -12,7 +12,7 @@ import { ButtonStyled } from "@/components/shared/ButtonStyled";
 import AlertBox from "@/components/shared/AlertBox";
 import { EmptyCard } from "@/components/shared/EmptyCard";
 
-export default function MyDocumentManage() {
+export default function MyDocumentManage({ onTab }) {
   const {
     folders,
     loading: foldersLoading,
@@ -27,8 +27,7 @@ export default function MyDocumentManage() {
   const documentsSansDossier = documents.filter((doc) => !doc.folder_id);
 
   const [selectedFolder, setSelectedFolder] = useState(null);
-  // Incrémenté à chaque déplacement réussi pour forcer FolderDocumentsView
-  // à se remonter (donc à refetch), via la prop `key`
+
   const [folderViewKey, setFolderViewKey] = useState(0);
 
   const [openFolderForm, setOpenFolderForm] = useState(false);
@@ -141,6 +140,7 @@ export default function MyDocumentManage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {documentsSansDossier.map((doc) => (
               <DocumentCard
+                onRead={null}
                 key={doc.id}
                 document={doc}
                 onMove={() => openMoveDialog(doc)}

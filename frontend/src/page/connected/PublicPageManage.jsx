@@ -7,7 +7,7 @@ import { usePublicDocument } from "@/hooks/usePublic";
 import { Book, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
-export default function PublicPageManage() {
+export default function PublicPageManage({ onTab }) {
   const {
     pagination,
     error,

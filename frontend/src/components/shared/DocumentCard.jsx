@@ -149,6 +149,7 @@ export default function DocumentCard({
   onValide,
   onRejete,
   onMove,
+  onRead = null,
 }) {
   const navigate = useNavigate();
 
@@ -266,7 +267,7 @@ export default function DocumentCard({
   return (
     <Card className="group overflow-hidden border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/40">
       {/* Vignette */}
-      <div className="relative cursor-pointer" onClick={goToDocument}>
+      <div className="relative cursor-pointer" onClick={onRead}>
         <AspectRatio ratio={16 / 9}>
           <div className="relative h-full w-full overflow-hidden">
             {thumbnail_url ? (

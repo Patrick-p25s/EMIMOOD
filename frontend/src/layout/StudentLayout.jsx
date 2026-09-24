@@ -15,6 +15,7 @@ import MyDocumentManage from "@/page/connected/MyDocumentManage";
 import PublicPageManage from "@/page/connected/PublicPageManage";
 import AnnonceManage from "@/page/connected/AnnonceManage";
 import { NotificationManage } from "@/page/connected/NotificationManage";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 
 export default function StudentLayout({ matieres, onCreateDocument }) {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -74,6 +75,7 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
           >
             <span className="hidden lg:inline">Notifications</span>
           </ButtonStyled>
+          <ModeToggle />
         </div>
 
         <ButtonStyled
@@ -96,12 +98,12 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
       {/* Vue 2 : Espace Public */}
       {activeTab === "public" && (
         <div className="space-y-4">
-          <PublicPageManage />
+          <PublicPageManage onTab={setActiveTab} />
         </div>
       )}
 
       {/* Vue 3 : Cours par Matière */}
-      {activeTab === "courses" && <MyDocumentManage />}
+      {activeTab === "courses" && <MyDocumentManage onTab={setActiveTab} />}
       {activeTab === "annonces" && <AnnonceManage />}
       {activeTab === "notification" && <NotificationManage />}
 
