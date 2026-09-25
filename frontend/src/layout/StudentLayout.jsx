@@ -75,7 +75,6 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
           >
             <span className="hidden lg:inline">Notifications</span>
           </ButtonStyled>
-          <ModeToggle />
         </div>
 
         <ButtonStyled
@@ -86,6 +85,7 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
         >
           <span className="hidden sm:inline">Publier un document</span>
         </ButtonStyled>
+        <ModeToggle />
       </div>
 
       {/* Vue 1 : Dashboard */}

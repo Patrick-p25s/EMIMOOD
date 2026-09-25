@@ -13,7 +13,9 @@ export function ModeToggle() {
 
   return (
     <ButtonStyled
-      icon={isLight ? <Moon /> : <Sun />}
+      icon={
+        isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />
+      }
       onClick={() => setTheme(isLight ? "dark" : "light")}
     />
   );
