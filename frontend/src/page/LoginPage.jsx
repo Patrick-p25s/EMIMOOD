@@ -14,8 +14,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, user } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setErreur("");
     setIsSubmiting(true);
     try {
@@ -25,6 +24,7 @@ export default function LoginPage() {
         ? navigate("/admin", { replace: true })
         : navigate("/dashboard", { replace: true });
     } catch (e) {
+      console.log(e.message);
       setErreur(e.message.toString());
     } finally {
       setIsSubmiting(false);
