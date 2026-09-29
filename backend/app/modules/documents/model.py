@@ -62,9 +62,9 @@ class Document(UuidStamp):
     storage_key: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     taille_octets: Mapped[int] = mapped_column(Integer, nullable=False)
-    download_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
-    save_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
-    vue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    download_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    save_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    vue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     thumbnail_url: Mapped[str | None] = mapped_column(String(100), nullable=True)
     # relation
     owner_id: Mapped[uuid.UUID] = mapped_column(
@@ -76,7 +76,7 @@ class Document(UuidStamp):
     )
 
     classe_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid, ForeignKey("classe.id"), nullable=True
+        Uuid, ForeignKey("classe.id", ondelete="SET NULL"), nullable=True
     )
 
     validated_by_id: Mapped[uuid.UUID | None] = mapped_column(

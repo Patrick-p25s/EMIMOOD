@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 const initialFilters = {
   search: "",
   typeDocument: "",
+  statut: "",
   classeId: "",
 };
 
@@ -34,6 +35,7 @@ export default function useDocument(initialPage = 1, initialPageSize = 20) {
         page,
         pageSize,
         search: currentFilters.search || undefined,
+        statut: currentFilters.statut || undefined,
         typeDocument: currentFilters.typeDocument || undefined,
         classeId: currentFilters.classeId || undefined,
       });

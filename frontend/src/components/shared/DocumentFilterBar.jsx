@@ -16,6 +16,13 @@ const TYPES_DOCUMENT = [
   { value: "examen", label: "Examen" },
 ];
 
+const STATUT_FILTER = [
+  { value: "en_attente", label: "En attente" },
+  { value: "rejete", label: "Rejeté" },
+  { value: "public", label: "Publique" },
+  { value: "prive", label: "Privé" },
+];
+
 export default function DocumentFilterBar({
   filters,
   onChange,
@@ -24,10 +31,13 @@ export default function DocumentFilterBar({
   showClasseFilter = false,
 }) {
   const hasActiveFilters =
-    filters.search || filters.typeDocument || filters.classeId;
+    filters.search ||
+    filters.typeDocument ||
+    filters.classeId ||
+    filters.statut;
 
   const resetFilters = () => {
-    onChange({ search: "", typeDocument: "", classeId: "" });
+    onChange({ search: "", typeDocument: "", classeId: "", statut: "" });
   };
 
   return (
@@ -41,6 +51,23 @@ export default function DocumentFilterBar({
           onChange={(e) => onChange({ search: e.target.value })}
         />
       </div>
+
+      <Select
+        value={filters.statut || "all"}
+        onValueChange={(val) => onChange({ statut: val === "all" ? "" : val })}
+      >
+        <SelectTrigger className="w-full sm:w-42.5">
+          <SelectValue placeholder="Type de document" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tous les types</SelectItem>
+          {STATUT_FILTER.map((t) => (
+            <SelectItem key={t.value} value={t.value}>
+              {t.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <Select
         value={filters.typeDocument || "all"}
