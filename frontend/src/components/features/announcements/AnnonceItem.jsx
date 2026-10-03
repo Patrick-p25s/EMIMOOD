@@ -6,7 +6,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertCircle,
@@ -51,9 +50,9 @@ export default function AnnonceItem({
 
   return (
     <Card
-      className={`relative transition-all duration-200 hover:shadow-md flex flex-col justify-between ${
+      className={`relative flex flex-col justify-between transition-colors hover:border-foreground/25 ${
         important && !isArchivee
-          ? "border-l-4 border-l-warning bg-warning/5"
+          ? "border-l-2 border-l-warning"
           : ""
       } ${isArchivee ? "opacity-70 bg-muted/40" : ""}`}
     >
@@ -140,7 +139,7 @@ export default function AnnonceItem({
         </CardContent>
       </div>
 
-      <CardFooter className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+      <CardFooter className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6 border border-border">
             <AvatarImage

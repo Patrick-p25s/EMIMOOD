@@ -20,7 +20,7 @@ export default function RolesSection() {
     >
       <div className="grid gap-4 md:grid-cols-3">
         {ROLES.map(({ title, description, points }) => (
-          <Card key={title} className="transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
+          <Card key={title} className="transition-colors hover:border-foreground/25">
             <CardHeader>
               <CardTitle>{title}</CardTitle>
               <CardDescription>{description}</CardDescription>

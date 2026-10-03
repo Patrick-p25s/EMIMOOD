@@ -5,15 +5,10 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 
-import { Megaphone, AlertCircle, BellRing, ChevronLeft, ChevronRight } from "lucide-react";
+import { Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
 
 import React, { useCallback, useEffect, useState } from "react";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
@@ -65,36 +60,10 @@ export default function AnnonceManage() {
   }, [fetchData, pagination.page, pagination.pageSize]);
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Megaphone className="h-5 w-5" />
-            </div>
-
-            <IconBadge tone="success">Informations</IconBadge>
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Annonces</h1>
-
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Retrouvez les dernières informations et annonces importantes de
-              votre classe.
-            </p>
-          </div>
-        </div>
-
-        {!loading && annonces.length > 0 && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <BellRing className="h-4 w-4" />
-            <span>
-              {pagination.total} {pagination.total > 1 ? "annonces" : "annonce"}
-            </span>
-          </div>
-        )}
+    <div className="mx-auto w-full max-w-7xl space-y-6 pb-8">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-4">
+        <div><h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Annonces</h1><p className="mt-1 text-sm text-muted-foreground">Les informations de ta classe, sans rien manquer.</p></div>
+        {!loading && annonces.length > 0 && <span className="text-sm text-muted-foreground">{pagination.total} {pagination.total > 1 ? "annonces" : "annonce"}</span>}
       </div>
 
       {/* Error */}

@@ -1,7 +1,5 @@
 import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Pencil,
   Trash2,
@@ -21,7 +19,7 @@ export default function ClasseCard({
   onRegenerate,
 }) {
   return (
-    <Card className="group relative flex flex-col justify-between transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
+    <Card className="group relative flex cursor-pointer flex-col justify-between transition-colors hover:border-foreground/25">
       <CardContent className="pt-5 space-y-3">
         {/* En-tête : Mention & Niveau */}
         <div className="flex items-start justify-between gap-2">

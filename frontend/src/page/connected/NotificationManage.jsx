@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Bell,
-  BellRing,
   CheckCheck,
   Trash2,
   Check,
@@ -53,16 +52,12 @@ export function NotificationManage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5 px-1 pb-8">
-      <section className="relative overflow-hidden rounded-2xl border bg-card px-5 py-5 shadow-sm sm:px-6 sm:py-6">
-        <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
-        <div className="relative flex flex-wrap items-start justify-between gap-4">
+      <section className="border-b pb-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-              <BellRing className="h-5 w-5" />
-            </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold tracking-tight">Notifications</h1>
+                <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Notifications</h1>
                 <LiveIndicator status={liveStatus} />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -74,14 +69,11 @@ export function NotificationManage() {
               </p>
             </div>
           </div>
-          <div className="rounded-xl border bg-background/70 px-3 py-2 text-right backdrop-blur">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Boîte de réception</p>
-            <p className="mt-0.5 text-sm font-semibold">{pagination.total} au total</p>
-          </div>
+          <p className="text-sm text-muted-foreground">{pagination.total} au total</p>
         </div>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/60 p-2 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
         <Tabs value={filter} onValueChange={setFilter}>
           <TabsList className="h-9">
             <TabsTrigger value="all" className="h-7 gap-1.5 px-3 text-xs">

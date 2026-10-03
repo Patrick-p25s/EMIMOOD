@@ -114,8 +114,9 @@ export default function ProfileStudent({
     setAvatarUploading(true);
 
     try {
-      await uploadeProfilePicture?.(file);
-    } catch (err) {
+      const uploadedAvatar = await uploadeProfilePicture?.(file);
+      onUploadAvatar?.(uploadedAvatar);
+    } catch {
       setAvatarError("L'envoi de la photo a échoué. Réessaie.");
       setAvatarPreview(null);
     } finally {
@@ -127,8 +128,8 @@ export default function ProfileStudent({
   const displayedAvatarSrc = avatarPreview || getFileUrl(avatar_url);
 
   return (
-    <Card className="relative overflow-hidden border border-border shadow-sm bg-card">
-      <div className="h-28 md:h-36 bg-linear-to-r from-primary/20 via-primary/10 to-background border-b border-border/50" />
+    <Card className="relative overflow-hidden bg-card">
+      <div className="h-20 border-b bg-muted/45 md:h-24" />
 
       {actions.length > 0 && (
         <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -137,7 +138,7 @@ export default function ProfileStudent({
               key={key}
               variant="secondary"
               size="sm"
-              className="gap-1.5 text-xs bg-background/80 backdrop-blur-sm border border-border/60 hover:bg-background shadow-sm"
+              className="gap-1.5 border bg-background text-foreground text-xs shadow-none hover:bg-muted"
               onClick={onClick}
               icon={<Icon className="h-3.5 w-3.5" />}
             >
@@ -152,7 +153,7 @@ export default function ProfileStudent({
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
             {/* Avatar + overlay upload */}
             <div className="relative shrink-0 group/avatar">
-              <Avatar className="h-24 w-24 md:h-32 md:w-32 rounded-2xl border-4 border-card shadow-md bg-background ring-1 ring-border/50 transition-transform hover:scale-[1.02]">
+              <Avatar className="h-24 w-24 rounded-2xl border-4 border-card bg-background ring-1 ring-border/50 md:h-32 md:w-32">
                 <AvatarImage
                   src={displayedAvatarSrc}
                   alt={fullName}
@@ -174,7 +175,7 @@ export default function ProfileStudent({
               <ButtonStyled
                 variant="secondary"
                 size="icon"
-                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-card shadow-md"
+                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-card shadow-none"
                 onClick={openFilePicker}
                 loading={avatarUploading}
                 icon={<Camera className="h-3.5 w-3.5" />}
@@ -250,7 +251,7 @@ export default function ProfileStudent({
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-8 pt-6 border-t border-border">
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
+          <div className="flex items-center gap-3 rounded-xl border border-border/50 p-3.5">
             <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
               <FileText className="h-5 w-5" />
             </div>
@@ -264,7 +265,7 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
+          <div className="flex items-center gap-3 rounded-xl border border-border/50 p-3.5">
             <div className="p-2.5 rounded-lg bg-warning/10 text-warning shrink-0">
               <Bookmark className="h-5 w-5" />
             </div>
@@ -278,7 +279,7 @@ export default function ProfileStudent({
             </div>
           </div>
 
-          <div className="col-span-2 md:col-span-1 flex items-center gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 transition-colors hover:bg-muted/50">
+          <div className="col-span-2 flex items-center gap-3 rounded-xl border border-border/50 p-3.5 md:col-span-1">
             <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
               <User className="h-5 w-5" />
             </div>

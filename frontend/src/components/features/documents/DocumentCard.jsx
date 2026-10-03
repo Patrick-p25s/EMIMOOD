@@ -199,7 +199,7 @@ export default function DocumentCard({
       try {
         const saved = await getSaveById(id);
         if (mounted) setIsSaved(Boolean(saved));
-      } catch (err) {
+      } catch {
         if (mounted)
           setErreur("Impossible de vérifier l'état d'enregistrement.");
       } finally {
@@ -231,7 +231,7 @@ export default function DocumentCard({
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       setErreur("Le téléchargement a échoué.");
     } finally {
       setDownloadLoading(false);
@@ -249,7 +249,7 @@ export default function DocumentCard({
         await saveDocument(id);
         setIsSaved(true);
       }
-    } catch (err) {
+    } catch {
       setErreur(
         isSaved
           ? "Impossible de retirer des enregistrements."
@@ -265,7 +265,7 @@ export default function DocumentCard({
   );
 
   return (
-    <Card className="group overflow-hidden border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/40">
+    <Card className="group overflow-hidden transition-colors hover:border-foreground/25">
       {/* Vignette */}
       <div
         className="relative cursor-pointer"
@@ -280,19 +280,19 @@ export default function DocumentCard({
         }}
         aria-label={`Prévisualiser ${titre}`}
       >
-        <AspectRatio ratio={16 / 9}>
+        <AspectRatio ratio={16 / 6}>
           <div className="relative h-full w-full overflow-hidden">
             {thumbnail_url ? (
               <img
                 src={getFileUrl(thumbnail_url)}
                 alt={titre}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div
                 className={cn(
-                  "flex h-full w-full items-center justify-center bg-linear-to-br transition-transform duration-500 group-hover:scale-105",
+                  "flex h-full w-full items-center justify-center bg-muted/70",
                   typeInfo.gradient,
                 )}
               >
@@ -306,14 +306,11 @@ export default function DocumentCard({
               </div>
             )}
 
-            {/* Voile au survol pour faire ressortir les badges + lisibilité */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
             <div className="absolute left-2.5 top-2.5">
               <IconBadge
                 icon={TypeIcon}
                 tone={typeInfo.tone}
-                className="border-0 bg-background/90 shadow-sm backdrop-blur"
+                className="border-0 bg-background/90 text-[11px] shadow-none"
               >
                 {typeInfo.label}
               </IconBadge>
@@ -323,7 +320,7 @@ export default function DocumentCard({
               <IconBadge
                 icon={statusInfo.icon}
                 tone={statusInfo.tone}
-                className="bg-background/90 shadow-sm backdrop-blur"
+                className="bg-background/90 text-[11px] shadow-none"
               >
                 {statusInfo.label}
               </IconBadge>
@@ -331,7 +328,7 @@ export default function DocumentCard({
 
             {isVideo && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-background/95 shadow-md scale-90 group-hover:scale-100 transition-transform">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background/95">
                   <Play className="ml-0.5 h-4 w-4 text-foreground fill-foreground" />
                 </div>
               </div>
@@ -340,9 +337,9 @@ export default function DocumentCard({
         </AspectRatio>
       </div>
 
-      <CardContent className="p-3 space-y-2.5">
+      <CardContent className="space-y-3 p-4">
         <div className="cursor-pointer" onClick={goToDocument}>
-          <h3 className="font-semibold text-sm text-foreground line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="text-sm font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
             {titre}
           </h3>
         </div>
@@ -353,7 +350,6 @@ export default function DocumentCard({
           </p>
         )}
 
-        {/* Auteur */}
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6 ring-2 ring-background shadow-sm">
             <AvatarImage src={getFileUrl(owner?.avatar_url)} alt={ownerName} />
@@ -369,9 +365,8 @@ export default function DocumentCard({
           </div>
         </div>
 
-        {/* Stats + actions */}
-        <div className="flex items-center justify-between pt-0.5">
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-between border-t pt-3">
+          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5" />
               {formatCount(vue_count)}
@@ -489,7 +484,7 @@ export default function DocumentCard({
         </div>
 
         {description && (
-          <p className="line-clamp-2 text-xs leading-4 text-muted-foreground">
+          <p className="line-clamp-2 text-xs leading-5 text-muted-foreground">
             {description}
           </p>
         )}

@@ -3,7 +3,7 @@ import DocumentCard from "@/components/features/documents/DocumentCard";
 import DocumentFilterBar from "@/components/features/documents/DocumentFilterBar";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 import { usePublicDocument } from "@/hooks/usePublic";
-import { Book, ChevronLeft, ChevronRight, Compass, Files } from "lucide-react";
+import { Book, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
 export default function PublicPageManage() {
@@ -19,19 +19,12 @@ export default function PublicPageManage() {
   } = usePublicDocument();
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 pb-8">
-      <section className="relative overflow-hidden rounded-2xl border bg-card px-5 py-6 shadow-sm sm:px-7">
-        <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Compass className="h-5 w-5" /></div>
-            <h1 className="text-2xl font-semibold tracking-tight">Explorer les documents</h1>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Retrouve les cours, TD et ressources partagés par ta communauté.</p>
-          </div>
-          {!loading && <div className="flex items-center gap-2 rounded-xl border bg-background/70 px-3 py-2 text-sm text-muted-foreground"><Files className="h-4 w-4 text-primary" /><span><strong className="text-foreground">{pagination.total}</strong> ressources</span></div>}
-        </div>
-      </section>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div><h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Explorer</h1><p className="mt-1 text-sm text-muted-foreground">Cours et ressources partagés.</p></div>
+        {!loading && <span className="text-sm text-muted-foreground">{pagination.total} ressources</span>}
+      </div>
 
-      <section className="rounded-2xl border bg-card p-3 shadow-sm sm:p-4">
+      <section className="border-b pb-4">
         <DocumentFilterBar filters={filters} onChange={updateFilters} matieres={subjects} />
       </section>
 
@@ -52,7 +45,7 @@ export default function PublicPageManage() {
       </div>
 
       {pagination.pages > 1 && (
-        <div className="flex items-center justify-center gap-3 rounded-xl border bg-card p-3 shadow-sm">
+        <div className="flex items-center justify-center gap-3 border-t pt-4">
           <ButtonStyled
             variant="outline"
             size="sm"

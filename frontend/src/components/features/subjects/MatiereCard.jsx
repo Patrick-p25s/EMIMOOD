@@ -18,7 +18,7 @@ export default function MatiereCard({ matiere, onUpdate, onDelete }) {
   if (!matiere) return null;
 
   return (
-    <Card className="hover:border-primary/50 transition-colors flex flex-col justify-between">
+    <Card className="flex flex-col justify-between transition-colors hover:border-foreground/25">
       <div>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">

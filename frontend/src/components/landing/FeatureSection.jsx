@@ -12,10 +12,10 @@ export default function FeaturesSection() {
       description="Une plateforme simple pour retrouver et partager vos documents de cours."
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, title, description }, index) => (
-          <Card key={title} className="group transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10" style={{ animationDelay: `${index * 90}ms` }}>
+        {FEATURES.map(({ icon: Icon, title, description }) => (
+          <Card key={title} className="transition-colors hover:border-foreground/25">
             <CardContent className="space-y-3 p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                 <Icon className="h-5 w-5 text-foreground" />
               </div>
               <h3 className="font-semibold text-foreground">{title}</h3>

@@ -3,7 +3,7 @@ import { useFolder } from "@/hooks/useFolder";
 import DocumentCard from "@/components/features/documents/DocumentCard";
 import FolderDocumentsView from "@/components/features/folders/FolderDocumentsView";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, FolderArchive, FolderOpen, Files } from "lucide-react";
+import { Plus, FileText, FolderArchive, FolderOpen } from "lucide-react";
 import FolderFormModal from "@/components/features/folders/FolderFormModal";
 import FolderCard from "@/components/features/folders/FolderCard";
 import MoveToFolderDialog from "@/components/features/folders/MoveToFolderModal";
@@ -78,14 +78,10 @@ export default function MyDocumentManage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-7 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border bg-card px-5 py-6 shadow-sm sm:px-7">
-        <div>
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Files className="h-5 w-5" /></div>
-          <h1 className="text-2xl font-semibold tracking-tight">Mes documents</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Organise tes fichiers et garde tes cours à portée de main.</p>
-        </div>
+      <section className="flex flex-wrap items-end justify-between gap-4 border-b pb-4">
+        <div><h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Mes documents</h1><p className="mt-1 text-sm text-muted-foreground">Classe tes fichiers et retrouve-les facilement.</p></div>
         <ButtonStyled
-          className="gap-1.5 rounded-xl"
+          className="gap-1.5 rounded-lg"
           onClick={() => {
             setEditingFolder(null);
             setOpenFolderForm(true);
