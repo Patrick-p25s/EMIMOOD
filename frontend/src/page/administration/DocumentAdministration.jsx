@@ -1,6 +1,5 @@
 import DocumentCard from "@/components/features/documents/DocumentCard";
 import React, { useEffect, useState } from "react";
-import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import DocumentUploadDialog from "@/components/features/documents/DocumentUploadDialog";
 import DocumentFilterBar from "@/components/features/documents/DocumentFilterBar";
 import useDocument from "@/hooks/useDocument";
@@ -9,12 +8,13 @@ import InputLabeled from "@/components/common/forms/InputLabeled";
 import SelectLabeled from "@/components/common/forms/SelectLabeled";
 import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { FilePlus2, FileText } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
-import { filter } from "framer-motion/client";
-import { Button } from "@/components/ui/button";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
+import AdminPagination from "@/components/features/admin/AdminPagination";
 
 export default function DocumentAdministration({ classes = [] }) {
   const {
@@ -65,7 +65,7 @@ export default function DocumentAdministration({ classes = [] }) {
       setEdited(null);
       return updated;
     } catch (err) {
-      setErreur(err.message?.toString());
+      setErreur(getErrorMessage(err));
     }
   };
 
@@ -74,7 +74,7 @@ export default function DocumentAdministration({ classes = [] }) {
     try {
       await approve(document.id);
     } catch (error) {
-      setErreur(`Erreur ${error.message.toString()}`);
+      setErreur(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -90,7 +90,7 @@ export default function DocumentAdministration({ classes = [] }) {
     try {
       await reject(documentId);
     } catch (error) {
-      setErreur(`Erreur ${error.message.toString()}`);
+      setErreur(getErrorMessage(error));
     } finally {
       setActionLoading(false);
     }
@@ -103,7 +103,7 @@ export default function DocumentAdministration({ classes = [] }) {
       try {
         await remove(documentId);
       } catch (error) {
-        setErreur(`Erreur : ${error.message.toString()}`);
+        setErreur(getErrorMessage(error));
       } finally {
         setActionLoading(false);
       }
@@ -111,19 +111,8 @@ export default function DocumentAdministration({ classes = [] }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-xl font-bold">Gestion des documents</h1>
-          <p className="text-sm text-muted-foreground">
-            {pagination.total} document{pagination.total > 1 ? "s" : ""} au
-            total
-          </p>
-        </div>
-        <ButtonStyled onClick={() => setOpen(true)} loading={actionLoading}>
-          Ajouter un document
-        </ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={FileText} title="Documents" description="Centralisez, validez et organisez les documents pédagogiques." meta={`${pagination.total} document${pagination.total > 1 ? "s" : ""} au total`} actionLabel="Ajouter un document" actionIcon={<FilePlus2 className="size-4" />} onAction={() => setOpen(true)} actionLoading={actionLoading} />
 
       <DocumentFilterBar
         filters={filters}
@@ -148,7 +137,7 @@ export default function DocumentAdministration({ classes = [] }) {
         </div>
       ) : error ? (
         <AlertBox variant="error" title="Une erreur se produit">
-          {error.message}
+          {getErrorMessage(error)}
         </AlertBox>
       ) : documents.length === 0 ? (
         <EmptyCard
@@ -173,27 +162,7 @@ export default function DocumentAdministration({ classes = [] }) {
         </div>
       )}
 
-      {pagination.pages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <ButtonStyled
-            variant="outline"
-            size="sm"
-            disabled={pagination.page <= 1}
-            onClick={() => goToPage(pagination.page - 1)}
-            icon={<ChevronLeft className="h-4 w-4" />}
-          />
-          <span className="text-sm text-muted-foreground">
-            Page {pagination.page} sur {pagination.pages}
-          </span>
-          <ButtonStyled
-            variant="outline"
-            size="sm"
-            disabled={pagination.page >= pagination.pages}
-            onClick={() => goToPage(pagination.page + 1)}
-            icon={<ChevronRight className="h-4 w-4" />}
-          />
-        </div>
-      )}
+      <AdminPagination pagination={pagination} onPageChange={goToPage} />
 
       <FormModal
         onOpenChange={setOpenEdit}

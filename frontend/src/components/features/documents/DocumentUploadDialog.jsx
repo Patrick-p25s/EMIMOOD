@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import InputLabeled from "@/components/common/forms/InputLabeled";
 import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
-import { Star, UploadCloud } from "lucide-react";
+import { FileCheck2, Star, UploadCloud } from "lucide-react";
 import FormModal from "@/components/common/forms/FormModal";
 import SelectLabeled from "@/components/common/forms/SelectLabeled";
 import { Switch } from "@/components/ui/switch";
@@ -40,6 +40,11 @@ export default function DocumentUploadDialog({
     if (e && e.preventDefault) e.preventDefault();
     setError(null);
 
+    if (!file) {
+      setError("Sélectionnez un fichier avant de téléverser le document.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -47,7 +52,7 @@ export default function DocumentUploadDialog({
         titre: form.titre,
         description: form.description,
         typeDocument: form.typeDocument,
-        dateLimite: isAssignment && form.date_limite ? form.date_limite : null,
+        dateLimite: isAssignment && form.dateLimite ? form.dateLimite : null,
         proposerPubliquement: form.proposerPubliquement,
         matiereId: form.matiereId,
         ...buildFileMeta(file),
@@ -60,7 +65,7 @@ export default function DocumentUploadDialog({
         description: "",
         typeDocument: "cours",
         matiereId: "",
-        date_limite: "",
+        dateLimite: "",
         proposerPubliquement: true,
       });
       setFile(null);
@@ -98,8 +103,8 @@ export default function DocumentUploadDialog({
         setValue={setForm}
         options={[
           { value: "cours", label: "Cours" },
-          { value: "td", label: "Travaux dirigée" },
-          { value: "tp", label: "Travaux pratique" },
+          { value: "td", label: "Travaux dirigés" },
+          { value: "tp", label: "Travaux pratiques" },
           { value: "examen", label: "Examen" },
         ]}
         id="typeDocument"
@@ -119,7 +124,7 @@ export default function DocumentUploadDialog({
         <div className="flex items-center gap-2">
           <Star className="h-4 w-4 text-amber-500" />
           <Label htmlFor="important" className="cursor-pointer">
-            Proposer en publique
+            Proposer au public
           </Label>
         </div>
         <Switch
@@ -168,8 +173,9 @@ export default function DocumentUploadDialog({
             {file ? file.name : "Cliquez pour choisir un fichier"}
           </span>
           {file && (
-            <span className="text-xs text-muted-foreground">
-              {(file.size / 1024 / 1024).toFixed(2)} Mo
+            <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <FileCheck2 className="h-3.5 w-3.5" />
+              {(file.size / 1024 / 1024).toFixed(2)} Mo · prêt à téléverser
             </span>
           )}
           <input

@@ -2,17 +2,18 @@ import StudentCard from "@/components/features/users/StudentCard";
 import React, { useState } from "react";
 import FormModal from "@/components/common/forms/FormModal";
 import { ChampUsersCreate } from "../RegisterPage";
-import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import UserProfileModal from "@/components/features/users/StudentProfileModal";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import useStudent from "@/hooks/useStudent";
 import { getUserClasse } from "@/api/userService";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import UserFilterBar from "@/components/features/users/UserFilterBar";
 import useAuth from "@/hooks/useAuth";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
+import AdminPagination from "@/components/features/admin/AdminPagination";
 
 export default function UsersAdministration() {
   const { role } = useAuth();
@@ -88,7 +89,7 @@ export default function UsersAdministration() {
       handleOpenChange(false);
     } catch (e) {
       setErreur(
-        e?.message || "Une erreur est survenue lors de l'enregistrement.",
+        getErrorMessage(e),
       );
     } finally {
       setActionLoad(false);
@@ -111,7 +112,7 @@ export default function UsersAdministration() {
     try {
       await deleteUser(studentId);
     } catch (e) {
-      setErreur(e?.message || "Erreur lors de la suppression de l'étudiant.");
+      setErreur(getErrorMessage(e));
     } finally {
       setActionLoad(false);
     }
@@ -154,26 +155,15 @@ export default function UsersAdministration() {
         },
       });
     } catch (err) {
-      setProfileError(err?.message || "Erreur lors du chargement du profil.");
+      setProfileError(getErrorMessage(err));
     } finally {
       setProfileLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-xl font-bold">Gestion des étudiants</h1>
-          <p className="text-sm text-muted-foreground">
-            {pagination.total} étudiant{pagination.total > 1 ? "s" : ""} inscrit
-            {pagination.total > 1 ? "s" : ""}
-          </p>
-        </div>
-        <ButtonStyled onClick={() => setOpen(true)}>
-          Ajouter un étudiant
-        </ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={Users} title="Étudiants" description="Inscrivez, consultez et gérez les étudiants de l’établissement." meta={`${pagination.total} étudiant${pagination.total > 1 ? "s" : ""} inscrit${pagination.total > 1 ? "s" : ""}`} actionLabel="Ajouter un étudiant" actionIcon={<Plus className="size-4" />} onAction={() => setOpen(true)} />
 
       <UserFilterBar
         filters={filters}
@@ -182,12 +172,7 @@ export default function UsersAdministration() {
         showClasseFilter={role === "admin"}
       />
 
-      {erreur ||
-        (error && (
-          <AlertBox variant="error" title="Un erreur se produit">
-            {error || error.message?.toString()}
-          </AlertBox>
-        ))}
+      {(erreur || error) && <AlertBox variant="error" title="Une erreur est survenue">{erreur || getErrorMessage(error)}</AlertBox>}
 
       <UserProfileModal
         open={openProfile}
@@ -226,7 +211,7 @@ export default function UsersAdministration() {
         </div>
       ) : error ? (
         <AlertBox variant="error" title="Erreur">
-          {error.message}
+          {getErrorMessage(error)}
         </AlertBox>
       ) : users.length === 0 ? (
         <EmptyCard
@@ -247,27 +232,7 @@ export default function UsersAdministration() {
         </div>
       )}
 
-      {pagination.pages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <ButtonStyled
-            variant="outline"
-            size="sm"
-            disabled={pagination.page <= 1}
-            onClick={() => goToPage(pagination.page - 1)}
-            icon={<ChevronLeft className="h-4 w-4" />}
-          />
-          <span className="text-sm text-muted-foreground">
-            Page {pagination.page} sur {pagination.pages}
-          </span>
-          <ButtonStyled
-            variant="outline"
-            size="sm"
-            disabled={pagination.page >= pagination.pages}
-            onClick={() => goToPage(pagination.page + 1)}
-            icon={<ChevronRight className="h-4 w-4" />}
-          />
-        </div>
-      )}
+      <AdminPagination pagination={pagination} onPageChange={goToPage} />
     </div>
   );
 }

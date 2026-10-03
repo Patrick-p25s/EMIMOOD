@@ -7,6 +7,7 @@ import {
   updateClasse,
 } from "@/api/classeService";
 import { createModerator } from "@/api/userService";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
 export const useClasse = (initialPage = 1, initialPageSize = 20) => {
   const [classes, setClasses] = useState([]);
@@ -33,7 +34,7 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
           pages: data.pages,
         });
       } catch (err) {
-        setError(err.response?.data?.detail[0].msg);
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -55,7 +56,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       const moderator = await createModerator(userData, classeId);
       return moderator;
     } catch (err) {
-      setError(err.response?.data?.detail[0].msg);
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 
@@ -66,8 +68,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       setClasses((prev) => [...prev, created]);
       return created;
     } catch (err) {
-      console.log(err.response?.data);
-      setError(err.response?.data?.detail[0].msg);
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 
@@ -78,7 +80,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       setClasses((prev) => prev.map((cl) => (cl.id === id ? updated : cl)));
       return updated;
     } catch (err) {
-      setError(err.request?.data?.detail[0].msg);
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 
@@ -88,7 +91,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       await deleteClasse(id);
       setClasses((prev) => prev.filter((cl) => cl.id !== id));
     } catch (err) {
-      setError(err.response?.data?.detail[0].msg);
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 
@@ -105,7 +109,8 @@ export const useClasse = (initialPage = 1, initialPageSize = 20) => {
       );
       return updated;
     } catch (err) {
-      setError(err.response?.data?.detail[0]?.msg);
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 

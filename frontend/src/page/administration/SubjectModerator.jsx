@@ -1,12 +1,15 @@
-import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import FormModal from "@/components/common/forms/FormModal";
 import InputLabeled from "@/components/common/forms/InputLabeled";
 import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import MatiereCard from "@/components/features/subjects/MatiereCard";
 import { useSubject } from "@/hooks/useSubject";
 import AlertBox from "@/components/common/feedback/AlertBox";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import { BookOpen, Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
 
 export default function SubjectAdministration() {
   const {
@@ -14,8 +17,6 @@ export default function SubjectAdministration() {
     add,
     remove,
     update,
-    getById,
-    goToPage,
     error,
     loading,
     pagination,
@@ -84,7 +85,7 @@ export default function SubjectAdministration() {
         semester: "",
       });
     } catch (err) {
-      setErreur(err.message?.toString());
+      setErreur(getErrorMessage(err));
     } finally {
       setLoadAct(false);
     }
@@ -101,20 +102,10 @@ export default function SubjectAdministration() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">Gestion des matières</h1>
-        <ButtonStyled onClick={handleOpenCreate}>
-          Ajouter un étudiant
-        </ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={BookOpen} title="Matières" description="Définissez les matières, coefficients et semestres de chaque cursus." meta={`${pagination.total ?? subjects.length} matière${(pagination.total ?? subjects.length) > 1 ? "s" : ""} configurée${(pagination.total ?? subjects.length) > 1 ? "s" : ""}`} actionLabel="Ajouter une matière" actionIcon={<Plus className="size-4" />} onAction={handleOpenCreate} />
 
-      {erreur ||
-        (error && (
-          <AlertBox variant="error" title="Un erreur se produit">
-            {error || error.message?.toString()}
-          </AlertBox>
-        ))}
+      {(erreur || error) && <AlertBox variant="error" title="Une erreur est survenue">{erreur || getErrorMessage(error)}</AlertBox>}
 
       <FormModal
         open={open}
@@ -126,7 +117,7 @@ export default function SubjectAdministration() {
         title={
           isEditing ? "Modifier la matière" : "Ajouter une nouvelle matière"
         }
-        description="Cette matière sera affectée uniquement à votre classe."
+        description="Renseignez les informations pédagogiques de cette matière."
         onCancel={() => {
           setUpdated(null);
           setOpen(false);
@@ -164,16 +155,7 @@ export default function SubjectAdministration() {
         </div>
       </FormModal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {subjects.map((matiere) => (
-          <MatiereCard
-            matiere={matiere}
-            key={matiere.id}
-            onDelete={() => remove(matiere.id)}
-            onUpdate={() => handleUpdate(matiere)}
-          />
-        ))}
-      </div>
+      {loading ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-40 rounded-xl" />)}</div> : subjects.length === 0 ? <EmptyCard icon={BookOpen} title="Aucune matière configurée" description="Ajoutez une première matière pour commencer." /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">{subjects.map((matiere) => <MatiereCard matiere={matiere} key={matiere.id} onDelete={() => remove(matiere.id)} onUpdate={() => handleUpdate(matiere)} />)}</div>}
     </div>
   );
 }

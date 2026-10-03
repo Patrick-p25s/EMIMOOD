@@ -1,5 +1,4 @@
 import AnnonceItem from "@/components/features/announcements/AnnonceItem";
-import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import FormModal from "@/components/common/forms/FormModal";
 import InputLabeled from "@/components/common/forms/InputLabeled";
 import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
@@ -13,6 +12,8 @@ import useAnnonce from "@/hooks/useAnnonce";
 import React, { useEffect, useMemo, useState } from "react";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
 
 export default function AnnoncesAdministration() {
   const {
@@ -21,7 +22,6 @@ export default function AnnoncesAdministration() {
     archivedAnnonce,
     loading,
     error,
-    stats,
     getReadingStat,
     add,
     update,
@@ -42,8 +42,6 @@ export default function AnnoncesAdministration() {
     return annonces;
   }, [filter, annonces, activeAnnonce, archivedAnnonce]);
 
-  console.log(stats);
-
   const cancelUpdate = () => {
     setUpdated(null);
     setOpen(false);
@@ -61,7 +59,7 @@ export default function AnnoncesAdministration() {
     try {
       await remove(annonce.id);
     } catch (err) {
-      setActionError(`Erreur : ${err.message?.toString()}`);
+      setActionError(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -73,7 +71,7 @@ export default function AnnoncesAdministration() {
     try {
       await archive(annonceId);
     } catch (err) {
-      setActionError(`Erreur : ${err.message?.toString()}`);
+      setActionError(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -85,36 +83,19 @@ export default function AnnoncesAdministration() {
     try {
       await active(annonceId);
     } catch (err) {
-      setActionError(`Erreur : ${err.message?.toString()}`);
+      setActionError(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-            <Megaphone className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">Gestion des annonces</h1>
-            <p className="text-sm text-muted-foreground">
-              Visibles par tous les utilisateurs de la plateforme
-            </p>
-          </div>
-        </div>
-        <ButtonStyled className="gap-1.5" onClick={() => setOpen(true)}>
-          <Plus className="h-4 w-4" />
-          Ajouter
-        </ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={Megaphone} title="Annonces" description="Publiez les informations visibles par tous les utilisateurs." meta={`${activeAnnonce.length} annonce${activeAnnonce.length > 1 ? "s" : ""} active${activeAnnonce.length > 1 ? "s" : ""}`} actionLabel="Nouvelle annonce" actionIcon={<Plus className="size-4" />} onAction={() => setOpen(true)} />
 
       {(error || actionError) && (
-        <AlertBox title="Un erreur se produit" variant="error">
-          {actionError || error?.message}
+        <AlertBox title="Une erreur est survenue" variant="error">
+          {actionError || getErrorMessage(error)}
         </AlertBox>
       )}
 
@@ -218,7 +199,7 @@ function AnnonceForm({ onCreate, open, onOpen, onUpdate, updated, onCancel }) {
       }
       onCancel();
     } catch (err) {
-      setErreur(`Erreur : ${err.message?.toString()}`);
+      setErreur(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

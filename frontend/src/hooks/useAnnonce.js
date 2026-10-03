@@ -153,6 +153,7 @@ export default function useAnnonce(initialPage = 1, initialPageSize = 20) {
     loading,
     error,
     stats,
+    pagination,
     goToPage,
     refresh: () => fetchAnnonce(pagination.page, pagination.pageSize),
     getReadingStat,

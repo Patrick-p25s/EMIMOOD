@@ -14,8 +14,8 @@ import { useNavigate } from "react-router-dom";
 import IconBadge from "@/components/shared/IconBadge";
 
 export default function MatiereCard({ matiere, onUpdate, onDelete }) {
-  if (!matiere) return null;
   const navigate = useNavigate();
+  if (!matiere) return null;
 
   return (
     <Card className="hover:border-primary/50 transition-colors flex flex-col justify-between">

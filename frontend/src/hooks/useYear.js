@@ -6,7 +6,7 @@ import {
 } from "@/api/yearService";
 import { useCallback, useEffect, useState } from "react";
 
-export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
+export const useYear = (initialPage = 1, initialPageSize = 20) => {
   const [years, setYears] = useState([]);
   const [pagination, setPagination] = useState({
     page: initialPage,
@@ -88,6 +88,7 @@ export const userYearHook = (initialPage = 1, initialPageSize = 20) => {
     years,
     loading,
     error,
+    pagination,
     goToPage,
     refresh: () => fetchYear(pagination.page, pagination.pageSize),
     add,

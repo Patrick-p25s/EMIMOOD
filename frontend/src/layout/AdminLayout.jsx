@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
@@ -116,7 +115,7 @@ export default function AdminLayout() {
           <div className="flex-1 md:flex-none" />
 
           <IconBadge tone="muted" icon={Calendar}>
-            Anné active
+            Année active
           </IconBadge>
         </header>
 
@@ -167,14 +166,7 @@ function SidebarContent({ onLogout, onNavigate, role }) {
           />
         )}
 
-        {/* Matières : pas ADMIN */}
-        {role !== "admin" && (
-          <MenuSection
-            titre="Matières"
-            items={menuMatiere}
-            onNavigate={onNavigate}
-          />
-        )}
+        <MenuSection titre="Matières" items={menuMatiere} onNavigate={onNavigate} />
 
         {/* Contenu : tout le monde */}
         <MenuSection

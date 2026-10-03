@@ -11,7 +11,7 @@ export const createDocument = async (documentData) => {
     formData.append("description", documentData.description);
   }
 
-  if (formData.dateLimite) {
+  if (documentData.dateLimite) {
     formData.append("date_limite", documentData.dateLimite);
   }
 

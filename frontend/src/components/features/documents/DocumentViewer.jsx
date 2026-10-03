@@ -14,10 +14,32 @@ import {
   XCircle,
   Video,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  deleteDocumentSaved,
+  downloadDocument,
+  getSaveById,
+  saveDocument,
+} from "@/api/documentService";
 import { getFileUrl } from "@/utils/file";
 export function DocumentViewerPage({ document, onBack, onSave }) {
   const [isSaved, setIsSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [actionError, setActionError] = useState(null);
+
+  useEffect(() => {
+    if (!document?.id) return;
+    let active = true;
+
+    getSaveById(document.id)
+      .then((saved) => active && setIsSaved(Boolean(saved)))
+      .catch(() => active && setActionError("Impossible de vérifier vos enregistrements."));
+
+    return () => {
+      active = false;
+    };
+  }, [document?.id]);
 
   if (!document) {
     return (
@@ -44,10 +66,44 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
     statut,
   } = document;
 
-  const handleSaveToggle = () => {
-    const nextState = !isSaved;
-    setIsSaved(nextState);
-    if (onSave) onSave(document, nextState);
+  const handleSaveToggle = async () => {
+    setActionError(null);
+    setSaveLoading(true);
+    try {
+      const nextState = !isSaved;
+      if (nextState) await saveDocument(document.id);
+      else await deleteDocumentSaved(document.id);
+      setIsSaved(nextState);
+      onSave?.(document, nextState);
+    } catch {
+      setActionError(
+        isSaved
+          ? "Impossible de retirer ce document des enregistrés."
+          : "Impossible d’enregistrer ce document.",
+      );
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    setActionError(null);
+    setDownloadLoading(true);
+    try {
+      const blob = await downloadDocument(document.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = window.document.createElement("a");
+      link.href = url;
+      link.download = document.original_filename || document.titre || "document";
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setActionError("Le téléchargement a échoué. Réessayez dans un instant.");
+    } finally {
+      setDownloadLoading(false);
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -132,7 +188,7 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
       mime_type?.includes("powerpoint")
     ) {
       const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-        fichier_path,
+        getFileUrl(fichier_path),
       )}&embedded=true`;
 
       return (
@@ -157,16 +213,10 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             directement dans le navigateur.
           </p>
         </div>
-        <a
-          href={getFileUrl(fichier_path)}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button className="gap-2">
-            <Download className="h-4 w-4" /> Télécharger pour consulter
-          </Button>
-        </a>
+        <Button className="gap-2" onClick={handleDownload} disabled={downloadLoading}>
+          <Download className="h-4 w-4" />
+          {downloadLoading ? "Téléchargement…" : "Télécharger pour consulter"}
+        </Button>
       </div>
     );
   };
@@ -227,23 +277,24 @@ export function DocumentViewerPage({ document, onBack, onSave }) {
             size="sm"
             className="gap-2"
             onClick={handleSaveToggle}
+            disabled={saveLoading}
           >
             <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
-            {isSaved ? "Enregistré" : "Enregistrer"}
+            {saveLoading ? "Mise à jour…" : isSaved ? "Enregistré" : "Enregistrer"}
           </Button>
 
-          <a
-            href={getFileUrl(fichier_path)}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button size="sm" className="gap-2">
-              <Download className="h-4 w-4" /> Télécharger
-            </Button>
-          </a>
+          <Button size="sm" className="gap-2" onClick={handleDownload} disabled={downloadLoading}>
+            <Download className="h-4 w-4" />
+            {downloadLoading ? "Téléchargement…" : "Télécharger"}
+          </Button>
         </div>
       </div>
+
+      {actionError && (
+        <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {actionError}
+        </p>
+      )}
 
       {/* En-tête du document */}
       <div className="space-y-3">

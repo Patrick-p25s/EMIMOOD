@@ -10,14 +10,6 @@ import {
 } from "@/components/ui/select";
 import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
-const TYPES_DOCUMENT = [
-  { value: "cours", label: "Cours" },
-  { value: "td", label: "TD" },
-  { value: "tp", label: "TP" },
-  { value: "examen", label: "Examen" },
-  { value: "corrige", label: "Corrigé" },
-];
-
 export default function UserFilterBar({
   filters,
   onChange,
@@ -36,7 +28,7 @@ export default function UserFilterBar({
       <div className="relative flex-1 min-w-50">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Rechercher un document..."
+          placeholder="Rechercher un étudiant..."
           className="pl-8"
           value={filters.search}
           onChange={(e) => onChange({ search: e.target.value })}

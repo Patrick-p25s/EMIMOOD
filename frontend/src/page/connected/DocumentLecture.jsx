@@ -1,24 +1,26 @@
 import { getDocumentById } from "@/api/documentService";
 import { DocumentViewerPage } from "@/components/features/documents/DocumentViewer";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function DocumentLecture() {
-  const { documentId } = useParams();
+  const { documentId, id } = useParams();
+  const idToLoad = documentId || id;
+  const navigate = useNavigate();
+  const location = useLocation();
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
-    if (!documentId) return;
+    if (!idToLoad) return;
 
     const fetchDocument = async () => {
       setLoading(true);
       setErreur(null);
       try {
-        const res = await getDocumentById(documentId);
+        const res = await getDocumentById(idToLoad);
         setDoc(res);
-        console.log(res);
       } catch (err) {
         setErreur(err.message);
       } finally {
@@ -27,7 +29,16 @@ export default function DocumentLecture() {
     };
 
     fetchDocument();
-  }, [documentId]);
+  }, [idToLoad]);
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate(location.pathname.startsWith("/admin/") ? "/admin/document" : "/dashboard");
+  };
 
   if (loading) {
     return (
@@ -45,5 +56,5 @@ export default function DocumentLecture() {
     );
   }
 
-  return <DocumentViewerPage document={doc} />;
+  return <DocumentViewerPage document={doc} onBack={handleBack} />;
 }

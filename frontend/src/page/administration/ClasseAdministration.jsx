@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import InputLabeled from "@/components/common/forms/InputLabeled";
-import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import FormModal from "@/components/common/forms/FormModal";
 import ClasseCard from "@/components/features/classes/ClasseCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +8,8 @@ import { useClasse } from "@/hooks/useClasse";
 import { ChampUsersCreate } from "../RegisterPage";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
 
 const emptyClasse = { mention: "", niveau: "" };
 
@@ -40,7 +41,7 @@ export default function ClasseAdministration() {
       setClasseData(emptyClasse);
       setOpenCreate(false);
     } catch (err) {
-      setActionErreur(err.message?.toString());
+      setActionErreur(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -61,7 +62,7 @@ export default function ClasseAdministration() {
       setClasseEnEdition(null);
       return updated;
     } catch (err) {
-      setActionErreur(err.message?.toString());
+      setActionErreur(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -72,7 +73,7 @@ export default function ClasseAdministration() {
     try {
       await generate(id);
     } catch (err) {
-      setActionErreur(err.message?.toString());
+      setActionErreur(getErrorMessage(err));
     }
   };
 
@@ -81,7 +82,7 @@ export default function ClasseAdministration() {
     try {
       await remove(id);
     } catch (err) {
-      setActionErreur(err.message?.toString());
+      setActionErreur(getErrorMessage(err));
     }
   };
 
@@ -94,35 +95,16 @@ export default function ClasseAdministration() {
     try {
       return await moderator(userData, classe.id);
     } catch (err) {
-      setActionErreur(err.message?.toString());
+      setActionErreur(getErrorMessage(err));
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Gestion des classes</h1>
-          <p className="text-sm text-muted-foreground">
-            {classes.length} classe{classes.length > 1 ? "s" : ""} pour l'année
-            active
-          </p>
-        </div>
-        <ButtonStyled
-          type="button"
-          className="gap-1.5"
-          onClick={() => {
-            setOpenCreate(true);
-            setActionErreur(null);
-          }}
-          icon={<Plus className="h-4 w-4" />}
-        >
-          Ajouter
-        </ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={School} title="Classes" description="Organisez les parcours, les niveaux et leurs responsables." meta={`${classes.length} classe${classes.length > 1 ? "s" : ""} pour l’année active`} actionLabel="Ajouter une classe" actionIcon={<Plus className="size-4" />} onAction={() => { setOpenCreate(true); setActionErreur(null); }} />
 
       {(error || erreur) && (
-        <AlertBox variant="error">{erreur || error}</AlertBox>
+        <AlertBox variant="error" title="Une erreur est survenue">{erreur || getErrorMessage(error)}</AlertBox>
       )}
 
       {/* Modal : créer une classe */}

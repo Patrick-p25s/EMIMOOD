@@ -1,4 +1,4 @@
-import { userYearHook } from "@/hooks/useYear";
+import { useYear } from "@/hooks/useYear";
 import React from "react";
 import { useState } from "react";
 import InputLabeled from "@/components/common/forms/InputLabeled";
@@ -6,31 +6,28 @@ import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import FormModal from "@/components/common/forms/FormModal";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
-import { Calendar } from "lucide-react";
+import { Calendar, Plus } from "lucide-react";
 import IconBadge from "@/components/shared/IconBadge";
+import { getErrorMessage } from "@/utils/getErrorMessage";
+import AdminPageHeader from "@/components/features/admin/AdminPageHeader";
 
 export default function YearAdministration() {
   const [open, setOpen] = useState(false);
-  const { loading, error, add, remove, activate, years } = userYearHook();
-
-  if (loading) return <p>Chargement...</p>;
+  const { loading, error, add, remove, activate, years } = useYear();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Anné universitaire blog </h1>
-        <ButtonStyled onClick={() => setOpen(true)}>Ajouter</ButtonStyled>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <AdminPageHeader icon={Calendar} title="Années universitaires" description="Créez les périodes académiques et définissez l’année active." meta={`${years.length} année${years.length > 1 ? "s" : ""} configurée${years.length > 1 ? "s" : ""}`} actionLabel="Ajouter une année" actionIcon={<Plus className="size-4" />} onAction={() => setOpen(true)} />
 
       {error && (
-        <AlertBox variant="error" title="Un erreur se produit">
-          {error.message}
+        <AlertBox variant="error" title="Une erreur est survenue">
+          {getErrorMessage(error)}
         </AlertBox>
       )}
 
       <YearForm onCreate={add} open={open} onOpen={setOpen} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {loading ? <p className="text-sm text-muted-foreground">Chargement des années universitaires…</p> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {years.length > 0 ? (
           years.map((year) => (
             <YearItem
@@ -43,7 +40,7 @@ export default function YearAdministration() {
         ) : (
           <EmptyCard icon={Calendar} title="Aucune année pour le moment" />
         )}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -63,7 +60,7 @@ function YearForm({ onCreate, open, onOpen }) {
     try {
       await onCreate(yearData);
     } catch (e) {
-      setErreur(e.message.toString());
+      setErreur(getErrorMessage(e));
     } finally {
       setIsSubmiting(false);
     }
@@ -76,8 +73,8 @@ function YearForm({ onCreate, open, onOpen }) {
       onOpenChange={onOpen}
       submitLabel="Créer"
       title="Remplir tous les champs pour créer"
-      labe
       loading={isSubmiting}
+      error={erreur}
     >
       <InputLabeled
         value={yearData.label}
@@ -99,11 +96,6 @@ function YearForm({ onCreate, open, onOpen }) {
         name="endAt"
         setValue={setYearData}
       />
-      {erreur && (
-        <AlertBox variant="error" title="Un erreur se produit">
-          {erreur}
-        </AlertBox>
-      )}
     </FormModal>
   );
 }
@@ -121,7 +113,7 @@ function YearItem({ year, onDelete, onActive }) {
     try {
       await actionFn(year.id);
     } catch (err) {
-      setError(err?.message || "Une erreur est survenue");
+      setError(getErrorMessage(err));
     } finally {
       setActiveAction(null);
     }
@@ -172,7 +164,7 @@ function YearItem({ year, onDelete, onActive }) {
 
       {/* Message d'erreur */}
       {error && (
-        <AlertBox variant="error" title="Un erreur se produit">
+        <AlertBox variant="error" title="Une erreur est survenue">
           {error}
         </AlertBox>
       )}

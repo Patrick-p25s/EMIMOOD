@@ -21,6 +21,10 @@ function inferFieldErrors(message) {
 }
 
 export function getErrorDetails(error) {
+  if (typeof error === "string") {
+    return { message: translate(error), fieldErrors: {} };
+  }
+
   if (error.request && !error.response) {
     return {
       message:

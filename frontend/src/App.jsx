@@ -10,7 +10,6 @@ import LoginPage from "./page/LoginPage";
 import AdminRoute from "./route/AdminRoute";
 import AdminDashboard from "./page/administration/AdminDashboard";
 import ClasseAdministration from "./page/administration/ClasseAdministration";
-import MatiereAdministration from "./page/administration/MatiereAdministration";
 import DocumentAdministration from "./page/administration/DocumentAdministration";
 import YearAdministration from "./page/administration/YearAdministration";
 import AdminLayout from "./layout/AdminLayout";
