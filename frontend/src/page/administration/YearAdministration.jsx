@@ -1,11 +1,11 @@
 import { userYearHook } from "@/hooks/useYear";
 import React from "react";
 import { useState } from "react";
-import InputLabeled from "@/components/shared/InputLabeled";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import FormModal from "@/components/shared/FormModal";
-import AlertBox from "@/components/shared/AlertBox";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import FormModal from "@/components/common/forms/FormModal";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 import { Calendar } from "lucide-react";
 import IconBadge from "@/components/shared/IconBadge";
 

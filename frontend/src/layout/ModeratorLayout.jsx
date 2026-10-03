@@ -16,7 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
-import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
+import { ButtonStyled, buttonVariants } from "@/components/common/forms/ButtonStyled";
 
 const NAV_ITEMS = [
   {

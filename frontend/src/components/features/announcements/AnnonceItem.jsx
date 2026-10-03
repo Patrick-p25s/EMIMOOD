@@ -17,8 +17,8 @@ import {
   Clock,
 } from "lucide-react";
 import { getFileUrl } from "@/utils/file";
-import { ButtonStyled } from "./ButtonStyled";
-import IconBadge from "./IconBadge";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
 
 export default function AnnonceItem({
   annonce,

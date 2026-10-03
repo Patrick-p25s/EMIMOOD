@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useAuth from "@/hooks/useAuth";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import IconBadge from "@/components/shared/IconBadge";
 
 const menuGeneral = [

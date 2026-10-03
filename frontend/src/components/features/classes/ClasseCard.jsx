@@ -10,8 +10,8 @@ import {
   KeyRound,
   RefreshCw,
 } from "lucide-react";
-import { ButtonStyled } from "../shared/ButtonStyled";
-import IconBadge from "../shared/IconBadge";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
 
 export default function ClasseCard({
   classe,

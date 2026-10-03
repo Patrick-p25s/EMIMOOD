@@ -1,12 +1,12 @@
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import FormModal from "@/components/shared/FormModal";
-import InputLabeled from "@/components/shared/InputLabeled";
-import TextareaLabeled from "@/components/shared/TextareaLabeled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import FormModal from "@/components/common/forms/FormModal";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import MatiereCard from "@/components/shared/MatiereCard";
+import MatiereCard from "@/components/features/subjects/MatiereCard";
 import { useSubject } from "@/hooks/useSubject";
-import AlertBox from "@/components/shared/AlertBox";
+import AlertBox from "@/components/common/feedback/AlertBox";
 
 export default function SubjectAdministration() {
   const {

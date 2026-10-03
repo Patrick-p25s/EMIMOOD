@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Folder, Pencil, Trash2 } from "lucide-react";
-import { ButtonStyled } from "../shared/ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
 export default function FolderCard({ folder, onOpen, onEdit, onDelete }) {
   return (

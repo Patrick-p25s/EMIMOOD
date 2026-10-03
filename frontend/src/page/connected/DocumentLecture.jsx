@@ -1,5 +1,5 @@
 import { getDocumentById } from "@/api/documentService";
-import { DocumentViewerPage } from "@/components/special/DocumentViewer";
+import { DocumentViewerPage } from "@/components/features/documents/DocumentViewer";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 

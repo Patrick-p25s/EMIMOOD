@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import FormModal from "@/components/shared/FormModal";
-import SelectLabeled from "@/components/shared/SelectLabeled";
+import FormModal from "@/components/common/forms/FormModal";
+import SelectLabeled from "@/components/common/forms/SelectLabeled";
 import { moveDocument } from "@/api/documentService";
 
 export default function MoveToFolderDialog({

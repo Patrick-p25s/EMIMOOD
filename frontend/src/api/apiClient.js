@@ -19,8 +19,11 @@ apiClient.interceptors.request.use((config) => {
 let isRefreshing = false;
 let pendingRequests = [];
 
-function resolvePendingRequests(newToken) {
-  pendingRequests.forEach((callback) => callback(newToken));
+function settlePendingRequests(error, newToken) {
+  pendingRequests.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(newToken);
+  });
   pendingRequests = [];
 }
 
@@ -30,19 +33,24 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     const isUnauthorized = error.response?.status === 401;
     const isRefreshCall = originalRequest?.url?.includes("/auth/refresh");
+    const isLoginCall = originalRequest?.url?.includes("/auth/login");
 
-    if (!isUnauthorized || isRefreshCall || originalRequest._retry) {
+    // Un identifiant invalide ne doit jamais déclencher un refresh : cela masque
+    // l'erreur de connexion et peut provoquer une redirection inutile.
+    if (!isUnauthorized || isRefreshCall || isLoginCall || originalRequest?._retry) {
       return Promise.reject(error);
     }
 
     originalRequest._retry = true;
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        pendingRequests.push((newToken) => {
+      return new Promise((resolve, reject) => {
+        pendingRequests.push({ resolve, reject });
+      }).then((newToken) => {
+        if (newToken) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          resolve(apiClient(originalRequest));
-        });
+        }
+        return apiClient(originalRequest);
       });
     }
 
@@ -58,14 +66,16 @@ apiClient.interceptors.response.use(
       const newToken = res.data.accessToken;
 
       authMemory.set(newToken);
-      resolvePendingRequests(newToken);
+      settlePendingRequests(null, newToken);
 
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
       return apiClient(originalRequest);
     } catch (refreshError) {
-      pendingRequests = [];
+      settlePendingRequests(refreshError);
       authMemory.clear();
-      window.location.href = "/login";
+      if (window.location.pathname !== "/login") {
+        window.location.assign("/login");
+      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

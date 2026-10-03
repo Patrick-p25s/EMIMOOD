@@ -1,10 +1,10 @@
 import { getStats } from "@/api/documentService";
 import { updatePassword } from "@/api/userService";
-import AlertBox from "@/components/shared/AlertBox";
-import FormModal from "@/components/shared/FormModal";
-import InputLabeled from "@/components/shared/InputLabeled";
-import TextareaLabeled from "@/components/shared/TextareaLabeled";
-import ProfileStudent from "@/components/special/ProfileStudent";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import FormModal from "@/components/common/forms/FormModal";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
+import ProfileStudent from "@/components/features/users/ProfileStudent";
 import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 

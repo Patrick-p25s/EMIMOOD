@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 disabled:grayscale-[30%] [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -44,6 +44,7 @@ const ButtonStyled = forwardRef(function Button(
     loadingText = null,
     disabled = false,
     icon = null,
+    type = "button", // jamais de soumission de formulaire par accident
     children,
     ...props
   },
@@ -55,6 +56,9 @@ const ButtonStyled = forwardRef(function Button(
   return (
     <Comp
       ref={ref}
+      // Slot peut envelopper n'importe quel élément (pas forcément un <button>),
+      // donc on ne force "type" que quand on rend un vrai <button>.
+      type={asChild ? undefined : type}
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={isDisabled}
       aria-busy={loading}

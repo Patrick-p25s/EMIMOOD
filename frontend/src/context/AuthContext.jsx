@@ -42,6 +42,7 @@ export default function AuthProvider({ children }) {
       authMemory.set(data.accessToken);
       const currentUser = await getProfile();
       setUser(currentUser);
+      return currentUser; // ← ajouté : permet au composant appelant d'avoir la valeur fraîche
     } catch (err) {
       setError(err);
       throw err;
@@ -68,7 +69,7 @@ export default function AuthProvider({ children }) {
     setError(null);
     try {
       await registerApi(userData);
-      await login(userData.email, userData.password);
+      return await login(userData.email, userData.password);
     } catch (err) {
       setError(err);
       throw err;

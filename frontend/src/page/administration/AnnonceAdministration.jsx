@@ -1,8 +1,8 @@
-import AnnonceItem from "@/components/shared/AnnonceItem";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import FormModal from "@/components/shared/FormModal";
-import InputLabeled from "@/components/shared/InputLabeled";
-import TextareaLabeled from "@/components/shared/TextareaLabeled";
+import AnnonceItem from "@/components/features/announcements/AnnonceItem";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import FormModal from "@/components/common/forms/FormModal";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, Plus, Star } from "lucide-react";
 import useAnnonce from "@/hooks/useAnnonce";
 import React, { useEffect, useMemo, useState } from "react";
-import AlertBox from "@/components/shared/AlertBox";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
 export default function AnnoncesAdministration() {
   const {

@@ -11,8 +11,8 @@ export default function HowItWorksSection() {
     >
       <ol className="grid gap-6 md:grid-cols-3">
         {STEPS.map(({ title, description }, index) => (
-          <li key={title} className="flex flex-col items-center text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+          <li key={title} className="group flex flex-col items-center text-center">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
               {index + 1}
             </span>
             <h3 className="mt-4 font-semibold text-foreground">{title}</h3>

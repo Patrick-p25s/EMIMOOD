@@ -8,7 +8,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ButtonStyled } from "./ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
 const TYPES_DOCUMENT = [
   { value: "cours", label: "Cours" },

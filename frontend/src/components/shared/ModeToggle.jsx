@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
-import { ButtonStyled } from "./ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import { useTheme } from "@/layout/theme-provider";
 
 export function ModeToggle() {

@@ -2,9 +2,9 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, FileText } from "lucide-react";
-import DocumentCard from "@/components/shared/DocumentCard";
+import DocumentCard from "@/components/features/documents/DocumentCard";
 import { useFolderDocuments } from "@/hooks/useFolderDocument";
-import { ButtonStyled } from "../shared/ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 export default function FolderDocumentsView({ folder, onBack, cardProps }) {
   const { documents, loading, error } = useFolderDocuments(folder.id);
 

@@ -1,18 +1,18 @@
-import StudentCard from "@/components/shared/StudentCard";
+import StudentCard from "@/components/features/users/StudentCard";
 import React, { useState } from "react";
-import FormModal from "@/components/shared/FormModal";
+import FormModal from "@/components/common/forms/FormModal";
 import { ChampUsersCreate } from "../RegisterPage";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import UserProfileModal from "@/components/special/StudentProfileModal";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import UserProfileModal from "@/components/features/users/StudentProfileModal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import useStudent from "@/hooks/useStudent";
 import { getUserClasse } from "@/api/userService";
-import AlertBox from "@/components/shared/AlertBox";
-import UserFilterBar from "@/components/shared/UserFilterBar";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import UserFilterBar from "@/components/features/users/UserFilterBar";
 import useAuth from "@/hooks/useAuth";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
 export default function UsersAdministration() {
   const { role } = useAuth();

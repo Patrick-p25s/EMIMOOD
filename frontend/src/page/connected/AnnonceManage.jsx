@@ -1,5 +1,5 @@
 import { listActiveAnnonce } from "@/api/announceService";
-import AnnonceItem from "@/components/shared/AnnonceItem";
+import AnnonceItem from "@/components/features/announcements/AnnonceItem";
 
 import {
   Card,
@@ -16,8 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, AlertCircle, BellRing } from "lucide-react";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { EmptyCard } from "@/components/shared/EmptyCard";
-import AlertBox from "@/components/shared/AlertBox";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
+import AlertBox from "@/components/common/feedback/AlertBox";
 import IconBadge from "@/components/shared/IconBadge";
 
 export default function AnnonceManage() {

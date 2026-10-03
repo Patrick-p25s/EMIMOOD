@@ -15,9 +15,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotification } from "@/hooks/useNotification";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import IconBadge from "@/components/shared/IconBadge";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
 export function NotificationManage() {
   const {

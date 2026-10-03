@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
-import InputLabeled from "@/components/shared/InputLabeled";
-import TextareaLabeled from "@/components/shared/TextareaLabeled";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import { Star, UploadCloud } from "lucide-react";
-import FormModal from "@/components/shared/FormModal";
-import SelectLabeled from "@/components/shared/SelectLabeled";
+import FormModal from "@/components/common/forms/FormModal";
+import SelectLabeled from "@/components/common/forms/SelectLabeled";
 import { Switch } from "@/components/ui/switch";
 
 const buildFileMeta = (file) => ({

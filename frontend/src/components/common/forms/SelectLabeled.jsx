@@ -1,12 +1,12 @@
 import React from "react";
-import { Label } from "../ui/label";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "../ui/select";
+} from "@/components/ui/select";
 
 export default function SelectLabeled({
   label,

@@ -18,9 +18,9 @@ import {
   Camera,
 } from "lucide-react";
 import { getFileUrl } from "@/utils/file";
-import { ButtonStyled } from "../shared/ButtonStyled";
-import IconBadge from "../shared/IconBadge";
-import AlertBox from "../shared/AlertBox";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
+import AlertBox from "@/components/common/feedback/AlertBox";
 import { uploadeProfilePicture } from "@/api/userService";
 
 export default function ProfileStudent({

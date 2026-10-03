@@ -1,7 +1,7 @@
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import React, { forwardRef, useId } from "react";
-import { Label } from "../ui/label";
-import { cn } from "../../lib/utils"; // adapte le chemin selon ton projet (clsx/tailwind-merge)
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const InputLabeled = forwardRef(function InputLabeled(
   {

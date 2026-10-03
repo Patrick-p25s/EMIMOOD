@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { ButtonStyled } from "./ButtonStyled";
-import IconBadge from "./IconBadge";
-import AlertBox from "./AlertBox";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import IconBadge from "@/components/shared/IconBadge";
+import AlertBox from "@/components/common/feedback/AlertBox";
 
 import {
   DropdownMenu,

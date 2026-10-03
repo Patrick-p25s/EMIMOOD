@@ -9,10 +9,10 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
+import { ButtonStyled, buttonVariants } from "@/components/common/forms/ButtonStyled";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getFileUrl } from "@/utils/file";
-import IconBadge from "./IconBadge";
+import IconBadge from "@/components/shared/IconBadge";
 
 export default function StudentCard({
   student,

@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useFolder } from "@/hooks/useFolder";
-import DocumentCard from "@/components/shared/DocumentCard";
-import FolderDocumentsView from "@/components/special/FolderDocumentsView";
+import DocumentCard from "@/components/features/documents/DocumentCard";
+import FolderDocumentsView from "@/components/features/folders/FolderDocumentsView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, FileText, FolderArchive } from "lucide-react";
-import FolderFormModal from "@/components/special/FolderFormModal";
-import FolderCard from "@/components/special/FolderCard";
-import MoveToFolderDialog from "@/components/special/MoveToFolderModal";
+import FolderFormModal from "@/components/features/folders/FolderFormModal";
+import FolderCard from "@/components/features/folders/FolderCard";
+import MoveToFolderDialog from "@/components/features/folders/MoveToFolderModal";
 import { useMyDocuments } from "@/hooks/useMyDocs";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import AlertBox from "@/components/shared/AlertBox";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
 export default function MyDocumentManage({ onTab }) {
   const {

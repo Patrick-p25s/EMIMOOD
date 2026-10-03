@@ -1,8 +1,8 @@
 import { downloadDocument } from "@/api/documentService";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentCard from "@/components/shared/DocumentCard";
-import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import DocumentCard from "@/components/features/documents/DocumentCard";
+import DocumentFilterBar from "@/components/features/documents/DocumentFilterBar";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 import { usePublicDocument } from "@/hooks/usePublic";
 import { Book, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";

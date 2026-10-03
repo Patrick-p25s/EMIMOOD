@@ -9,9 +9,9 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { ButtonStyled, buttonVariants } from "@/components/shared/ButtonStyled";
+import { ButtonStyled, buttonVariants } from "@/components/common/forms/ButtonStyled";
 import { useNavigate } from "react-router-dom";
-import IconBadge from "./IconBadge";
+import IconBadge from "@/components/shared/IconBadge";
 
 export default function MatiereCard({ matiere, onUpdate, onDelete }) {
   if (!matiere) return null;

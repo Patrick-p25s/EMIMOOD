@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import FormModal from "@/components/shared/FormModal";
-import InputLabeled from "@/components/shared/InputLabeled";
+import FormModal from "@/components/common/forms/FormModal";
+import InputLabeled from "@/components/common/forms/InputLabeled";
 
 export default function FolderFormModal({
   open,

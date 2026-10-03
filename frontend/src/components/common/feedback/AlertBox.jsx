@@ -1,9 +1,8 @@
 import React from "react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertTriangle, XCircle, Info, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ButtonStyled } from "./ButtonStyled";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
 const VARIANT_CONFIG = {
   success: {

@@ -1,20 +1,20 @@
-import DocumentCard from "@/components/shared/DocumentCard";
+import DocumentCard from "@/components/features/documents/DocumentCard";
 import React, { useEffect, useState } from "react";
-import { ButtonStyled } from "@/components/shared/ButtonStyled";
-import DocumentUploadDialog from "../../components/special/DocumentUploadDialog";
-import DocumentFilterBar from "@/components/shared/DocumentFilterBar";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
+import DocumentUploadDialog from "@/components/features/documents/DocumentUploadDialog";
+import DocumentFilterBar from "@/components/features/documents/DocumentFilterBar";
 import useDocument from "@/hooks/useDocument";
-import FormModal from "@/components/shared/FormModal";
-import InputLabeled from "@/components/shared/InputLabeled";
-import SelectLabeled from "@/components/shared/SelectLabeled";
-import TextareaLabeled from "@/components/shared/TextareaLabeled";
+import FormModal from "@/components/common/forms/FormModal";
+import InputLabeled from "@/components/common/forms/InputLabeled";
+import SelectLabeled from "@/components/common/forms/SelectLabeled";
+import TextareaLabeled from "@/components/common/forms/TextareaLabeled";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
 import { filter } from "framer-motion/client";
 import { Button } from "@/components/ui/button";
-import AlertBox from "@/components/shared/AlertBox";
-import { EmptyCard } from "@/components/shared/EmptyCard";
+import AlertBox from "@/components/common/feedback/AlertBox";
+import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
 export default function DocumentAdministration({ classes = [] }) {
   const {
