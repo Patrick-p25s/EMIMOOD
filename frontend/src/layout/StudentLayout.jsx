@@ -5,8 +5,8 @@ import {
   BookOpen,
   UploadCloud,
   Megaphone,
-  Clock,
   Bell,
+  Sparkles,
 } from "lucide-react";
 import DocumentUploadDialog from "@/components/features/documents/DocumentUploadDialog";
 import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
@@ -21,99 +21,68 @@ export default function StudentLayout({ matieres, onCreateDocument }) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
+  const navigation = [
+    { id: "dashboard", label: "Mon profil", icon: LayoutDashboard },
+    { id: "public", label: "Explorer", icon: Globe },
+    { id: "courses", label: "Mes documents", icon: BookOpen },
+    { id: "annonces", label: "Annonces", icon: Megaphone },
+    { id: "notification", label: "Notifications", icon: Bell },
+  ];
+
   return (
-    <div className="min-h-screen bg-background space-y-6 p-4 md:p-8 max-w-7xl mx-auto">
-      {/* Barre de navigation principale */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-        <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
-          <ButtonStyled
-            icon={<LayoutDashboard className="h-4 w-4 shrink-0" />}
-            variant={activeTab === "dashboard" ? "default" : "ghost"}
-            onClick={() => setActiveTab("dashboard")}
-            className="gap-2 px-2 sm:px-3"
-            title="Tableau de bord"
-          >
-            <span className="hidden lg:inline">Tableau de bord</span>
-          </ButtonStyled>
+    <div className="min-h-screen bg-muted/30">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <header className="sticky top-3 z-20 rounded-2xl border bg-background/85 p-2 shadow-sm backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 border-r px-2 pr-4 md:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <span className="text-sm font-semibold tracking-tight">Mon espace</span>
+            </div>
+            <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto scroll-smooth pb-0.5" aria-label="Navigation de l'espace étudiant">
+              {navigation.map(({ id, label, icon: Icon }) => (
+                <ButtonStyled
+                  key={id}
+                  icon={<Icon className="h-4 w-4" />}
+                  variant={activeTab === id ? "secondary" : "ghost"}
+                  onClick={() => setActiveTab(id)}
+                  className="shrink-0 gap-2 rounded-xl px-3"
+                  aria-pressed={activeTab === id}
+                >
+                  <span className="hidden sm:inline">{label}</span>
+                </ButtonStyled>
+              ))}
+            </nav>
+            <div className="flex shrink-0 items-center gap-1 border-l pl-2">
+              <ButtonStyled
+                onClick={() => setIsUploadOpen(true)}
+                className="gap-2 rounded-xl px-2.5 sm:px-3"
+                icon={<UploadCloud className="h-4 w-4" />}
+                title="Publier un document"
+              >
+                <span className="hidden md:inline">Publier</span>
+              </ButtonStyled>
+              <ModeToggle />
+            </div>
+          </div>
+        </header>
 
-          <ButtonStyled
-            icon={<Globe className="h-4 w-4 shrink-0" />}
-            variant={activeTab === "public" ? "default" : "ghost"}
-            onClick={() => setActiveTab("public")}
-            className="gap-2 px-2 sm:px-3"
-            title="Espace Public"
-          >
-            <span className="hidden lg:inline">Espace Public</span>
-          </ButtonStyled>
+        {activeTab === "dashboard" && <ProfileManage />}
 
-          <ButtonStyled
-            icon={<BookOpen className="h-4 w-4 shrink-0" />}
-            variant={activeTab === "courses" ? "default" : "ghost"}
-            onClick={() => setActiveTab("courses")}
-            className="gap-2 px-2 sm:px-3"
-            title="Mes Cours par Matière"
-          >
-            <span className="hidden lg:inline">Mes Cours par Matière</span>
-          </ButtonStyled>
+        {activeTab === "public" && <PublicPageManage onTab={setActiveTab} />}
 
-          <ButtonStyled
-            icon={<Megaphone className="h-4 w-4 shrink-0" />}
-            variant={activeTab === "annonces" ? "default" : "ghost"}
-            onClick={() => setActiveTab("annonces")}
-            className="gap-2 px-2 sm:px-3"
-            title="Les annonces"
-          >
-            <span className="hidden lg:inline">Les annonces</span>
-          </ButtonStyled>
+        {activeTab === "courses" && <MyDocumentManage onTab={setActiveTab} />}
+        {activeTab === "annonces" && <AnnonceManage />}
+        {activeTab === "notification" && <NotificationManage />}
 
-          <ButtonStyled
-            icon={<Bell className="h-4 w-4 shrink-0" />}
-            variant={activeTab === "notification" ? "default" : "ghost"}
-            onClick={() => setActiveTab("notification")}
-            className="gap-2 px-2 sm:px-3"
-            title="Notifications"
-          >
-            <span className="hidden lg:inline">Notifications</span>
-          </ButtonStyled>
-        </div>
-
-        <ButtonStyled
-          onClick={() => setIsUploadOpen(true)}
-          className="gap-2 shrink-0 px-2 sm:px-3"
-          icon={<UploadCloud className="h-4 w-4" />}
-          title="Publier un document"
-        >
-          <span className="hidden sm:inline">Publier un document</span>
-        </ButtonStyled>
-        <ModeToggle />
+        <DocumentUploadDialog
+          open={isUploadOpen}
+          onOpenChange={setIsUploadOpen}
+          matieres={matieres}
+          onCreate={onCreateDocument}
+        />
       </div>
-
-      {/* Vue 1 : Dashboard */}
-      {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          <ProfileManage />
-        </div>
-      )}
-
-      {/* Vue 2 : Espace Public */}
-      {activeTab === "public" && (
-        <div className="space-y-4">
-          <PublicPageManage onTab={setActiveTab} />
-        </div>
-      )}
-
-      {/* Vue 3 : Cours par Matière */}
-      {activeTab === "courses" && <MyDocumentManage onTab={setActiveTab} />}
-      {activeTab === "annonces" && <AnnonceManage />}
-      {activeTab === "notification" && <NotificationManage />}
-
-      {/* Modal d'upload */}
-      <DocumentUploadDialog
-        open={isUploadOpen}
-        onOpenChange={setIsUploadOpen}
-        matieres={matieres}
-        onCreate={onCreateDocument}
-      />
     </div>
   );
 }

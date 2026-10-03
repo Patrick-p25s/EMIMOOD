@@ -41,12 +41,12 @@ export default function DocumentFilterBar({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 sm:items-center flex-wrap">
-      <div className="relative flex-1 min-w-50">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="relative min-w-0 flex-1 sm:min-w-55">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Rechercher un document..."
-          className="pl-8"
+          className="h-10 border-transparent bg-muted/60 pl-9 shadow-none focus-visible:border-primary focus-visible:bg-background"
           value={filters.search}
           onChange={(e) => onChange({ search: e.target.value })}
         />
@@ -56,11 +56,11 @@ export default function DocumentFilterBar({
         value={filters.statut || "all"}
         onValueChange={(val) => onChange({ statut: val === "all" ? "" : val })}
       >
-        <SelectTrigger className="w-full sm:w-42.5">
-          <SelectValue placeholder="Type de document" />
+        <SelectTrigger className="h-10 w-full bg-background sm:w-40">
+          <SelectValue placeholder="Visibilité" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Tous les types</SelectItem>
+          <SelectItem value="all">Toute visibilité</SelectItem>
           {STATUT_FILTER.map((t) => (
             <SelectItem key={t.value} value={t.value}>
               {t.label}
@@ -75,7 +75,7 @@ export default function DocumentFilterBar({
           onChange({ typeDocument: val === "all" ? "" : val })
         }
       >
-        <SelectTrigger className="w-full sm:w-42.5">
+        <SelectTrigger className="h-10 w-full bg-background sm:w-40">
           <SelectValue placeholder="Type de document" />
         </SelectTrigger>
         <SelectContent>
@@ -94,11 +94,11 @@ export default function DocumentFilterBar({
           onChange({ matiereId: val === "all" ? "" : val })
         }
       >
-        <SelectTrigger className="w-full sm:w-42.5">
-          <SelectValue placeholder="Type de document" />
+        <SelectTrigger className="h-10 w-full bg-background sm:w-40">
+          <SelectValue placeholder="Matière" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Tous les matières</SelectItem>
+          <SelectItem value="all">Toutes les matières</SelectItem>
           {matieres.map((mat) => (
             <SelectItem key={mat.id} value={mat.id}>
               {mat.titre}
@@ -114,7 +114,7 @@ export default function DocumentFilterBar({
             onChange({ classeId: val === "all" ? "" : val })
           }
         >
-          <SelectTrigger className="w-full sm:w-42.5">
+          <SelectTrigger className="h-10 w-full bg-background sm:w-40">
             <SelectValue placeholder="Classe" />
           </SelectTrigger>
           <SelectContent>

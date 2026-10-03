@@ -13,12 +13,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
-import { Megaphone, AlertCircle, BellRing } from "lucide-react";
+import { Megaphone, AlertCircle, BellRing, ChevronLeft, ChevronRight } from "lucide-react";
 
 import React, { useCallback, useEffect, useState } from "react";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import IconBadge from "@/components/shared/IconBadge";
+import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
 export default function AnnonceManage() {
   const [annonces, setAnnonces] = useState([]);
@@ -155,6 +156,14 @@ export default function AnnonceManage() {
           <span>Restez informé des actualités de votre espace</span>
 
           <div className="h-px w-12 bg-border" />
+        </div>
+      )}
+
+      {pagination.pages > 1 && (
+        <div className="flex items-center justify-center gap-3 rounded-xl border bg-card p-3 shadow-sm">
+          <ButtonStyled variant="outline" size="sm" disabled={pagination.page <= 1 || loading} onClick={() => setPagination((current) => ({ ...current, page: current.page - 1 }))} icon={<ChevronLeft className="h-4 w-4" />}>Précédent</ButtonStyled>
+          <span className="text-sm text-muted-foreground">Page {pagination.page} sur {pagination.pages}</span>
+          <ButtonStyled variant="outline" size="sm" disabled={pagination.page >= pagination.pages || loading} onClick={() => setPagination((current) => ({ ...current, page: current.page + 1 }))} icon={<ChevronRight className="h-4 w-4" />}>Suivant</ButtonStyled>
         </div>
       )}
     </div>

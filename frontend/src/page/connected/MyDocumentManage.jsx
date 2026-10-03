@@ -3,7 +3,7 @@ import { useFolder } from "@/hooks/useFolder";
 import DocumentCard from "@/components/features/documents/DocumentCard";
 import FolderDocumentsView from "@/components/features/folders/FolderDocumentsView";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, FolderArchive } from "lucide-react";
+import { Plus, FileText, FolderArchive, FolderOpen, Files } from "lucide-react";
 import FolderFormModal from "@/components/features/folders/FolderFormModal";
 import FolderCard from "@/components/features/folders/FolderCard";
 import MoveToFolderDialog from "@/components/features/folders/MoveToFolderModal";
@@ -12,7 +12,7 @@ import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 import AlertBox from "@/components/common/feedback/AlertBox";
 import { EmptyCard } from "@/components/common/feedback/EmptyCard";
 
-export default function MyDocumentManage({ onTab }) {
+export default function MyDocumentManage() {
   const {
     folders,
     loading: foldersLoading,
@@ -77,11 +77,15 @@ export default function MyDocumentManage({ onTab }) {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Mes documents</h1>
+    <div className="mx-auto w-full max-w-7xl space-y-7 pb-8">
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border bg-card px-5 py-6 shadow-sm sm:px-7">
+        <div>
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Files className="h-5 w-5" /></div>
+          <h1 className="text-2xl font-semibold tracking-tight">Mes documents</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Organise tes fichiers et garde tes cours à portée de main.</p>
+        </div>
         <ButtonStyled
-          className="gap-1.5"
+          className="gap-1.5 rounded-xl"
           onClick={() => {
             setEditingFolder(null);
             setOpenFolderForm(true);
@@ -90,10 +94,10 @@ export default function MyDocumentManage({ onTab }) {
         >
           Nouveau dossier
         </ButtonStyled>
-      </div>
+      </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">Dossiers</h2>
+        <div className="flex items-center gap-2"><FolderOpen className="h-4 w-4 text-primary" /><h2 className="text-sm font-semibold">Dossiers</h2><div className="h-px flex-1 bg-border" /></div>
         {foldersLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -128,9 +132,7 @@ export default function MyDocumentManage({ onTab }) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          Sans dossier
-        </h2>
+        <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /><h2 className="text-sm font-semibold">Documents non classés</h2><div className="h-px flex-1 bg-border" /></div>
         {documentsSansDossier.length === 0 ? (
           <EmptyCard
             icon={FileText}

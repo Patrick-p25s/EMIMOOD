@@ -1,17 +1,22 @@
 import React, { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import {
   Bell,
+  BellRing,
   CheckCheck,
   Trash2,
   Check,
   ChevronLeft,
-  ChevronRight,
   X,
+  Wifi,
+  WifiOff,
+  Radio,
+  FileText,
+  Megaphone,
+  CircleCheck,
+  CircleX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotification } from "@/hooks/useNotification";
@@ -25,6 +30,8 @@ export function NotificationManage() {
     error,
     pagination,
     notifications,
+    unread,
+    liveStatus,
     goToPage,
     read,
     readAll,
@@ -34,9 +41,7 @@ export function NotificationManage() {
 
   const [filter, setFilter] = useState("all");
 
-  const unreadCount = notifications.filter(
-    (notification) => !notification.is_read,
-  ).length;
+  const unreadCount = unread;
 
   const filteredNotifications = useMemo(() => {
     if (filter === "unread") {
@@ -47,32 +52,36 @@ export function NotificationManage() {
   }, [filter, notifications]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4 px-1">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 border-b pb-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Bell className="h-5 w-5" />
-          </div>
-
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight">
-              Notifications
-            </h1>
-
-            <p className="text-xs text-muted-foreground">
+    <div className="mx-auto w-full max-w-5xl space-y-5 px-1 pb-8">
+      <section className="relative overflow-hidden rounded-2xl border bg-card px-5 py-5 shadow-sm sm:px-6 sm:py-6">
+        <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+              <BellRing className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold tracking-tight">Notifications</h1>
+                <LiveIndicator status={liveStatus} />
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
               {unreadCount > 0
                 ? `${unreadCount} notification${
                     unreadCount > 1 ? "s" : ""
                   } non lue${unreadCount > 1 ? "s" : ""}`
                 : "Tout est à jour"}
-            </p>
+              </p>
+            </div>
+          </div>
+          <div className="rounded-xl border bg-background/70 px-3 py-2 text-right backdrop-blur">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Boîte de réception</p>
+            <p className="mt-0.5 text-sm font-semibold">{pagination.total} au total</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/60 p-2 shadow-sm">
         <Tabs value={filter} onValueChange={setFilter}>
           <TabsList className="h-9">
             <TabsTrigger value="all" className="h-7 gap-1.5 px-3 text-xs">
@@ -82,7 +91,7 @@ export function NotificationManage() {
 
             <TabsTrigger value="unread" className="h-7 gap-1.5 px-3 text-xs">
               Non lues
-              {unreadCount > 0 && <IconBadge>{notifications.length}</IconBadge>}
+              {unreadCount > 0 && <IconBadge>{unreadCount}</IconBadge>}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -112,7 +121,6 @@ export function NotificationManage() {
         </div>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs text-destructive">
           <X className="h-4 w-4 shrink-0" />
@@ -120,7 +128,6 @@ export function NotificationManage() {
         </div>
       )}
 
-      {/* Notifications */}
       <div className="space-y-2">
         {loading ? (
           <NotificationSkeletonList />
@@ -186,46 +193,44 @@ export function NotificationManage() {
 }
 
 function NotificationItem({ notification, onRead, onDelete }) {
-  const { id, message, is_read, created_at } = notification;
+  const { id, message, is_read, created_at, type } = notification;
+  const typeDetails = getNotificationType(type);
+  const Icon = typeDetails.icon;
 
   return (
     <Card
       className={cn(
-        "group transition-colors",
-        !is_read && "border-primary/30 bg-primary/2.5",
+        "group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        !is_read && "border-primary/30 bg-primary/[0.04] shadow-sm",
       )}
     >
-      <CardContent className="flex items-center gap-3 px-4 py-3">
-        {/* Icon */}
+      <CardContent className="flex items-start gap-3 px-4 py-4 sm:px-5">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
             is_read
               ? "bg-muted text-muted-foreground"
-              : "bg-primary/10 text-primary",
+              : typeDetails.className,
           )}
         >
-          <Bell className="h-4 w-4" />
+          <Icon className="h-4.5 w-4.5" />
         </div>
 
-        {/* Content */}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1 pt-0.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {!is_read && (
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              <span className="h-2 w-2 shrink-0 rounded-full bg-primary shadow-[0_0_0_3px] shadow-primary/15" />
             )}
-
-            <p className={cn("truncate text-sm", !is_read && "font-medium")}>
+            <p className={cn("min-w-0 text-sm", !is_read && "font-semibold")}>
               {message}
             </p>
           </div>
-
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {formatRelativeDate(created_at)}
-          </p>
+          <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="rounded-md bg-muted px-1.5 py-0.5 font-medium">{typeDetails.label}</span>
+            <span>{formatRelativeDate(created_at)}</span>
+          </div>
         </div>
 
-        {/* Actions */}
         <div
           className={cn(
             "flex shrink-0 items-center gap-0.5 transition-opacity",
@@ -257,6 +262,38 @@ function NotificationItem({ notification, onRead, onDelete }) {
       </CardContent>
     </Card>
   );
+}
+
+function LiveIndicator({ status }) {
+  const isLive = status === "live";
+  const reconnecting = status === "connecting" || status === "reconnecting";
+  const Icon = isLive ? Wifi : reconnecting ? Radio : WifiOff;
+  const label = isLive ? "Temps réel actif" : reconnecting ? "Connexion en cours" : "Hors ligne";
+
+  return (
+    <span
+      title={label}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+        isLive && "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+        reconnecting && "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+        !isLive && !reconnecting && "border-muted bg-muted text-muted-foreground",
+      )}
+    >
+      <Icon className={cn("h-3 w-3", reconnecting && "animate-pulse")} />
+      <span className="hidden sm:inline">{label}</span>
+    </span>
+  );
+}
+
+function getNotificationType(type) {
+  const types = {
+    new_annonce: { label: "Annonce", icon: Megaphone, className: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
+    new_public_doc: { label: "Document", icon: FileText, className: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
+    new_valide_doc: { label: "Document validé", icon: CircleCheck, className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+    new_reject_doc: { label: "Document refusé", icon: CircleX, className: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+  };
+  return types[type] || { label: "Information", icon: Bell, className: "bg-primary/10 text-primary" };
 }
 
 function NotificationSkeletonList() {

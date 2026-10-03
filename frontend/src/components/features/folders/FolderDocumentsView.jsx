@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, FileText } from "lucide-react";
 import DocumentCard from "@/components/features/documents/DocumentCard";
@@ -9,16 +8,16 @@ export default function FolderDocumentsView({ folder, onBack, cardProps }) {
   const { documents, loading, error } = useFolderDocuments(folder.id);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="mx-auto w-full max-w-7xl space-y-5 pb-8">
+      <div className="flex items-center gap-3 rounded-2xl border bg-card px-4 py-4 shadow-sm sm:px-5">
         <ButtonStyled
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9 rounded-xl"
           onClick={onBack}
           icon={<ArrowLeft className="h-4 w-4" />}
         />
-        <h2 className="text-lg font-semibold">{folder.name}</h2>
+        <div><p className="text-xs text-muted-foreground">Mes documents</p><h2 className="text-lg font-semibold">{folder.name}</h2></div>
       </div>
 
       {loading ? (

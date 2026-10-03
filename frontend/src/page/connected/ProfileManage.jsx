@@ -116,12 +116,16 @@ export default function ProfileManage() {
     <div>
       {actError && (
         <AlertBox variant="error" title="Un erreur se produit">
-          {actError || error?.message}
+          {actError?.message || actError}
         </AlertBox>
       )}
+      <div className="mx-auto w-full max-w-7xl space-y-5 pb-8">
+      <div className="flex items-end justify-between px-1">
+        <div><p className="text-sm font-medium text-primary">Mon espace</p><h1 className="text-2xl font-semibold tracking-tight">Profil et activité</h1></div>
+      </div>
       <ProfileStudent
         user={user}
-        classe={user.classe}
+        classe={user?.classe}
         stats={stats}
         onEditProfile={() => {
           setOpenProfile(true);
@@ -136,6 +140,7 @@ export default function ProfileManage() {
           setActError(null);
         }}
       />
+      </div>
 
       {/* Modal : modifier le profil */}
       <FormModal

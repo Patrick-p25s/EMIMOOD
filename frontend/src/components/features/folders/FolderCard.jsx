@@ -1,16 +1,23 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Folder, Pencil, Trash2 } from "lucide-react";
 import { ButtonStyled } from "@/components/common/forms/ButtonStyled";
 
 export default function FolderCard({ folder, onOpen, onEdit, onDelete }) {
   return (
     <Card
-      className="group cursor-pointer transition-all hover:shadow-md hover:border-primary/30"
+      className="group cursor-pointer transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => onOpen(folder)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(folder);
+        }
+      }}
     >
-      <CardContent className="pt-5 flex items-center justify-between gap-3">
+      <CardContent className="flex items-center justify-between gap-3 pt-5">
         <div className="flex items-center gap-3 min-w-0">
           <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0">
             <Folder className="h-5 w-5" />
@@ -28,7 +35,7 @@ export default function FolderCard({ folder, onOpen, onEdit, onDelete }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex shrink-0 items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
           <ButtonStyled
             variant="ghost"
             size="icon"
