@@ -14,6 +14,7 @@ from app.modules.folder.model import Folder
 from app.modules.notification.model import Notification, NotificationLecture
 from sqlalchemy import pool
 from app.modules.annonce.model import Annonce, AnnonceLecture
+from app.modules.feedback.model import Feedback
 
 # Importation pour le moteur asynchrone
 from sqlalchemy.ext.asyncio import async_engine_from_config

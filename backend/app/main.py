@@ -21,6 +21,7 @@ from app.modules.documents.storage import UPLOAD_DIR, UPLOAD_PICTURE
 from app.core.thumbnails import THUMBNAIL_DIR
 from app.modules.notification.router import router as notif_router
 from app.modules.notification.ssemanager.router import router as sse_router
+from app.modules.feedback.router import router as feed_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -102,3 +103,4 @@ app.include_router(subject_router)
 app.include_router(docs_router)
 app.include_router(annonce_router)
 app.include_router(folder_router)
+app.include_router(feed_router)

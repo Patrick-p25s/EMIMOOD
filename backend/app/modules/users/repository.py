@@ -33,7 +33,7 @@ class UserRepository:
         user = Users(**data)
         self.db.add(user)
         await self.db.commit()
-        result = self.db.execute(
+        result = await self.db.execute(
             select(Users).options(joinedload(Users.classe)).where(Users.id == user.id)
         )
         return result
